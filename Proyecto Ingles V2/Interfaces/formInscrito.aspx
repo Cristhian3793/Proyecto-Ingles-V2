@@ -242,7 +242,10 @@ input:checked + .slider:before {
     function confirmMessage() {
         alert("Informacion Enviada Correctamente revise su correo");
     }
-    $("#<%=txtCed.ClientID%>").on("blur",function () {
+    $("#<%=txtCed.ClientID%>").on("blur", function () {
+        if ($('#<%=RabTipoEstudiante.ClientID%>').is(':checked')) {
+            traerDatosAlumno();
+        } 
 
         /**
            * Algoritmo para validar cedulas de Ecuador
@@ -366,5 +369,57 @@ input:checked + .slider:before {
         }
         return true;
     }
+    function traerDatosAlumno() {
+        var cedula = $("#<%=txtCed.ClientID%>").val();
+
+                //var cedula = document.getElementById("txt_identificacion").value;
+                if (cedula != "") {
+                    $.ajax({
+                        type: "POST",
+                        url: '../ServicioEstudiante.asmx/BuscaEstudiante',
+                        contentType: "application/json; charset=utf-8",
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        },
+                        data: JSON.stringify({ cedula: cedula }),
+                        dataType: "json",
+                        success: function (response, status, data) {
+                            //alert("entro 2 " + response.d);
+
+                            var resp = response.d;
+
+                            //alert(resp);
+                            if (resp != "" && !resp.includes("No Existe")) {
+
+                                $('#<%=txtNombres.ClientID%>').val(resp[0]);
+                            $('#<%=txtApellidos.ClientID%>').val(resp[1]);
+                            $('#<%=txtDireccion.ClientID%>').val(resp[2]);
+                            $('#<%=txtCelular.ClientID%>').val(resp[3]);
+                            $('#<%=txtTelefono.ClientID%>').val(resp[4]);
+                            $('#<%=txtEmail.ClientID%>').val(resp[5]);
+                            //  $('#txt_nombreCodirector').attr('disabled', 'disabled');
+                        }
+                        else {
+                            alert("La cédula ingresada no existe como alumno.");
+                            $('#txt_identificacion').val("");
+                            $('#txt_nombre').val("");
+                            $('#hd_codcarr').val("");
+                            $('#txt_carrera').val("");
+                            $('#txt_nivel').val("");
+
+                        }
+                    }, statusCode: {
+                        404: function (content) { alert('cannot find resource'); },
+                        500: function (content) { alert('internal server error'); }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error ");
+                    }
+                });
+                }
+
+
+
+            }
 </script>
 </asp:Content>

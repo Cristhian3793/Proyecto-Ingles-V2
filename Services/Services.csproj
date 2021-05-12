@@ -176,7 +176,10 @@
     <Compile Include="Controllers\CursoController.cs" />
     <Compile Include="Controllers\DiasHorariosController.cs" />
     <Compile Include="Controllers\EquivalenciaNivelController.cs" />
+    <Compile Include="Controllers\EstadoEstudianteController.cs" />
+    <Compile Include="Controllers\EstadoEstudianteUController.cs" />
     <Compile Include="Controllers\EstadoNivelController.cs" />
+    <Compile Include="Controllers\EstadoPruebaController.cs" />
     <Compile Include="Controllers\HorariosController.cs" />
     <Compile Include="Controllers\InscritoAutonomoController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -184,8 +187,11 @@
     <Compile Include="Controllers\LicenciasCambridgeController.cs" />
     <Compile Include="Controllers\NivelAutonomoController.cs" />
     <Compile Include="Controllers\NivelesController.cs" />
+    <Compile Include="Controllers\NivelesInscritoController.cs" />
     <Compile Include="Controllers\NivelProgramadoController.cs" />
+    <Compile Include="Controllers\NotasController.cs" />
     <Compile Include="Controllers\PeriodoInscripcionController.cs" />
+    <Compile Include="Controllers\PreguntasRespuestasController.cs" />
     <Compile Include="Controllers\PruebaController.cs" />
     <Compile Include="Controllers\TemasNivelesController.cs" />
     <Compile Include="Controllers\TipoEstudianteController.cs" />

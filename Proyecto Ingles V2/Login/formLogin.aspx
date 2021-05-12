@@ -15,6 +15,10 @@
 <link href="../Styles/MyStyle.css" rel="stylesheet" type="text/css" />
     
     <style>
+    body { 
+        background :"/Interfaces/Images/imgUni2.png"; 
+
+    }
         .switch {
   position: relative;
   display: inline-block;
@@ -100,18 +104,19 @@ input:checked + .slider:before {
         <br />
         <br />
         <div>
-<div class="container" style="width:30%; padding-top:10%">
-    <h4 class="well" style="text-align:center">INICIO DE SESIÓN</h4>
-	<div class="col-lg-12 well">
+<div class="container" style="width:30%; padding-top:10%; " >
+    <body background="/Interfaces/Images/fondoIngles.jpg" bgcolor="FFCECB">
+    <h4 class="well" style="text-align:center;background:rgba(0, 0, 0, 0.60);color:white" >INICIO DE SESIÓN</h4>
+	<div class="col-lg-12 well" style="background:rgba(0, 0, 0, 0.60);">
         <div class="row">
-					<div class="col-sm-12"> 
+					<div class="col-sm-12" > 
 						<div class="form-group ">
-								<label>Usuario</label>
+								<label style="color:white">Usuario</label>
 								<asp:TextBox type="text" placeholder="usuario" class="form-control" runat="server" ID="txtUser" required="required"></asp:TextBox>
                                  
 						</div>
                         <div class="form-group">
-						<label>Password</label>
+						<label style="color:white">Password</label>
 						<asp:TextBox type="password" placeholder="password" class="form-control" runat="server" ID="txtPassword" required="required"></asp:TextBox>	
 					    </div>
 
@@ -120,16 +125,17 @@ input:checked + .slider:before {
                         <br />
                         <br />
                         <div class="form-group">
-                        <a href="../InscripcionExterna/InscripcionIngles.aspx" style="text-decoration:underline">Registrate</a>
+                        <a href="../InscripcionExterna/InscripcionIngles.aspx" style="text-decoration:underline;color:white">Registrate</a>
                         </div>
                         <div class="form-group">
-                        <a href="../Interfaces/PreguntasFrecuentes.aspx" style="text-decoration:underline">Preguntas Frecuentes</a>
+                        <a href="../Interfaces/PreguntasFrecuentes.aspx" style="text-decoration:underline;color:white">Preguntas Frecuentes</a>
                         </div>
                          </center>
 
 					</div>
             </div>
 	</div>
+        </body>
 	</div>
         </div>
              <div class="footer-content" style="padding:0.5%;">

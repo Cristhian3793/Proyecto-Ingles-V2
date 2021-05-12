@@ -12,7 +12,9 @@ namespace Logica.Modelos
         public virtual long IdInscrito { get; set; }
         public virtual long? IdHistorialPuntaje { get; set; }
         public virtual double? PunjatePrueba { get; set; }
-        public virtual string FechaPrueba { get; set; } 
+        public virtual string FechaPrueba { get; set; }
+        public virtual long IDNIVELESTUDIANTE { get; set; }
+
 
     }
 }

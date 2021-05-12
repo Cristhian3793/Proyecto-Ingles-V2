@@ -102,7 +102,7 @@ input:checked + .slider:before {
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
         <div class="container" style="width:80%" >
-         <h4 class="well" style="background-color:rgb(8, 83, 148);color:white;text-align:center">Información Ingles Autónomo</h4>
+         <h4 class="well" style="background-color:rgb(8, 83, 148);color:white;text-align:center">Información Alumno</h4>
 	    <div class="col-lg-12 well">
 	    <div class="row">
             <div class="col-sm-12">   
@@ -132,18 +132,21 @@ input:checked + .slider:before {
             <br />
            <div class="col-md-12">
             <div class="table-responsive">
-            <asp:GridView ID="dgvEstudiante" runat="server"  BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IDINSCRITO"  CaptionAlign="Bottom"  EnablePersistedSelection="True" HorizontalAlign="Center" >
+            <asp:GridView ID="dgvEstudiante" runat="server"  BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IDINSCRITO"  CaptionAlign="Bottom"  EnablePersistedSelection="True" HorizontalAlign="Center" CssClass="table table-bordered table-striped" >
                 <Columns>
                     <asp:BoundField DataField="IDINSCRITO" HeaderText="ID" SortExpression="IDINSCRITO" />
                     <asp:BoundField DataField="PERIODO" HeaderText="PERIODO" SortExpression="PERIODO" />
                     <asp:BoundField DataField="DESCCURSO" HeaderText="Curso" SortExpression="DESCCURSO" />
+                    <asp:BoundField DataField="CODCURSO" HeaderText="CODIGO" SortExpression="CODIGO" />
                     <asp:BoundField DataField="NOMNIVEL" HeaderText="Nivel" SortExpression="NOMNIVEL" />
                     <asp:BoundField DataField="DESCTIPONIVEL" HeaderText="Tipo Nivel" SortExpression="DESCTIPONIVEL"/>
-                    <asp:BoundField DataField="COSTONIVEL" HeaderText="Costo Nivel" SortExpression="COSTONIVEL" dataformatstring="{0:c}"/>
+                    <asp:BoundField DataField="COSTONIVEL" HeaderText="Costo Nivel" SortExpression="COSTONIVEL" dataformatstring="{0:0.00}"/>
                     <asp:BoundField DataField="PUNTAJEPRUEBA" HeaderText="Puntaje Prueba" SortExpression="PUNTAJEPRUEBA" />
+<%--                <asp:BoundField DataField="IDNIVELESTUDIANTE" HeaderText="IDNivelEstudiante" SortExpression="IDNIVELESTUDIANTE" />
+                    <asp:BoundField DataField="IDESTADONIVEL" HeaderText="ESTADO PAGADO" SortExpression="IDESTADONIVEL" />--%>
                 </Columns>
                 <FooterStyle BackColor="#99CCCC" ForeColor="#003399" />
-                <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" />
+                <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" HorizontalAlign=Center/>
                 <PagerStyle BackColor="#99CCCC" ForeColor="#003399" HorizontalAlign="Left" />
                 <RowStyle BackColor="White" ForeColor="#003399" />
                 <SelectedRowStyle BackColor="#009999" Font-Bold="True" ForeColor="#CCFF99" />
@@ -151,12 +154,17 @@ input:checked + .slider:before {
                 <SortedAscendingHeaderStyle BackColor="#0D4AC4" />
                 <SortedDescendingCellStyle BackColor="#D6DFDF" />
                 <SortedDescendingHeaderStyle BackColor="#002876" />
+               
                 </asp:GridView>
                 </div>
                 </div>
             </div>
 
-                <asp:HiddenField ID="correcto" runat="server" />
+                
+          <asp:HiddenField ID="correcto" runat="server" />
+
+
+
    </div>    
 </div>
 </div>

@@ -80,7 +80,7 @@ input:checked + .slider:before {
                 <div class="row">
                     <div class="col-md-12">
                         <div class="table-responsive">
-                            <asp:GridView ID="dgvPeriodo" runat="server"  BackColor="White" BorderColor="#CCCCCC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" AllowSorting="True" CaptionAlign="Bottom" OnRowCommand="dgvPeriodo_RowCommand"  DataKeyNames="IDPERIODOINSCRIPCION" OnRowEditing="dgvPeriodo_RowEditing" OnRowDeleting="dgvPeriodo_RowDeleting" HorizontalAlign="Center">
+                            <asp:GridView ID="dgvPeriodo" runat="server"  BackColor="White" BorderColor="#CCCCCC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" AllowSorting="True" CaptionAlign="Bottom" OnRowCommand="dgvPeriodo_RowCommand"  DataKeyNames="IDPERIODOINSCRIPCION" OnRowEditing="dgvPeriodo_RowEditing" OnRowDeleting="dgvPeriodo_RowDeleting" HorizontalAlign="Center" CssClass="table table-bordered table-striped">
                                 <Columns>
                                     <asp:BoundField DataField="IDPERIODOINSCRIPCION" HeaderText="ID" SortExpression="IDPERIODOINSCRIPCION" />
                                     <asp:BoundField DataField="PERIODO" HeaderText="PERIODO" SortExpression="PERIODO" />

@@ -67,6 +67,8 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
+
+
         public async Task<List<ClTipoNivel>> ServicioGetTipoNivel()
         {
             List<ClTipoNivel> compInf = new List<ClTipoNivel>();

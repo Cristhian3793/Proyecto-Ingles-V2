@@ -16,6 +16,7 @@ namespace Logica.Mapping
             Map(x => x.IdNivel).Column("IDNIVEL");
             Map(x => x.IdTipoDocumento).Column("IDTIPODOCUMENTO");
             Map(x => x.IdTipoEstudiante).Column("IDTIPOESTUDIANTE");
+            Map(x => x.IdEstadoEstudiante).Column("IDESTADOESTUDIANTE");
             Map(x => x.NombreInscrito).Column("NOMBINSCRITO");
             Map(x => x.ApellidoInscrito).Column("APELLIINSCRITO");
             Map(x => x.NumDocInscrito).Column("NUMDOCINSCRITO").Not.Nullable();

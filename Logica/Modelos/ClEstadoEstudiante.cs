@@ -8,7 +8,9 @@ namespace Logica.Modelos
 {
     public class ClEstadoEstudiante
     {
-        public int IdEstadoEstudiante {get;set;}
-        public string DescesEstudiante { get; set; }
+        public virtual int IdEstadoEstudiante {get;set;}
+
+        public virtual int CodEstadoEstu { get; set; }
+        public virtual string DescEstEstudiante { get; set; }
     }
 }

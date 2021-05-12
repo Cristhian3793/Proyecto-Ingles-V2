@@ -26,7 +26,7 @@
                 <div class="row" >
                     <div class="col-md-12" >
                             <div class="table-responsive" >
-                                    <asp:GridView ID="dgvNiveles" runat="server" CellPadding="4" BackColor="White" BorderColor="#3366CC" BorderStyle="None" AutoGenerateColumns="False" CellSpacing="2" HorizontalAlign="Center" OnRowCommand="dgvNiveles_RowCommand" DataKeyNames="idNivel" OnRowDeleting="dgvNiveles_RowDeleting" >
+                                    <asp:GridView ID="dgvNiveles" runat="server" CellPadding="4" BackColor="White" BorderColor="#3366CC" BorderStyle="None" AutoGenerateColumns="False" CellSpacing="2" HorizontalAlign="Center" OnRowCommand="dgvNiveles_RowCommand" DataKeyNames="idNivel" OnRowDeleting="dgvNiveles_RowDeleting" CssClass="table table-bordered table-striped">
                                         <Columns>
                                             <asp:BoundField DataField="idNivel" HeaderText="idNivel" SortExpression="idNivel" />
                                             <%--<asp:BoundField DataField="idEstadoNivel" HeaderText="ESTADO NIVEL" SortExpression="idEstadoNivel" />--%>

@@ -65,7 +65,7 @@ input:checked + .slider:before {
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
-                 <div class="container" style="width:85%">
+                 <div class="container" style="width:50%">
                      <h4 class="well" style="background-color:rgb(8, 83, 148);color:white;text-align:center">Consulta de Licencias</h4>
 	                    <div class="col-lg-12 well">
 	                        <div class="row">
@@ -81,7 +81,7 @@ input:checked + .slider:before {
                             <div class="row" >
                                 <div class="col-md-12">
                                     <div class="table-responsive">
-                                   <asp:GridView ID="dgvLicencias" runat="server"   BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IdLicencia" OnRowDataBound="dgvLicencias_RowDataBound" HorizontalAlign="Center" OnRowDeleting="dgvLicencias_RowDeleting" OnRowCommand="dgvLicencias_RowCommand">
+                                   <asp:GridView ID="dgvLicencias" runat="server"   BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IdLicencia" OnRowDataBound="dgvLicencias_RowDataBound" HorizontalAlign="Center" OnRowDeleting="dgvLicencias_RowDeleting" OnRowCommand="dgvLicencias_RowCommand" CssClass="table table-bordered table-striped">
                                        <Columns>
                                            <asp:BoundField DataField="IdLicencia" HeaderText="ID" SortExpression="IdLicencia" ReadOnly="True" />                                          
                                            <asp:BoundField DataField="Licencia" HeaderText="LICENCIA" SortExpression="Licencia" ReadOnly="True" />
@@ -96,6 +96,15 @@ input:checked + .slider:before {
                                             </ItemTemplate>
                                             </asp:TemplateField>
                                        </Columns>
+                                                       <FooterStyle BackColor="#99CCCC" ForeColor="#003399" />
+                                                        <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" HorizontalAlign="Center"/>
+                                                        <PagerStyle BackColor="#99CCCC" ForeColor="#003399" HorizontalAlign="Left" />
+                                                        <RowStyle BackColor="White" ForeColor="#003399" />
+                                                        <SelectedRowStyle BackColor="#009999" Font-Bold="True" ForeColor="#CCFF99" />
+                                                        <SortedAscendingCellStyle BackColor="#EDF6F6" />
+                                                        <SortedAscendingHeaderStyle BackColor="#0D4AC4" />
+                                                        <SortedDescendingCellStyle BackColor="#D6DFDF" />
+                                                        <SortedDescendingHeaderStyle BackColor="#002876" />
                                         </asp:GridView>      
                                     </div>
                                       </div>

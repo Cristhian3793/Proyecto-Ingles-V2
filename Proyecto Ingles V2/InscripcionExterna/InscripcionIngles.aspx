@@ -5,12 +5,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title>Inscripcion Ingles Autonomo</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+
 <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.5/dist/sweetalert2.all.min.js" type="text/javascript"></script>
     <link href="../Content/sweetalert.css" rel="stylesheet"/>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <link href="../Styles/MyStyle.css" rel="stylesheet" type="text/css" />
-    
+
+
     <style>
         .switch {
   position: relative;
@@ -111,7 +113,7 @@ input:checked + .slider:before {
                         <div class="form-group">
                             <asp:Label ID="Label1" runat="server"  Text="Estudiante UISEK:" Style="font-weight:bold"></asp:Label>
                               <label class="switch">
-                              <input type="checkbox" runat="server" id="RabTipoEstudiante"/>
+                              <input type="checkbox" runat="server" id="RabTipoEstudiante" />
                               <span class="slider round"></span>
                             </label>
                         </div>
@@ -124,7 +126,7 @@ input:checked + .slider:before {
                         <div class="row">
 						<div class="form-group  col-sm-6">
 								<label>Identificación</label>
-								<asp:TextBox type="text" placeholder="Ingrese su número de identificación" class="form-control" runat="server" ID="txtCed" required="required"></asp:TextBox>
+								<asp:TextBox type="text" placeholder="Ingrese su número de identificación" class="form-control" runat="server" ID="txtCed" required="required" ></asp:TextBox>
                                  <asp:Label ID="lblCedula"  style="width:100%;color:red;border:hidden"  runat="server" Text="" ></asp:Label>
 						</div>
                         <div class="form-group col-sm-6">
@@ -174,8 +176,7 @@ input:checked + .slider:before {
                     </div>
                        <asp:HiddenField ID="correcto" runat="server" />
 					<asp:button type="button" class="btn btn-lg btn-success" runat="server" Text="Enviar" id="btnGuardar" OnClick="btnGuardarInscrito_Click" ></asp:button>					
-					</div>
-                   
+					</div>                   
 				</div>                
 	</div>
 	</div>
@@ -231,6 +232,11 @@ input:checked + .slider:before {
         });
         $("#txtCed").blur(function () {
 
+            if($('#<%=RabTipoEstudiante.ClientID%>').is(':checked'))
+            {
+                traerDatosAlumno();
+            } 
+            
             /**
                * Algoritmo para validar cedulas de Ecuador
                * @Pasos  del algoritmo
@@ -356,6 +362,62 @@ input:checked + .slider:before {
  
             return true;
         }
+
+        function traerDatosAlumno() {
+            var cedula = $("#<%=txtCed.ClientID%>").val();
+
+            //var cedula = document.getElementById("txt_identificacion").value;
+            if (cedula != "") {
+                $.ajax({
+                    type: "POST",
+                    url: '../ServicioEstudiante.asmx/BuscaEstudiante',
+                    contentType: "application/json; charset=utf-8",
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    },
+                    data: JSON.stringify({ cedula: cedula }),
+                    dataType: "json",
+                    success: function (response, status,data) {
+                        //alert("entro 2 " + response.d);
+
+                        var resp = response.d;
+
+                        //alert(resp);
+                        if (resp != "" && !resp.includes("No Existe")) {
+
+                            $('#<%=txtNombres.ClientID%>').val(resp[0]);
+                            $('#<%=txtApellidos.ClientID%>').val(resp[1]);
+                            $('#<%=txtDireccion.ClientID%>').val(resp[2]);
+                            $('#<%=txtCelular.ClientID%>').val(resp[3]);
+                            $('#<%=txtTelefono.ClientID%>').val(resp[4]);
+                            $('#<%=txtEmail.ClientID%>').val(resp[5]);
+                            //  $('#txt_nombreCodirector').attr('disabled', 'disabled');
+                        }
+                        else {
+                            alert("La cédula ingresada no existe como alumno.");
+                            $('#txt_identificacion').val("");
+                            $('#txt_nombre').val("");
+                            $('#hd_codcarr').val("");
+                            $('#txt_carrera').val("");
+                            $('#txt_nivel').val("");
+
+                        }
+                    }, statusCode: {
+                        404: function (content) { alert('cannot find resource'); },
+                        500: function (content) { alert('internal server error'); }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error ");
+                    }
+                });
+            }
+
+
+
+        }
+
+        
+
 
 
 

@@ -141,7 +141,6 @@ namespace Logica.Servicios
                     }
                 }
             }
-
         }
         public bool actualizarNivel(ClInscritoAutonomo insA, long idInscrito)
         {
@@ -156,6 +155,7 @@ namespace Logica.Servicios
                         IQuery query = mySesions.CreateQuery("FROM ClInscritoAutonomo  WHERE IdInscrito=: idInscrito").SetInt64("idInscrito", idInscrito);
                         ClInscritoAutonomo ins = query.List<ClInscritoAutonomo>()[0];
                         ins.IdNivel = insA.IdNivel;
+                        ins.IdEstadoEstudiante = insA.IdEstadoEstudiante;
                         mySesions.Update(ins);
                         transaction.Commit();
                         resp = true;
@@ -171,8 +171,8 @@ namespace Logica.Servicios
                     }
                 }
             }
-
         }
+
 
     }
 }
