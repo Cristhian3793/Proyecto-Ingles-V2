@@ -33,31 +33,13 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.Label Label1;
 
         /// <summary>
-        /// Control ddlNivel.
+        /// Control txtCodUnidad.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlNivel;
-
-        /// <summary>
-        /// Control Label2.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label2;
-
-        /// <summary>
-        /// Control ddlTema.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlTema;
+        protected global::System.Web.UI.WebControls.TextBox txtCodUnidad;
 
         /// <summary>
         /// Control Label3.
@@ -69,13 +51,31 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.Label Label3;
 
         /// <summary>
-        /// Control txtDescUnidad.
+        /// Control txtInicio.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDescUnidad;
+        protected global::System.Web.UI.WebControls.TextBox txtInicio;
+
+        /// <summary>
+        /// Control Label2.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label2;
+
+        /// <summary>
+        /// Control txtFin.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtFin;
 
         /// <summary>
         /// Control Button1.

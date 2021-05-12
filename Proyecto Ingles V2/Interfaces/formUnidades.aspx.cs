@@ -4,15 +4,16 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Logica.Modelos;
-using Logica;
-using Logica.Servicios;
+
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text;
 using Logica.ConexionServicios;
+using Logica.Modelos;
+using Logica;
+using Logica.Servicios;
 namespace Proyecto_Ingles_V2.Interfaces
 {
     public partial class Unidades : System.Web.UI.Page
@@ -33,73 +34,18 @@ namespace Proyecto_Ingles_V2.Interfaces
                 }
                 else
                 {
-                   llenarComboNiveles();
+              
                 }
 
             }
 
         }
         #region Invocacion Servicios
-        public async void ServicioGetTemasUnidades()
+        public async void ServicioInsertarUnidad(ClTemaUnidad unidad)
         {
-            try
-            {
 
-                List<ClUnidad> uni = new List<ClUnidad>();
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/Unidades/" + Convert.ToInt32(ddlNivel.SelectedValue.ToString()));
-                if (res.IsSuccessStatusCode)
-                {
-                    var empResponse = res.Content.ReadAsStringAsync().Result;
-                    uni = JsonConvert.DeserializeObject<List<ClUnidad>>(empResponse);
-
-                }
-                ddlTema.DataSource = uni;
-                ddlTema.DataValueField = "IdNomUnidad";
-                ddlTema.DataTextField = "NomUnidad";
-                ddlTema.DataBind();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-        public async Task<List<ClNivel>>  ServicioGetNiveles()
-        {
-            List<ClNivel> compInf = new List<ClNivel>();
-            try
-            {
-               
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/Niveles");
-                if (res.IsSuccessStatusCode)
-                {
-                    var empResponse = res.Content.ReadAsStringAsync().Result;
-                    compInf = JsonConvert.DeserializeObject<List<ClNivel>>(empResponse);
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            return compInf;
-        }
-        public async void ServicioInsertTemaUnidad()
-        {
-            ClTemaUnidad pru = new ClTemaUnidad();
-            pru.idNomUnidad = Convert.ToInt32(ddlTema.SelectedValue.ToString());
-            pru.codTemaUnidad = "";
-            pru.descTemaUnidad = txtDescUnidad.Text;
             string uri = "api/TemasNiveles";
-            var myContent = JsonConvert.SerializeObject(pru);
+            var myContent = JsonConvert.SerializeObject(unidad);
             var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
             var client = new HttpClient();
             client.BaseAddress = new Uri(url);
@@ -109,10 +55,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             if (res.IsSuccessStatusCode)
             {
                 var empResponse = res.Content.ReadAsStringAsync().Result;
-                string script = @"<script type='text/javascript'>
-                                alert('Añadido Correctamente');
-                                </script>";
-                ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, false);
 
             }
             else
@@ -123,32 +65,61 @@ namespace Proyecto_Ingles_V2.Interfaces
                 ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, false);
             }
         }
+        public async Task<List<ClTemaUnidad>> ServicioGetEstadoNivel()
+        {
+            List<ClTemaUnidad> compInf = new List<ClTemaUnidad>();
+            try
+            {
+
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/TemasNiveles");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClTemaUnidad>>(empResponse);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         #endregion
         #region Metodos
-        public async void llenarComboNiveles() {
-            List<ClNivel> niveles = new List<ClNivel>();
-            niveles = await ServicioGetNiveles();
-            ddlNivel.DataSource = niveles;
-            ddlNivel.DataValueField = "idNivel";
-            ddlNivel.DataTextField = "nomNivel";
-            ddlNivel.DataBind();
+        public void crearUnidades() {
+            string codigo = txtCodUnidad.Text.Trim().ToUpper();
+            string prefijo = "UNIT ";
+            int inicio = Convert.ToInt32(txtInicio.Text);
+            string codGroupUnidad;
+            int fin = Convert.ToInt32(txtFin.Text);
+            ClTemaUnidad unidad = new ClTemaUnidad();
+            for (int i = inicio; i <= fin; i++) {
+
+                codGroupUnidad = prefijo + i;
+                unidad.codTemaUnidad = codigo;
+                unidad.descTemaUnidad = codGroupUnidad;
+                ServicioInsertarUnidad(unidad);
+            }
+            limpiarCampos();
+            string script = "confirm();";
+            ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
 
         }
-        public void limpiarCampos()
-        {
-            txtDescUnidad.Text = "";
-        }
+
         #endregion
-        #region MetodosForms
+        public void limpiarCampos() {
+            txtCodUnidad.Text = "";
+            txtFin.Text = "";
+            txtInicio.Text = "";        
+        }
         protected void Button1_Click(object sender, EventArgs e)
         {
-            ServicioInsertTemaUnidad();
+            crearUnidades();
         }
-        protected void ddlNivel_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ddlTema.Items.Clear();
-            ServicioGetTemasUnidades();
-        }
-        #endregion
     }
 }

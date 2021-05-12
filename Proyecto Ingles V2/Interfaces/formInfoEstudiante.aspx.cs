@@ -19,18 +19,22 @@ namespace Proyecto_Ingles_V2.Interfaces
         string url = cs.url.ToString();
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
+
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
                 {
                     Response.Redirect("../Login/formLogin.aspx");
                 }
                 if ((int)Session["TipoUser"] == 1)
                 {
-                    CargarInformacion((string)Session["usuario"]);
-                }
+                    if (!IsPostBack)
+                    {
+                        string usuario=(string)Session["usuario"];
+                        string periodo = (string)Session["periodo"];
+                        CargarInformacion(usuario);
+                        cargarInformacionAlumno();
+                    }
 
-            }
+                }
         
         }
         #region Servicios
@@ -216,8 +220,65 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return cur;
         }
+        public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
+        {
+            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         #endregion
         #region Metodos
+
+
+        public async void cargarInformacionAlumno()
+        {
+
+
+            List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
+            var queryInscritos = from a in ins
+
+                                 where a.NumDocInscrito.Trim().ToString() == (string)Session["usuario"]
+                                 select new
+                                 {
+                                     IDINSCRITO = a.IdInscrito,
+                                     NUMDOCINSCRITO = a.NumDocInscrito,
+                                     NOMBINSCRITO = a.NombreInscrito,
+                                     APELLIINSCRITO = a.ApellidoInscrito,
+                                     Email = a.EmailInscrito,
+                                     Direccion = a.DirecInscrito,
+                                     Telefono = a.TelefInscrito,
+                                     Celular = a.CeluInscrito,
+                                     TIPODOCUMENTO = a.IdTipoDocumento,//1 cedula 2 pasaporte
+
+
+                                 };
+
+            string nombre = queryInscritos.Select(x => x.NOMBINSCRITO).FirstOrDefault().ToString().Trim();
+            string apellido = queryInscritos.Select(x => x.APELLIINSCRITO).FirstOrDefault().ToString().Trim();
+            string nombreCompleto = nombre + " " + apellido;
+            txtNombres.Text = nombre;
+            txtApellidos.Text = apellido;
+            txtEmail.Text = queryInscritos.Select(x => x.Email).FirstOrDefault().ToString().Trim();
+            txtCed.Text= queryInscritos.Select(x => x.NUMDOCINSCRITO).FirstOrDefault().ToString().Trim();
+
+        }
         public async void CargarInformacion(string usuario) {
             //Inscritos
             List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
@@ -228,22 +289,26 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClNivel> nivel = await ServicioGetNiveles();
             List<ClTipoNivel> tiponivel =await ServicioCargarTipoNivel();
             List<ClCurso> curso = await ServicioCargarCursos();
-
+            List<ClNivelesInscrito> nivIns =await ServicioGetNivelesInscritos();
 
             var queryInscritos = from a in ins
                                  join b in per on a.idPerInscripcion equals b.IdPeriodoInscripcion
                                  join c in tipo on a.IdTipoEstudiante equals c.IdTipoEstudiante
-                                 join d in prueba on a.IdInscrito equals d.IdInscrito
-                                 where a.NumDocInscrito.Trim().ToString() == usuario.Trim().ToString()
+                                 join d in nivIns on a.IdInscrito equals d.IDINSCRITO
+                                 join e in prueba on d.IDINSCRITO equals e.IdInscrito
+                                 where a.NumDocInscrito.Trim().ToString() == usuario.Trim().ToString() && d.IDESTADONIVEL == 0
                         select new {
                             IDINSCRITO=a.IdInscrito,
-                            IDNIVEL=a.IdNivel,
+                            IDNIVEL=d.IDNIVEL,
                             NUMDOCINSCRITO=a.NumDocInscrito,
                             NOMBINSCRITO=a.NombreInscrito,
                             APELLIINSCRITO=a.ApellidoInscrito,
                             PERIODO=b.Periodo,
-                            PUNTAJEPRUEBA=d.PunjatePrueba,
+                            PUNTAJEPRUEBA=e.PunjatePrueba,
                             Email=a.EmailInscrito,
+
+                            IDNIVELESTUDIANTE=d.IDNIVELESTUDIANTE,
+                            IDESTADONIVEL=d.IDESTADONIVEL,
                         };
 
 
@@ -259,6 +324,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                                    NOMNIVEL=a.nomNivel,
                                    DESCNIVEL=a.nomNivel,
                                    COSTONIVEL=a.costoNIvel,
+                                   CODCURSO=a.codNivel,
 
                                };
 
@@ -277,12 +343,17 @@ namespace Proyecto_Ingles_V2.Interfaces
                             NOMNIVEL = b.NOMNIVEL,
                             DESCNIVEL = b.DESCNIVEL,
                             COSTONIVEL = b.COSTONIVEL,
+                            CODCURSO = b.CODCURSO,
+
+                            IDNIVELESTUDIANTE = a.IDNIVELESTUDIANTE,
+                            IDESTADONIVEL = a.IDESTADONIVEL,
 
                         };
-            txtNombres.Text = qeryfin.Select(x => x.NOMBINSCRITO).FirstOrDefault();
-            txtApellidos.Text= qeryfin.Select(x => x.APELLIINSCRITO).FirstOrDefault();
-            txtCed.Text= qeryfin.Select(x => x.NUMDOCINSCRITO).FirstOrDefault();
-            txtEmail.Text= qeryfin.Select(x => x.Email).FirstOrDefault().ToLower();
+            //txtNombres.Text = qeryfin.Select(x => x.NOMBINSCRITO).FirstOrDefault();
+            //txtApellidos.Text= qeryfin.Select(x => x.APELLIINSCRITO).FirstOrDefault();
+            //txtCed.Text= qeryfin.Select(x => x.NUMDOCINSCRITO).FirstOrDefault();
+            //txtEmail.Text = qeryfin.Select(x => x.Email).FirstOrDefault();
+            //Session["periodo"] = qeryfin.Select(x => x.PERIODO).FirstOrDefault().ToString();
             dgvEstudiante.DataSource = qeryfin;
             dgvEstudiante.DataBind();
 

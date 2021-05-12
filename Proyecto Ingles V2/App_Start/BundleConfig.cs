@@ -33,6 +33,13 @@ namespace Proyecto_Ingles_V2
             // para la producción, use la herramienta de compilación disponible en https://modernizr.com para seleccionar solo las pruebas que necesite
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                             "~/Scripts/modernizr-*"));
+            ScriptManager.ScriptResourceMapping.AddDefinition(
+                "respond",
+                new ScriptResourceDefinition
+                {
+                    Path = "~/Scripts/respond.min.js",
+                    DebugPath = "~/Scripts/respond.js",
+                });
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Logica.Mapping
             Map(x => x.IdHistorialPuntaje).Column("IDHISTORIALPUNTAJE");
             Map(x => x.PunjatePrueba).Column("PUNTAJEPRUEBA");
             Map(x => x.FechaPrueba).Column("FECHAPRUEBA");
+            Map(x => x.IDNIVELESTUDIANTE).Column("IDNIVELESTUDIANTE");
+            
             Table("PRUEBA");
         }
 

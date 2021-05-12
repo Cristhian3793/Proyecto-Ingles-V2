@@ -108,7 +108,7 @@ input:checked + .slider:before {
             <br />
            <div class="col-md-12">
             <div class="table-responsive">
-            <asp:GridView ID="dgvInscrito" runat="server"  BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IdInscrito"  CaptionAlign="Bottom"  EnablePersistedSelection="True" OnRowDeleting="dgvInscrito_RowDeleting" OnRowEditing="dgvInscrito_RowEditing" OnRowCommand="dgvInscrito_RowCommand" HorizontalAlign="Center" >
+            <asp:GridView ID="dgvInscrito" runat="server"  BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IdInscrito"  CssClass="table table-bordered table-striped"  EnablePersistedSelection="True" OnRowDeleting="dgvInscrito_RowDeleting" OnRowEditing="dgvInscrito_RowEditing" OnRowCommand="dgvInscrito_RowCommand" HorizontalAlign="Center" >
                 <Columns>
                     <asp:BoundField DataField="IdInscrito" HeaderText="Id Estudiante" SortExpression="IdInscrito" />
                     <asp:BoundField DataField="NumDocInscrito" HeaderText="Num Documento" SortExpression="NumDocInscrito" />
@@ -120,17 +120,20 @@ input:checked + .slider:before {
                     <asp:BoundField DataField="TelefInscrito" HeaderText="Telefono" SortExpression="TelefInscrito" />
                     <asp:BoundField DataField="DirecInscrito" HeaderText="Direcccion" SortExpression="DirecInscrito" />
                     <asp:BoundField DataField="EmailInscrito" HeaderText="Email" SortExpression="EmailInscrito" />
-                    <asp:BoundField DataField="EstadoPrueba" HeaderText="Prueba" SortExpression="EstadoPrueba" />
+                    <asp:BoundField DataField="EstadoPrueba" HeaderText="EstadoPrueba" SortExpression="EstadoPrueba" visible="false"/>
                     <asp:BoundField DataField="FechaRegistro" HeaderText="Fecha Registro" SortExpression="FechaRegistro" />
                     <asp:BoundField DataField="TipoEstudiante" HeaderText="Tipo Estudiante" SortExpression="TipoEstudiante" />
+                    <asp:BoundField DataField="Prueba" HeaderText="Prueba" SortExpression="Prueba" />
                     <asp:BoundField DataField="Info" HeaderText="Info" SortExpression="Info" />
-                    <asp:ButtonField ButtonType="Button" Text="Editar" CommandName="Editar"/>
+                    <asp:BoundField DataField="Estado" HeaderText="Estado" SortExpression="Estado" />
+                    <asp:ButtonField ButtonType="Button" Text="Editar" CommandName="Editar" AccessibleHeaderText="Edicion" />
                     <asp:TemplateField HeaderText="acciones">
                         <ItemTemplate>
                             <asp:Button CommandName="Delete" runat="server" Text="Eliminar" OnClientClick="return  confirmdelete(this);"/>
                         </ItemTemplate>
                     </asp:TemplateField>
-                    <asp:ButtonField ButtonType="Button" Text="Info" CommandName="Info"/>
+                    <asp:ButtonField ButtonType="Button" Text="Info" CommandName="Info" AccessibleHeaderText="Info" />
+                    
                 </Columns>
                 <FooterStyle BackColor="#99CCCC" ForeColor="#003399" />
                 <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" />

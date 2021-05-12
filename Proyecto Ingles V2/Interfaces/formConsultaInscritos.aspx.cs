@@ -58,6 +58,31 @@ namespace Proyecto_Ingles_V2.Interfaces
             
         }
         #region Servicios
+        public async Task<List<ClEstadoPrueba>> ServicioExtraerEstadoPrueba()//cargar todos inscritos
+        {
+            List<ClEstadoPrueba> compInf = new List<ClEstadoPrueba>();
+            try
+            {
+
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoPrueba");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoPrueba>>(empResponse);
+                    return compInf;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         public async Task<List<ClInscritoAutonomo>> ServicioExtraerInscritos()//cargar todos inscritos
         {
             List<ClInscritoAutonomo> compInf = new List<ClInscritoAutonomo>();
@@ -176,6 +201,29 @@ namespace Proyecto_Ingles_V2.Interfaces
                 Console.WriteLine(ex.Message);
             }
         }
+        public async Task<List<ClEstadoEstudiante>> ServicioGetEstadoEstudiante()
+        {
+            List<ClEstadoEstudiante> compInf = new List<ClEstadoEstudiante>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoEstudiante");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoEstudiante>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         #endregion
 
         #region Metodos
@@ -189,13 +237,17 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
             List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
             List<ClPeriodoInscripcion> periodos = new List<ClPeriodoInscripcion>();
+            List<ClEstadoPrueba> estpru = new List<ClEstadoPrueba>();
+            List<ClEstadoEstudiante> estado = await ServicioGetEstadoEstudiante();
             tipoEstudiante = await ServicioExtraerTipoEstudiante();
             inscrito = await ServicioExtraerInscritos();
             periodos = await ServicioExtraerPeriodos();
-     
-            var query = from a in inscrito
+            estpru = await ServicioExtraerEstadoPrueba();
+                   var query = from a in inscrito
                         join b in periodos on a.idPerInscripcion equals b.IdPeriodoInscripcion
                         join c in tipoEstudiante on a.IdTipoEstudiante equals c.IdTipoEstudiante
+                        join d in estado on a.IdEstadoEstudiante equals d.IdEstadoEstudiante
+                        join e in estpru on a.EstadoPrueba equals e.CodEstadoPrueba
                         orderby a.ApellidoInscrito ascending
                         select new
                         {
@@ -213,6 +265,8 @@ namespace Proyecto_Ingles_V2.Interfaces
                             FechaRegistro = a.FechaRegistro,
                             EstadoPrueba = a.EstadoPrueba,
                             PeriodoLectivo = b.Periodo,
+                            Prueba=e.DescEstadoPrueba,
+                            Estado=d.DescEstEstudiante,
                             Info=a.InformacionCurso,
                         };
             dgvInscrito.DataSource = query;
@@ -223,13 +277,17 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
             List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
             List<ClPeriodoInscripcion> periodos = new List<ClPeriodoInscripcion>();
+            List<ClEstadoPrueba> estpru = new List<ClEstadoPrueba>();
+            List<ClEstadoEstudiante> estado = await ServicioGetEstadoEstudiante();
             tipoEstudiante = await ServicioExtraerTipoEstudiante();
             inscrito = await ServicioExtraerInscritos();
             periodos = await ServicioExtraerPeriodos();
-
+            estpru = await ServicioExtraerEstadoPrueba();
             var query = from a in inscrito
                         join b in periodos on a.idPerInscripcion equals b.IdPeriodoInscripcion
                         join c in tipoEstudiante on a.IdTipoEstudiante equals c.IdTipoEstudiante
+                        join d in estado on a.IdEstadoEstudiante equals d.IdEstadoEstudiante
+                        join e in estpru on a.EstadoPrueba equals e.CodEstadoPrueba
                         where b.IdPeriodoInscripcion==periodo
                         orderby a.ApellidoInscrito ascending
                         select new
@@ -248,6 +306,8 @@ namespace Proyecto_Ingles_V2.Interfaces
                             FechaRegistro = a.FechaRegistro,
                             EstadoPrueba = a.EstadoPrueba,
                             PeriodoLectivo = b.Periodo,
+                            Prueba = e.DescEstadoPrueba,
+                            Estado = d.DescEstEstudiante,
                             Info = a.InformacionCurso,
                         };
             dgvInscrito.DataSource = query;
@@ -259,12 +319,15 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
             List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
             List<ClPeriodoInscripcion> periodos = new List<ClPeriodoInscripcion>();
+            List<ClEstadoEstudiante> estado = await ServicioGetEstadoEstudiante();
             tipoEstudiante = await ServicioExtraerTipoEstudiante();
             inscrito = await ServicioExtraerInscritos();
             periodos = await ServicioExtraerPeriodos();
+
             var query = from a in inscrito
                         join b in periodos on a.idPerInscripcion equals b.IdPeriodoInscripcion
                         join c in tipoEstudiante on a.IdTipoEstudiante equals c.IdTipoEstudiante
+                        join d in estado on a.IdEstadoEstudiante equals d.IdEstadoEstudiante
                         where a.NumDocInscrito.Trim() == identificacion
                         select new
                         {
@@ -282,6 +345,8 @@ namespace Proyecto_Ingles_V2.Interfaces
                             FechaRegistro = a.FechaRegistro,
                             EstadoPrueba = a.EstadoPrueba,
                             PeriodoLectivo = b.Periodo,
+                            Estado = d.DescEstEstudiante,
+                            Info = a.InformacionCurso,
                         };
             dgvInscrito.DataSource = query;
             dgvInscrito.DataBind();
@@ -292,12 +357,14 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
             List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
             List<ClPeriodoInscripcion> periodos = new List<ClPeriodoInscripcion>();
+            List<ClEstadoEstudiante> estado = await ServicioGetEstadoEstudiante();
             tipoEstudiante = await ServicioExtraerTipoEstudiante();
             inscrito = await ServicioExtraerInscritos();
             periodos = await ServicioExtraerPeriodos();
             var query = from a in inscrito
                         join b in periodos on a.idPerInscripcion equals b.IdPeriodoInscripcion
                         join c in tipoEstudiante on a.IdTipoEstudiante equals c.IdTipoEstudiante
+                        join d in estado on a.IdEstadoEstudiante equals d.IdEstadoEstudiante
                         where a.IdInscrito== idinscrito
                         select new
                         {
@@ -317,7 +384,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             EstadoPrueba = a.EstadoPrueba,
                             IdPeriodo=a.idPerInscripcion,
                             PeriodoLectivo = b.Periodo,
-                            InformacionCurso=a.InformacionCurso,
+                            InformacionCurso =a.InformacionCurso,
                         };
             if (query.Select(x => x.IdTipoestudiante).FirstOrDefault() == 1)
             {
@@ -343,7 +410,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             txtApellidos.Text = query.Select(x => x.ApellidoInscrito).FirstOrDefault().Trim();
             txtCelular.Text = query.Select(x => x.CeluInscrito).FirstOrDefault().Trim();
             txtDireccion.Text = query.Select(x => x.DirecInscrito).FirstOrDefault().Trim();
-            txtEmail.Text = query.Select(x => x.EmailInscrito).FirstOrDefault().Trim();
+            txtEmail.Text = query.Select(x => x.EmailInscrito).FirstOrDefault().Trim().ToLower();
             txtTelefono.Text = query.Select(x => x.TelefInscrito).FirstOrDefault().Trim();
             txtInformacion.Text = query.Select(x => x.InformacionCurso).FirstOrDefault().Trim();
         }
@@ -444,14 +511,14 @@ namespace Proyecto_Ingles_V2.Interfaces
             int tipoEstudiante;
             ClInscritoAutonomo inscrito = new ClInscritoAutonomo();
             inscrito.IdInscrito = Convert.ToInt64(txtId.Text);
-            inscrito.NombreInscrito = txtNombres.Text;
-            inscrito.ApellidoInscrito = txtApellidos.Text;
-            inscrito.EmailInscrito = txtEmail.Text;
-            inscrito.DirecInscrito = txtDireccion.Text;
-            inscrito.CeluInscrito = txtCelular.Text;
-            inscrito.TelefInscrito = txtTelefono.Text;
-            inscrito.NumDocInscrito = txtIdentificacion.Text;
-            inscrito.InformacionCurso = txtInformacion.Text;
+            inscrito.NombreInscrito = txtNombres.Text.Trim().ToUpper();
+            inscrito.ApellidoInscrito = txtApellidos.Text.Trim().ToUpper();
+            inscrito.EmailInscrito = txtEmail.Text.Trim();
+            inscrito.DirecInscrito = txtDireccion.Text.Trim().ToUpper();
+            inscrito.CeluInscrito = txtCelular.Text.Trim();
+            inscrito.TelefInscrito = txtTelefono.Text.Trim();
+            inscrito.NumDocInscrito = txtIdentificacion.Text.Trim();
+            inscrito.InformacionCurso = txtInformacion.Text.Trim().ToUpper();
             if (RabPruebaUbicacion.Checked == true)
                 estadoprueba = 1;
             else
@@ -500,7 +567,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             {
                 int fila = Convert.ToInt32(e.CommandArgument);
                 string email = dgvInscrito.Rows[fila].Cells[9].Text;
-                string info = dgvInscrito.Rows[fila].Cells[13].Text;
+                string info = dgvInscrito.Rows[fila].Cells[14].Text;
                 txtUsuEmail.Text = email.Trim();
                 txtsinfo.Text = info;
                 btnPopUp_ModalPopupExtender2.Show();
@@ -516,16 +583,22 @@ namespace Proyecto_Ingles_V2.Interfaces
             DataTable dt = new DataTable("Inscritos");
             foreach (TableCell cell in dgvInscrito.HeaderRow.Cells)
             {
+                if(cell.Text.Trim()!= "&nbsp;" || cell.Text.Trim() == "acciones")
                 dt.Columns.Add(cell.Text);
             }
             foreach (GridViewRow row in dgvInscrito.Rows)
             {
-                dt.Rows.Add();
-                for (int i = 0; i < row.Cells.Count; i++)
-                {
 
-                    dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text;
-                    dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text.Replace("&nbsp;", "N.A");
+                dt.Rows.Add();
+                for (int i = 0; i < row.Cells.Count-3; i++)
+                {
+                    string ss = dgvInscrito.HeaderRow.Cells[i].Text;
+                    if (ss!= "&nbsp;" || ss == "acciones")
+                    {
+                        dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text;
+                        dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text.Replace("&nbsp;", "N.A");
+                  }
+
                 }
             }
             using (XLWorkbook wb = new XLWorkbook())

@@ -20,7 +20,7 @@
                             <div class="row" >
                                 <div class="col-md-12" >
                                     <div class="table-responsive" > 
-                                    <asp:GridView ID="dgvNivelEquivalencia" runat="server" AutoGenerateColumns="False" HorizontalAlign="Center" OnRowCommand="dgvNivelEquivalencia_RowCommand" DataKeyNames="IdEquivalenciaNivel,IdNivelAutonomo,IdNIvelProgramado" OnRowDeleting="dgvNivelEquivalencia_RowDeleting">
+                                    <asp:GridView ID="dgvNivelEquivalencia" runat="server" AutoGenerateColumns="False" HorizontalAlign="Center" OnRowCommand="dgvNivelEquivalencia_RowCommand" DataKeyNames="IdEquivalenciaNivel,IdNivelAutonomo,IdNIvelProgramado" OnRowDeleting="dgvNivelEquivalencia_RowDeleting" CssClass="table table-bordered table-striped">
                                         <Columns>
                                             <asp:BoundField DataField="IdEquivalenciaNivel" HeaderText="ID NIVEL EQUIVALENTE" SortExpression="IdEquivalenciaNivel" />
                                             <asp:BoundField DataField="IdNivelAutonomo" HeaderText="ID NIVEL AUTONOMO" SortExpression="IdNivelAutonomo" visible="false"/>

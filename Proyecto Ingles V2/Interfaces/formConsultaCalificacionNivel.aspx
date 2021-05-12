@@ -4,7 +4,7 @@
     <link href="../Content/sweetalert.css" rel="stylesheet"/>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <div class="container" style="width:50%">
+    <div class="container" style="width:70%">
 <h4 class="well" style="background-color:rgb(8, 83, 148);color:white;text-align:center">Consulta Calificaciones </h4>
 	<div class="col-lg-12 well">
 	<div class="row">
@@ -19,13 +19,13 @@
          <div class="row">
            <div class="col-md-12">
             <div class="table-responsive">
-            <asp:GridView ID="dgvCalificacionNivel" runat="server"  BackColor="White" DataKeyNames="idCalificacionNivel,idNivel" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False"   CaptionAlign="Bottom"  EnablePersistedSelection="True"   HorizontalAlign="Center" OnRowCancelingEdit="dgvCalificacionNivel_RowCancelingEdit" OnRowEditing="dgvCalificacionNivel_RowEditing" OnRowUpdating="dgvCalificacionNivel_RowUpdating" OnRowDeleting="dgvCalificacionNivel_RowDeleting" >
+            <asp:GridView ID="dgvCalificacionNivel" runat="server"  BackColor="White" DataKeyNames="idCalificacionNivel,idNivel" GridLines="none" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="false" EnablePersistedSelection="True"   HorizontalAlign="Center" OnRowCancelingEdit="dgvCalificacionNivel_RowCancelingEdit" OnRowEditing="dgvCalificacionNivel_RowEditing" OnRowUpdating="dgvCalificacionNivel_RowUpdating" OnRowDeleting="dgvCalificacionNivel_RowDeleting" CssClass="table table-bordered table-striped" >
                 <Columns>
                     <asp:BoundField DataField="idCalificacionNivel" HeaderText="Id" SortExpression="idCalificacionNivel" ReadOnly="true" />
                     <asp:BoundField DataField="idNivel" HeaderText="Id Nivel" SortExpression="idNivel"  visible="false"/>
                     <asp:BoundField DataField="nomNivel" HeaderText="Nivel" SortExpression="nomNivel" ReadOnly="true"/>
                     <asp:BoundField DataField="tipoNivel" HeaderText="tipoNivel" SortExpression="tipoNivel"  ReadOnly="true"/>
-                      <asp:TemplateField HeaderText="Calificacion" SortExpression="Calificacion">
+                      <asp:TemplateField HeaderText="Calificacion Desde" SortExpression="Calificacion">
                          <EditItemTemplate>
                          <asp:TextBox ID="EditCalificacion" runat="server" Text='<%# Bind("Calificacion") %>' ></asp:TextBox>
                         </EditItemTemplate>
@@ -34,7 +34,7 @@
                      </ItemTemplate>
                     </asp:TemplateField>
 
-                    <asp:TemplateField HeaderText="CalificacionHasta" SortExpression="CalificacionHasta">
+                    <asp:TemplateField HeaderText="Calificacion Hasta" SortExpression="CalificacionHasta">
                         <ItemTemplate>
                             <asp:Label ID="Label3" runat="server" Text='<%# Bind("CalificacionHasta") %>' ></asp:Label>
                         </ItemTemplate>
@@ -50,8 +50,9 @@
                         </ItemTemplate>
                     </asp:TemplateField>
                 </Columns>
+                
                 <FooterStyle BackColor="#99CCCC" ForeColor="#003399" />
-                <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" />
+                <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" HorizontalAlign="Center"/>
                 <PagerStyle BackColor="#99CCCC" ForeColor="#003399" HorizontalAlign="Left" />
                 <RowStyle BackColor="White" ForeColor="#003399" />
                 <SelectedRowStyle BackColor="#009999" Font-Bold="True" ForeColor="#CCFF99" />

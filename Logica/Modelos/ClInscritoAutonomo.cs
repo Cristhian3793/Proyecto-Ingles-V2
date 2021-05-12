@@ -13,6 +13,7 @@ namespace Logica.Modelos
         public virtual long? IdNivel { get; set; }
         public virtual long IdTipoDocumento { get; set; }
         public virtual int IdTipoEstudiante { get; set; }
+        public virtual int IdEstadoEstudiante { get; set; }
         public virtual string NombreInscrito { get; set; }
         public virtual string ApellidoInscrito { get; set; }
         public virtual string NumDocInscrito { get; set; }

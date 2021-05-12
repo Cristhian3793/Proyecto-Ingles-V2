@@ -7,12 +7,16 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title></title>
      
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.5/dist/sweetalert2.all.min.js" type="text/javascript"></script>
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-sweetalert/1.0.1/sweetalert.min.css" rel="stylesheet"/>
+    <%--<script src="../Scripts/Funciones.js?ver=0.4"></script>--%>
+    <script src="../Scripts/jquery-3.1.1.slim.js" type="text/javascript"></script>
 </head>
 <body>
     <form id="form1" runat="server">
         <div>
+            <div class="col-md-10">
+                <asp:TextBox runat="server" ID="txt_fecha_deposito" AutoCompleteType="Disabled" ClientIDMode="Static" placeholder="dd/mm/aaaa" CssClass=" form-control clDate"></asp:TextBox>
+                <asp:RequiredFieldValidator ID="rq_fecha" runat="server" ControlToValidate="txt_fecha_deposito" InitialValue="" ValidationGroup="ingreso" ForeColor="Red" ErrorMessage="Ingrese una fecha"></asp:RequiredFieldValidator>
+            </div>
             <asp:Button Text="val" ID="btn" runat="server" OnClientClick="return confirmdelete();" />
 
             <input type="button" id="btn2" value="valor" onclick="confirmdelete()" />
@@ -23,5 +27,34 @@
     </form>
 </body>
 </html>
+    <script type="text/javascript">
+
+        $(document).ready(
+
+            function () {
+                $(".clDate").datepicker({ dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true, yearRange: '-2:+1', editable: false, maxDate: '0' });
+
+                $.datepicker.regional['es'] = {
+                    closeText: 'Cerrar',
+                    prevText: '<Ant',
+                    nextText: 'Sig>',
+                    currentText: 'Hoy',
+                    monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                    monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+                    dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie', 'Sáb'],
+                    dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+                    weekHeader: 'Sm',
+                    dateFormat: 'dd/mm/yy',
+                    firstDay: 1,
+                    isRTL: false,
+                    showMonthAfterYear: false,
+                    yearSuffix: ''
+                };
+                $.datepicker.setDefaults($.datepicker.regional['es']);
+
+            });
+
+    </script>
 
 

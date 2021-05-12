@@ -42,5 +42,6 @@ namespace Services.Controllers
             return serv.actualizarNivel(insA, idInscrito);
         }
 
+
     }
 }

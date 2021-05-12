@@ -57,9 +57,35 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
+
+        public async Task<List<ClInscritoAutonomo>> ServicioExtraerInscrito()//cargar todos inscritos
+        {
+            List<ClInscritoAutonomo> compInf = new List<ClInscritoAutonomo>();
+            try
+            {
+                //string url = "http://servicioinglesuisek/";               
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/InscritoAutonomo");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClInscritoAutonomo>>(empResponse);
+                    return compInf;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         public async void cargarGrid() {
             List<ClInscritoAutonomo> ins = new List<ClInscritoAutonomo>();
-            ins = await ServicioExtraerInscritos();
+            ins = await ServicioExtraerInscrito();
             GridView1.DataSource = ins.ToList();
             GridView1.DataBind();
 

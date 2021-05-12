@@ -1,5 +1,7 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Interfaces/Site.Master" AutoEventWireup="true" CodeBehind="formpruebasUbicacion.aspx.cs" Inherits="Proyecto_Ingles_V2.Interfaces.pruebasUbicacion" async="true"%>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.5/dist/sweetalert2.all.min.js" type="text/javascript"></script>
+    <link href="../Content/sweetalert.css" rel="stylesheet"/>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
              <div class="container" style="width:85%">
@@ -32,7 +34,7 @@
                                 <br />
                                 <div class="col-md-12">
                                     <div class="table-responsive">
-                                   <asp:GridView ID="dgvNotasPruebas" runat="server"   BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="idPrueba,IdInscrito" OnRowCancelingEdit="dgvNotasPruebas_RowCancelingEdit" OnRowEditing="dgvNotasPruebas_RowEditing" OnRowUpdating="dgvNotasPruebas_RowUpdating" HorizontalAlign="Center" >
+                                   <asp:GridView ID="dgvNotasPruebas" runat="server"   BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="idPrueba,IdInscrito" OnRowCancelingEdit="dgvNotasPruebas_RowCancelingEdit" OnRowEditing="dgvNotasPruebas_RowEditing" OnRowUpdating="dgvNotasPruebas_RowUpdating" HorizontalAlign="Center" CssClass="table table-bordered table-striped" >
                                          <Columns>
                                            <asp:BoundField DataField="NumDocInscrito" HeaderText="Identificacion" SortExpression="NumDocInscrito" ReadOnly="True" />
                                            <asp:BoundField DataField="IdInscrito" HeaderText="ID" SortExpression="IdInscrito" ReadOnly="True" />
@@ -43,14 +45,13 @@
                                            <asp:BoundField DataField="TelefInscrito" HeaderText="Telefono" SortExpression="TelefInscrito" ReadOnly="True" />
                                            <asp:BoundField DataField="EmailInscrito" HeaderText="Email" SortExpression="EmailInscrito" ReadOnly="True" />
                                            <asp:BoundField DataField="PeriodoLectivo" HeaderText="PeriodoInscripcion" ReadOnly="True" SortExpression="PeriodoLectivo"/>
-                                           <asp:BoundField DataField="IdPrueba" HeaderText="IdPrueba" ReadOnly="True" SortExpression="IdPrueba" Visible="False" />
+                                           <asp:BoundField DataField="IdPrueba" HeaderText="IdPrueba"  SortExpression="IdPrueba" Visible="False"/>
                                            <asp:BoundField DataField="IdNivel" HeaderText="idNivel" ReadOnly="True" SortExpression="IdNivel" Visible="False"/>
                                            <asp:BoundField DataField="NomNivel" HeaderText="Nivel" ReadOnly="True" SortExpression="NomNivel" />
+                                           <asp:BoundField DataField="Estado" HeaderText="Estado" ReadOnly="True" SortExpression="Estado" />
                                            <asp:TemplateField HeaderText="Calificacion" SortExpression="Calificacion">
                                                <EditItemTemplate>
-                                                  <%--<asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" ErrorMessage="ErrorA" ControlToValidate="EditCalificacion" >ErrorB</asp:RequiredFieldValidator>--%>
-                                                  <%--<asp:RegularExpressionValidator ID="RegexDecimal" runat="server" ValidationExpression="((\d+)((\.\d{1,2})?))$" ErrorMessage="Ingrese un monto decimal" ControlToValidate="EditCalificacion" />--%>
-                                                   <asp:TextBox ID="EditCalificacion" runat="server" Text='<%# Bind("Calificacion") %>' onkeypress="return NumCheck(event, this)"></asp:TextBox>
+                                                <asp:TextBox ID="EditCalificacion" runat="server" Text='<%# Bind("Calificacion") %>' onkeypress="return NumCheck(event, this)"></asp:TextBox>
                                                </EditItemTemplate>
                                                <ItemTemplate>               
                                                    <asp:Label ID="Label1" runat="server" Text='<%# Bind("Calificacion") %>'></asp:Label>
@@ -74,7 +75,7 @@
 
                                 <asp:GridView ID="GridView1" runat="server">
                               </asp:GridView>
-
+                                <asp:GridView ID="GridView2" runat="server"></asp:GridView>
                                 </ContentTemplate>
                                </asp:UpdatePanel>                       
                          </div>             
@@ -99,6 +100,19 @@ function NumCheck(e, field) {
   }
   // other key
   return false
-}
+    }
+
+    function rechazado() {
+
+        Swal.fire({
+            icon: 'error',
+            title: 'error',
+            text: 'No se puede registrar nota, la prueba de ubicación aun no ha sido pagada',
+            footer: '<a href></a>'
+        })
+    }
+
+
+
 </script>
 </asp:Content>

@@ -49,6 +49,7 @@
             <Scripts>
                 <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
                 <%--Framework Scripts--%>
+                
                 <asp:ScriptReference Name="MsAjaxBundle" />
                 <asp:ScriptReference Name="jquery" />
                 <asp:ScriptReference Name="bootstrap" />
@@ -120,6 +121,12 @@
                             
                         </ul>
                     </li>
+                    <li>
+                        <a href="#EstMatriculados" data-toggle="collapse" aria-expanded="false">Estudiantes Matriculados</a>
+                        <ul class="collapse list-unstyled" id="EstMatriculados">
+                            <li><a href="formEstudiantesMatriculados.aspx">Niveles Estudiantes</a></li>      
+                        </ul>
+                    </li>
                      <li>
                         <a href="#nivelProgramadoSubmenu" data-toggle="collapse" aria-expanded="false">Niveles</a>
                         <ul class="collapse list-unstyled" id="nivelProgramadoSubmenu">
@@ -157,24 +164,38 @@
                         </ul>
                     </li>
                      <li>
-                        <a href="#Seguimiento" data-toggle="collapse" aria-expanded="false">Temas y Unidades</a>
+                        <a href="#Seguimiento" data-toggle="collapse" aria-expanded="false">Temas de Nivel</a>
                         <ul class="collapse list-unstyled" id="Seguimiento">
                             <li><a href="formTemas.aspx">Ingreso de Temas</a></li>
                             <li><a href="formConsultaTemas.aspx">Consulta Temas de Nivel</a></li>
-                            <li><a href="formUnidades.aspx">Ingreso de Unidades</a></li>
-                            <li><a href="formConsultaUnidades.aspx">Consulta de Unidades</a></li>
+                         <%--   <li><a href="formUnidades.aspx">Ingreso de Unidades</a></li>
+                            <li><a href="formConsultaUnidades.aspx">Consulta de Unidades</a></li>--%>
+                        </ul>
+                    </li>
+                     <li>
+                        <a href="#Notas" data-toggle="collapse" aria-expanded="false">Notas</a>
+                        <ul class="collapse list-unstyled" id="Notas">
+                            <li><a href="formVerNotas.aspx">Ingreso Notas</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#PreguntasRespuestas" data-toggle="collapse" aria-expanded="false">Preguntas y Respuestas</a>
+                        <ul class="collapse list-unstyled" id="PreguntasRespuestas">
+                            <li><a href="formPreguntasRespuestas.aspx">Ingreso de Preguntas y respuestas</a></li>
                         </ul>
                     </li>
                     <%} %>
                     <%if (tipoUsu == 1)
                         {%>
                      <li>
-                        
-                           <ul class="list-unstyled">
-                            <li><a href="formInfoEstudiante.aspx">Información Curso Ingles</a></li>
-                           </ul>
-                           <!-- <li><a href="#">Inscripcion</a></li>-->
 
+                       <a href="#SeguimientoA" data-toggle="collapse" aria-expanded="false">Seguimieto Estudiante</a>
+                        <ul class="collapse list-unstyled" id="SeguimientoA">
+                            <li><a href="formInfoEstudiante.aspx">Información</a></li>
+                            <li><a href="checkout.aspx">Pago con tarjeta</a></li>
+                            <li><a href="Depositos.aspx">Pago con Depósito</a></li>
+                           </ul>
+                           <!-- <li><a href="#">Inscripcion</a></li>-->                        
                     </li>
                     <%} %>
                 </ul>
@@ -208,6 +229,7 @@
                 </nav>
             <!--contenido-->
              <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+
             </asp:ContentPlaceHolder>
             <!--fin contenido-->
             </div>
@@ -224,6 +246,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 
        <!--footer-->
+
+
      <div class="footer-content" style="height:60px">
     <footer >
         <p style="color:white;padding:0.5%"><span class="glyphicon glyphicon-copyright-mark"></span> <%: DateTime.Now.Year %>  Recursos Tecnológicos </p>

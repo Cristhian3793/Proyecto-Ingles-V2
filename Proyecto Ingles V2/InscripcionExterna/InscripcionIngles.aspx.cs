@@ -27,6 +27,8 @@ using FluentNHibernate.Cfg.Db;
 
 using System.Net.Mail;
 using System.Net.Mime;
+using Proyecto_Ingles_V2.LoginDb;
+
 namespace Proyecto_Ingles_V2.InscripcionExterna
 {
     public partial class InscripcionIngles : System.Web.UI.Page
@@ -171,14 +173,161 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
             var lastid = compInf.OrderByDescending(x => x.IdInscrito).Select(x => x.IdInscrito).FirstOrDefault();
             return Convert.ToInt64(lastid);
         }
+        public async Task<long> extraerIdNivel()
+        {
+            List<ClNivel> nivel = await ServicioGetNiveles();
+            var query = from x in nivel
+                        where x.nomNivel.Trim().ToString() == "HIGH BEGINNER 1"
+                        select new
+                        {
+                            IdNivel = x.idNivel,
+                        };
+            return query.Select(x => x.IdNivel).FirstOrDefault();
 
+        }
+        public async Task<int> extraerIdInscrito()
+        {
+            List<ClEstadoEstudiante> estadoEstu = await ServicioGetEstadoEstudiante();
+            int id = estadoEstu.Where(x => x.IdEstadoEstudiante == 1).Select(x => x.IdEstadoEstudiante).FirstOrDefault();
+            return id;
+        }
+        public async Task<List<ClEstadoEstudiante>> ServicioGetEstadoEstudiante()
+        {
+            List<ClEstadoEstudiante> compInf = new List<ClEstadoEstudiante>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoEstudiante");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoEstudiante>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        public async Task<List<ClNivel>> ServicioGetNiveles()
+        {
+            List<ClNivel> compInf = new List<ClNivel>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/Niveles");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClNivel>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        public async Task<long> ServicioExtraerNivelBasico()
+        {
+            //SEK1203
+            List<ClNivel> nivel = await ServicioGetNiveles();
+            var query = nivel.Where(x => x.codNivel.Trim() == "SEK1333").Select(x => x.idNivel).FirstOrDefault();
+            return query;
+
+        }
+        public async Task<long> ServicioExtraerNivelprueba()
+        {
+            //SEK1203
+            List<ClNivel> nivel = await ServicioGetNiveles();
+            var query = nivel.Where(x => x.codNivel.Trim() == "SEK1203").Select(x => x.idNivel).FirstOrDefault();
+            return query;
+
+        }
+        public async Task<long> IdPruebaUbicacion(long idInscrito)
+        {
+            List<ClNivelesInscrito> niveles = new List<ClNivelesInscrito>();
+            niveles = await ServicioGetNivelesInscritos();
+            var lastid = niveles.OrderByDescending(x => x.IDNIVELESTUDIANTE).Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();
+            return lastid;
+        }
+        public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
+        {
+            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        public async void ServicioInsertarNivelIns(ClNivelesInscrito pru, long lastid)
+        {
+            try
+            {
+                string uri = "api/NivelesInscrito";
+                var myContent = JsonConvert.SerializeObject(pru);
+                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.PostAsync(uri, stringContent);
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    //extraer id prueba
+
+                    //insertar en prueba
+                    if (pru.PRUEBA == 1)
+                    {
+                        long idPUbicacion = await IdPruebaUbicacion(lastid);
+                        ClPrueba pruU = new ClPrueba();
+                        pruU.IdInscrito = lastid;
+                        pruU.PunjatePrueba = null;
+                        pruU.FechaPrueba = Convert.ToString(DateTime.Now);
+                        pruU.IDNIVELESTUDIANTE = idPUbicacion;
+                        ServicioIngresarPrueba(pruU);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
         public async void ServicioInsertrInscrito(ClInscritoAutonomo insA)
         {
-            ClUsuarios user = new ClUsuarios();
             DateTime fecha = DateTime.Now;
             bool resp = await ValidarInscrito(insA.NumDocInscrito, insA.idPerInscripcion);
             if (resp == false)
             {
+                ClUsuarios user = new ClUsuarios();
+                insA.IdNivel = await extraerIdNivel();
+                insA.IdEstadoEstudiante = await extraerIdInscrito();
                 try
                 {
                     string uri = "api/InscritoAutonomo";
@@ -192,16 +341,38 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                     if (res.IsSuccessStatusCode)
                     {
                         var empResponse = res.Content.ReadAsStringAsync().Result;
+                        if (insA.EstadoPrueba == 1)
+                        {
+                            /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                            List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
+                            listaInscritos = await ServicioGetInscritos();
+                            var lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Select(x => x.IdInscrito).FirstOrDefault();
+                            /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                            ClNivelesInscrito niveles = new ClNivelesInscrito();
+                            niveles.IDINSCRITO = lastid;
+                            niveles.IDNIVEL = await ServicioExtraerNivelprueba();
+                            niveles.IDESTADONIVEL = 0;
+                            niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                            niveles.PRUEBA = 1;
+                            ServicioInsertarNivelIns(niveles, lastid);
 
-                        /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                        long lastid = await ServicioExtraerUltimoIDInscrito();
-                        /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                        ClPrueba pru = new ClPrueba();
-                        pru.IdInscrito = Convert.ToInt64(lastid);
-                        pru.PunjatePrueba = null;
-                        pru.FechaPrueba = Convert.ToString(fecha);
-                        ServicioIngresarPrueba(pru);
 
+                        }
+                        else
+                        {
+                            /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                            List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
+                            listaInscritos = await ServicioGetInscritos();
+                            var lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Where(x => x.NumDocInscrito.Trim() == insA.NumDocInscrito.Trim()).Select(x => x.IdInscrito).FirstOrDefault();
+                            /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                            ClNivelesInscrito niveles = new ClNivelesInscrito();
+                            niveles.IDINSCRITO = lastid;
+                            niveles.IDNIVEL = await ServicioExtraerNivelBasico();
+                            niveles.IDESTADONIVEL = 0;
+                            niveles.PRUEBA = 0;
+                            niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                            ServicioInsertarNivelIns(niveles, lastid);
+                        }
                         user.Usuario = insA.NumDocInscrito;
                         user.Password = "Uisek*";
                         user.Nombres = "";
@@ -210,7 +381,7 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                         user.Nombres = insA.NombreInscrito;
                         user.Apellidos = insA.ApellidoInscrito;
                         ServicioInsertarUser(user);
-                        await EnviarCorreo(txtEmail.Text.ToString(), "Registro Ingles Autónomo UISEK", "Registro Exitoso, sus credenciales para acceder al sistema son:", user.Usuario, user.Password);
+                        EnviaCorreo_Alumno();
                         string script = @"Swal.fire({
                         icon: 'success',
                         title: 'OK',
@@ -223,11 +394,11 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                     else
                     {
                         string script = @"Swal.fire({
-                icon: 'error',
-                title: 'error',
-                text: 'Registro No se pudo Guardar',
-                footer: '<a href></a>'
-                })";
+                        icon: 'error',
+                        title: 'error',
+                        text: 'Registro No se pudo Guardar',
+                        footer: '<a href></a>'
+                        })";
                         ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
                         limpiarCampos();
                     }
@@ -294,60 +465,66 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
             cbxPeriodoLectivo.DataTextField = "Periodo";
             cbxPeriodoLectivo.DataBind();
         }
-        public Task EnviarCorreo(string email, string subject, string message,string user,string pass)
+        public void EnviaCorreo_Alumno()
         {
-            string text = message;
-
-            AlternateView plainView =
-            AlternateView.CreateAlternateViewFromString(text,
-                            Encoding.UTF8,
-                            MediaTypeNames.Text.Plain);
-
-            string html = "<h2>" + message + "</h2>" +
-               "<p> Usuario :" + user + "</p>" +
-               "<p> Contraseña :" + pass + "</p>";
-            AlternateView htmlView =
-            AlternateView.CreateAlternateViewFromString(html,
-            Encoding.UTF8,
-            MediaTypeNames.Text.Html);
-            LinkedResource img =
-                         new LinkedResource(@"C:\Users\UISEK\source\repos\Proyecto Ingles V2\Proyecto Ingles V2\images\uisek-mail.png",
-                         MediaTypeNames.Image.Jpeg);
-            img.ContentId = "imagen";
-            htmlView.LinkedResources.Add(img);
             try
             {
-                // Credenciales
-                var credentials = new NetworkCredential("cristhian.tupiza@uisek.edu.ec", "Alexiscrow3793");
-                // Mail message
-                var mail = new MailMessage()
+                string email = txtEmail.Text.Trim();
+                string NombreUsuario = txtNombres.Text.Trim().ToUpper() + " " + txtApellidos.Text.Trim().ToUpper();//cambiar
+                MailMessage correo = new MailMessage();
+                correo.To.Add(email);
+
+                correo.From = new MailAddress("no.reply@uisek.edu.ec", "Correo Registro Inglés Autónomo", System.Text.Encoding.UTF8);
+                correo.Subject = "Correo notificación Registro Inglés Autónomo";
+                correo.SubjectEncoding = System.Text.Encoding.UTF8;
+                correo.Body = "Estimad@ " + NombreUsuario + ", \n usted Ha sido registrado correctamente en el curso de Íngles Autónomo" + ",\n " +
+
+                  "  NO RESPONDA A ESTE EMAIL.\n  \n En caso de dudas contacte al departamento de Íngles.  \n helpdesk@uisek.edu.ec ";
+                correo.BodyEncoding = System.Text.Encoding.UTF8;
+                string body = "<html><head> " +
+                 "<style type=\"text/css\">.style3 { width:20%;  } .style2 {color:red;}.style4 {border:0;}</style>" +
+                "</head>" +
+                "<body class=\"style4\">" +
+                "<form id=\"form1\" runat=\"server\">" +
+                "<tr><td colspan=\"2\" style=\"text-align:center; font-size:25px\"><img src='cid:logo' width='100px'></img></td>" +
+                "<div><table class=\"style4\" style=\"width:100%;\">" +
+                "<tr><td class=\"style3\"></td><td>Estimad@  " + NombreUsuario + ",</td> </tr>" +
+                "<tr><td class=\"style3\"></td><td>Ha sido Registrado correctamente en el sistema de Íngles Autónomo </td>" +
+                "<tr><td class=\"style3\"></td><td>Sus Credenciales para acceder al sistema son:" + "</td>" +
+                "<tr><td class=\"style3\"></td><td><b>Usuario:</b>" + txtCed.Text.Trim() + "</td>" +
+                "<tr><td class=\"style3\"></td><td><b>Contraseña: </b>" + "Uisek*" + "</td>" +
+                "<tr><td class=\"style3\"></td><td><b>Dirección de Acceso al Sistema: </b>" + "https://localhost:44306/Login/formlogin" + "</td>  " +
+                "<td class=\"style3\"></td></tr><tr><td class=\"style3\">&nbsp;</td><td class=\"style2\">NO RESPONDA A ESTE CORREO. </td>" +
+                "<td class=\"style3\">&nbsp;</td></tr><tr><td class=\"style3\">&nbsp;</td><td>En caso de dudas contacte al departamento de Idiomas de la Universidad Internacional SEK.</td>" +
+                "<td class=\"style3\">&nbsp;</td></tr> </table></div></form></body></html>";
+
+                System.Net.Mime.ContentType mimeType = new System.Net.Mime.ContentType("text/html");
+                // Add the alternate body to the message.
+
+                AlternateView alternate = AlternateView.CreateAlternateViewFromString(body, mimeType);
+                LinkedResource logo = new LinkedResource(Server.MapPath("~/Images/") + "logo.png")
                 {
-                    From = new MailAddress("cristhian.tupiza@uisek.edu.ec", "Cristhian Tupiza"),
-                    Subject = subject,
-                    Body = message,
-                    IsBodyHtml = true
+                    ContentId = "logo"
                 };
-                mail.AlternateViews.Add(plainView);
-                mail.AlternateViews.Add(htmlView);
-                mail.To.Add(new MailAddress(email));
-                // Smtp client
-                var client = new SmtpClient()
+
+                // Lo incrustamos en la vista HTML...
+                alternate.LinkedResources.Add(logo);
+                correo.AlternateViews.Add(alternate);
+                correo.IsBodyHtml = false;
+                SmtpClient client = new SmtpClient
                 {
+                    Credentials = new System.Net.NetworkCredential("no.reply@uisek.edu.ec", Funciones.ConectarMail()),
                     Port = 587,
-                    DeliveryMethod = SmtpDeliveryMethod.Network,
-                    UseDefaultCredentials = true,
                     Host = "smtp.gmail.com",
-                    EnableSsl = true,
-                    Credentials = credentials
+                    EnableSsl = true //Esto es para que vaya a través de SSL que es obligatorio con GMail 
                 };
-                // Send it...         
-                client.Send(mail);
+                client.Send(correo);
+
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException(ex.Message);
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", @"alert('No se pudo enviar el correo electrónico al alumno'); console.log('" + ex.Message.Replace("'", "**") + "');", true);
             }
-            return Task.CompletedTask;
         }
         public void limpiarCampos()
         {
@@ -365,58 +542,58 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
 
 
         }
-        public  void guardarDatos()
+        public void guardarDatos()
         {
             int tipoDocumento = 0;
             int tipoEstudiante = 0;
             short varexamen = 0;
             DateTime fecha = DateTime.Now;
             ClInscritoAutonomo insA = new ClInscritoAutonomo();
-                
-                try
+            try
+            {
+
+                if (RabCedula.Checked == true)
+                {
+                    tipoDocumento = 1;
+                }
+                else if (RabPasaporte.Checked == true)
+                {
+                    tipoDocumento = 2;
+                }
+
+                if (RabTipoEstudiante.Checked == true)
                 {
 
-                    if (RabCedula.Checked == true)
-                    {
-                        tipoDocumento = 1;
-                    }
-                    else if (RabPasaporte.Checked == true)
-                    {
-                        tipoDocumento = 2;
-                    }
+                    tipoEstudiante = 2;
+                }
+                else
+                {
+                    tipoEstudiante = 1;
+                }
 
-                    if (RabTipoEstudiante.Checked == true)
-                    {
+                insA.idPerInscripcion = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString());
+                insA.IdNivel = null;
+                insA.IdTipoDocumento = tipoDocumento;
+                insA.IdTipoEstudiante = tipoEstudiante;
+                insA.NombreInscrito = txtNombres.Text.ToUpper().Trim();
+                insA.ApellidoInscrito = txtApellidos.Text.ToUpper().Trim();
+                insA.NumDocInscrito = txtCed.Text.Trim();
+                insA.CeluInscrito = txtCelular.Text.Trim();
+                insA.TelefInscrito = txtTelefono.Text.Trim();
+                insA.DirecInscrito = txtDireccion.Text.ToUpper().Trim();
+                insA.EmailInscrito = txtEmail.Text.Trim();
+                insA.FechaRegistro = Convert.ToString(fecha);
 
-                        tipoEstudiante = 2;
-                    }
-                    else
-                    {
-                        tipoEstudiante = 1;
-                    }
-
-                    insA.idPerInscripcion = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString());
-                    insA.IdNivel = null;
-                    insA.IdTipoDocumento = tipoDocumento;
-                    insA.IdTipoEstudiante = tipoEstudiante;
-                    insA.NombreInscrito = txtNombres.Text.ToUpper().Trim();
-                    insA.ApellidoInscrito = txtApellidos.Text.ToUpper().Trim();
-                    insA.NumDocInscrito = txtCed.Text.ToUpper().Trim();
-                    insA.CeluInscrito = txtCelular.Text.ToUpper().Trim();
-                    insA.TelefInscrito = txtTelefono.Text.ToUpper().Trim();
-                    insA.DirecInscrito = txtDireccion.Text.ToUpper().Trim();
-                    insA.EmailInscrito = txtEmail.Text.ToUpper().Trim();
-                    insA.FechaRegistro = Convert.ToString(fecha);
-                    if (RabExamen.Checked == true)
-                    {
-                        varexamen = 1;
-                    }
-                    else
-                    {
-                        varexamen = 0;
-                    }
-                    insA.EstadoPrueba = varexamen;
-                    insA.InformacionCurso = txtInformacion.Text.ToUpper().Trim();
+                if (RabExamen.Checked == true)
+                {
+                    varexamen = 1;
+                }
+                else
+                {
+                    varexamen = 0;
+                }
+                insA.EstadoPrueba = varexamen;
+                insA.InformacionCurso = txtInformacion.Text.ToUpper();
                 if (Convert.ToInt32(correcto.Value) == 0)
                 {
                     lblCedula.Visible = true;
@@ -426,15 +603,23 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                 else
                 {
                     lblCedula.Text = "";
-                    ServicioInsertrInscrito(insA);
-                }
-            }
-                catch (Exception ex)
-                {
-                    throw ex;
+                    if (insA.NumDocInscrito.Trim().ToString() != "")
+                        ServicioInsertrInscrito(insA);
+                    else
+                    {
+                        string script = "rechazado();";
+                        ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                    }
+
                 }
 
-   
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
         }
         #endregion
 
@@ -450,14 +635,19 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
             txtCed.MaxLength = 10;
 
         }
+        private void txtCed_Leave(object sender, EventArgs e)
+        {
+            cargarDatosUisek();
+        }
 
         protected void RabPasaporte_CheckedChanged(object sender, EventArgs e)
         {
             txtCed.Text = "";
             txtCed.MaxLength = 12;
         }
-
+        public void cargarDatosUisek() {
+            //txtCed.Text = "1719631754";
+        }
         #endregion
-
     }
 }

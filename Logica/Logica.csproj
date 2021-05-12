@@ -68,11 +68,14 @@
   <ItemGroup>
     <Compile Include="ConexionServicios\ConexionServicios.cs" />
     <Compile Include="ConexionServicios\conexionServidor.cs" />
+    <Compile Include="Conexion\conexionBaseExterna.cs" />
     <Compile Include="Conexion\SessionFactory.cs" />
     <Compile Include="Mapping\mapCalificacionNivel.cs" />
     <Compile Include="Mapping\mapCurso.cs" />
     <Compile Include="Mapping\mapDiasHorario.cs" />
+    <Compile Include="Mapping\mapEstadoEstudiante.cs" />
     <Compile Include="Mapping\mapEstadoNivel.cs" />
+    <Compile Include="Mapping\mapEstadoPrueba.cs" />
     <Compile Include="Mapping\mapHorarios.cs" />
     <Compile Include="Mapping\mapInscritoAutonomo.cs" />
     <Compile Include="Mapping\mapLibros.cs" />
@@ -80,8 +83,11 @@
     <Compile Include="Mapping\mapNivel.cs" />
     <Compile Include="Mapping\mapEquivalenciaNivel.cs" />
     <Compile Include="Mapping\mapNivelAutonomo.cs" />
+    <Compile Include="Mapping\mapNivelesInscrito.cs" />
     <Compile Include="Mapping\mapNivelPogramado.cs" />
+    <Compile Include="Mapping\mapNotas.cs" />
     <Compile Include="Mapping\mapPeriodoInscripcion.cs" />
+    <Compile Include="Mapping\mapPreguntasRespuestas.cs" />
     <Compile Include="Mapping\mapPrueba.cs" />
     <Compile Include="Mapping\mapTemaUnidad.cs" />
     <Compile Include="Mapping\mapTipoEstudiante.cs" />
@@ -116,6 +122,7 @@
     <Compile Include="Modelos\ClEquivalenciaNivel.cs" />
     <Compile Include="Modelos\ClEstadoEstudiante.cs" />
     <Compile Include="Modelos\ClEstadoNivel.cs" />
+    <Compile Include="Modelos\ClEstadoPrueba.cs" />
     <Compile Include="Modelos\ClEstudiante.cs" />
     <Compile Include="Modelos\ClHistoricoNivel.cs" />
     <Compile Include="Modelos\ClHistoricoPuntaje.cs" />
@@ -128,10 +135,13 @@
     <Compile Include="Modelos\ClModoPago.cs" />
     <Compile Include="Modelos\ClNivel.cs" />
     <Compile Include="Modelos\ClNivelesAutonomos.cs" />
+    <Compile Include="Modelos\ClNivelesInscrito.cs" />
     <Compile Include="Modelos\ClNivelesProgramado.cs" />
     <Compile Include="Modelos\ClNota.cs" />
+    <Compile Include="Modelos\ClNotasAlumno.cs" />
     <Compile Include="Modelos\ClNotificacion.cs" />
     <Compile Include="Modelos\ClPeriodoInscripcion.cs" />
+    <Compile Include="Modelos\ClPreguntasRespuestas.cs" />
     <Compile Include="Modelos\ClPrueba.cs" />
     <Compile Include="Modelos\ClRendicionPrueba.cs" />
     <Compile Include="Modelos\ClTemaUnidad.cs" />
@@ -140,25 +150,31 @@
     <Compile Include="Modelos\ClUnidad.cs" />
     <Compile Include="Modelos\ClUsuarios.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Servicios\ServicioNotas.cs" />
     <Compile Include="Servicios\ServiciosCalificacionNiveles.cs" />
     <Compile Include="Servicios\ServiciosCurso.cs" />
     <Compile Include="Servicios\ServiciosDiasHorarios.cs" />
     <Compile Include="Servicios\ServiciosEquivalenciaNivel.cs" />
+    <Compile Include="Servicios\ServiciosEstadoEstudiante.cs" />
     <Compile Include="Servicios\ServiciosEstadoNivel.cs" />
+    <Compile Include="Servicios\ServiciosEstadoPrueba.cs" />
     <Compile Include="Servicios\ServiciosHorarios.cs" />
     <Compile Include="Servicios\ServiciosInscritoAutonomo.cs" />
     <Compile Include="Servicios\ServiciosLibros.cs" />
     <Compile Include="Servicios\ServiciosLicenciasCambridge.cs" />
     <Compile Include="Servicios\ServiciosNiveles.cs" />
     <Compile Include="Servicios\ServiciosNivelesAutonomos.cs" />
+    <Compile Include="Servicios\ServiciosNivelesInscrito.cs" />
     <Compile Include="Servicios\ServiciosNivelesProgramado.cs" />
     <Compile Include="Servicios\ServiciosPeriodoInscripcion.cs" />
+    <Compile Include="Servicios\ServiciosPreguntasRespuestas.cs" />
     <Compile Include="Servicios\ServiciosPrueba.cs" />
     <Compile Include="Servicios\ServiciosTemaUnidad.cs" />
     <Compile Include="Servicios\ServiciosTipoEstudiante.cs" />
     <Compile Include="Servicios\ServiciosTipoNivel.cs" />
     <Compile Include="Servicios\ServiciosUnidad.cs" />
     <Compile Include="Servicios\ServiciosUsuarios.cs" />
+    <Compile Include="Servicios\ServicioUpdateEstadoEstudiante.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
