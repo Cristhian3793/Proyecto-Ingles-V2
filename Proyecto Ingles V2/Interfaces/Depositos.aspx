@@ -166,6 +166,7 @@
         </div>
         <hr>
         <div class="row">
+            <asp:HiddenField ID="hiddenPeriodo" runat="server" />
             <div class="col-sm-5">
                 <asp:Label runat="server" Style="font-weight: bold;" Text="Tipo Identificación"></asp:Label>
             </div>

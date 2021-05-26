@@ -8,12 +8,14 @@ namespace Logica.Modelos
 {
     public class ClMatricula
     {
-        public int IdMatricula { get; set; }
-        public int IdTipoDescuento { get; set; }
-        public int IdInscrito { get; set; }
-        public int IdEstudiante { get; set; }
-        public string NumAutorizacion { get; set; }
-        public string FechaRegMatricula { get; set; }
+        public virtual long IDNIVELESTUDIANTE { get; set; }
+        public virtual long IDINSCRITO { get; set; }
+        public virtual string NUMDOCINSCRITO { get; set; }
+        public virtual long IDNIVEL { get; set; }
+        public virtual int IDESTADONIVEL { get; set; }
+        public virtual string CODNIVEL { get; set; }
+        public virtual string NOMNIVEL { get; set; }
+        public virtual int PRUEBA { get; set; }
 
     }
 }

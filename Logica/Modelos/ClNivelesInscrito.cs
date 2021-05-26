@@ -17,5 +17,7 @@ namespace Logica.Modelos
         public virtual string FECHAREGISTRO { get; set; }
 
         public virtual int PRUEBA { get; set; }
+        public virtual int ESTADONIVEL { get; set; }
+        public virtual long IDPERIODOINSCRIPCION { get; set; }
     }
 }

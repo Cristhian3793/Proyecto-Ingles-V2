@@ -36,11 +36,11 @@ namespace Services.Controllers
         {
             return serv.actualizarInscritoAutonomo(insA, idInscrito);
         }
-        [HttpPatch]
-        public bool UpdateNivel(ClInscritoAutonomo insA, long idInscrito)//actualizar nivel
-        {
-            return serv.actualizarNivel(insA, idInscrito);
-        }
+        //[HttpPatch]
+        //public bool UpdateNivel(ClInscritoAutonomo insA, long idInscrito)//actualizar nivel
+        //{
+        //    return serv.actualizarNivel(insA, idInscrito);
+        //}
 
 
     }

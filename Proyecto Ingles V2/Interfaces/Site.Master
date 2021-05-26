@@ -176,7 +176,9 @@
                         <a href="#Notas" data-toggle="collapse" aria-expanded="false">Notas</a>
                         <ul class="collapse list-unstyled" id="Notas">
                             <li><a href="formVerNotas.aspx">Ingreso Notas</a></li>
+                            <li><a href="formHistoricoNotas.aspx">Historico Notas</a></li>
                         </ul>
+
                     </li>
                     <li>
                         <a href="#PreguntasRespuestas" data-toggle="collapse" aria-expanded="false">Preguntas y Respuestas</a>

@@ -399,6 +399,7 @@
     <Content Include="Interfaces\formCursos.aspx" />
     <Content Include="Interfaces\formDiasHorarios.aspx" />
     <Content Include="Interfaces\formEstudiantesMatriculados.aspx" />
+    <Content Include="Interfaces\formHistoricoNotas.aspx" />
     <Content Include="Interfaces\formInfoEstudiante.aspx" />
     <Content Include="Interfaces\formNivelesEquivalentes.aspx" />
     <Content Include="Interfaces\formHorarios.aspx" />
@@ -422,6 +423,7 @@
     <Content Include="Interfaces\images\Iconos\certificate.png" />
     <Content Include="Interfaces\images\Iconos\english-hover.png" />
     <Content Include="Interfaces\images\Iconos\english.png" />
+    <Content Include="Interfaces\images\Iconos\excel.png" />
     <Content Include="Interfaces\images\Iconos\lista-hover.png" />
     <Content Include="Interfaces\images\Iconos\lista.png" />
     <Content Include="Interfaces\images\Iconos\open-book.png" />
@@ -895,6 +897,13 @@
     <Compile Include="Interfaces\formEstudiantesMatriculados.aspx.designer.cs">
       <DependentUpon>formEstudiantesMatriculados.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\formHistoricoNotas.aspx.cs">
+      <DependentUpon>formHistoricoNotas.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Interfaces\formHistoricoNotas.aspx.designer.cs">
+      <DependentUpon>formHistoricoNotas.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Interfaces\formInfoEstudiante.aspx.cs">
       <DependentUpon>formInfoEstudiante.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1107,7 +1116,6 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="PagosVarios\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   <PropertyGroup>

@@ -18,6 +18,8 @@ namespace Logica.Mapping
             Map(x => x.IDPRUEBAUBICACION).Column("IDPRUEBAUBICACION");
             Map(x => x.FECHAREGISTRO).Column("FECHAREGISTRO");
             Map(x => x.PRUEBA).Column("PRUEBA");
+            Map(x => x.ESTADONIVEL).Column("ESTADONIVEL");
+            Map(x => x.IDPERIODOINSCRIPCION).Column("IDPERIODOINSCRIPCION"); 
             Table("NIVELESINSCRITO");
         }
     }

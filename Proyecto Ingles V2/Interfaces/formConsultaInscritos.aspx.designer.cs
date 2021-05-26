@@ -33,15 +33,6 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.TextBox txtCedula;
 
         /// <summary>
-        /// Control btnConsultar.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnConsultar;
-
-        /// <summary>
         /// Control Label3.
         /// </summary>
         /// <remarks>
@@ -60,13 +51,22 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.DropDownList cbxPeriodo;
 
         /// <summary>
-        /// Control btnExccel.
+        /// Control btnConsultar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnExccel;
+        protected global::System.Web.UI.WebControls.Button btnConsultar;
+
+        /// <summary>
+        /// Control btnSubmit.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnSubmit;
 
         /// <summary>
         /// Control dgvInscrito.

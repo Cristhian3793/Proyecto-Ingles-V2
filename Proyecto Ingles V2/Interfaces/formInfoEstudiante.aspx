@@ -132,18 +132,20 @@ input:checked + .slider:before {
             <br />
            <div class="col-md-12">
             <div class="table-responsive">
+              <asp:HiddenField ID="hiidenIdNivelEstudiante" runat="server" />
             <asp:GridView ID="dgvEstudiante" runat="server"  BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IDINSCRITO"  CaptionAlign="Bottom"  EnablePersistedSelection="True" HorizontalAlign="Center" CssClass="table table-bordered table-striped" >
                 <Columns>
+                    
                     <asp:BoundField DataField="IDINSCRITO" HeaderText="ID" SortExpression="IDINSCRITO" />
                     <asp:BoundField DataField="PERIODO" HeaderText="PERIODO" SortExpression="PERIODO" />
                     <asp:BoundField DataField="DESCCURSO" HeaderText="Curso" SortExpression="DESCCURSO" />
                     <asp:BoundField DataField="CODCURSO" HeaderText="CODIGO" SortExpression="CODIGO" />
-                    <asp:BoundField DataField="NOMNIVEL" HeaderText="Nivel" SortExpression="NOMNIVEL" />
-                    <asp:BoundField DataField="DESCTIPONIVEL" HeaderText="Tipo Nivel" SortExpression="DESCTIPONIVEL"/>
+                    <asp:BoundField DataField="NOMNIVEL" HeaderText="Descripciòn Nivel" SortExpression="NOMNIVEL" />
+                    <asp:BoundField DataField="DESCTIPONIVEL" HeaderText="Nivel" SortExpression="DESCTIPONIVEL"/>
                     <asp:BoundField DataField="COSTONIVEL" HeaderText="Costo Nivel" SortExpression="COSTONIVEL" dataformatstring="{0:0.00}"/>
                     <asp:BoundField DataField="PUNTAJEPRUEBA" HeaderText="Puntaje Prueba" SortExpression="PUNTAJEPRUEBA" />
-<%--                <asp:BoundField DataField="IDNIVELESTUDIANTE" HeaderText="IDNivelEstudiante" SortExpression="IDNIVELESTUDIANTE" />
-                    <asp:BoundField DataField="IDESTADONIVEL" HeaderText="ESTADO PAGADO" SortExpression="IDESTADONIVEL" />--%>
+                <%--<asp:BoundField DataField="IDNIVELESTUDIANTE" HeaderText="IDNivelEstudiante" SortExpression="IDNIVELESTUDIANTE" />--%>
+                <asp:BoundField DataField="DESCESTADOESTUDIANTE" HeaderText="ESTADO PAGADO" SortExpression="DESCESTADOESTUDIANTE" />
                 </Columns>
                 <FooterStyle BackColor="#99CCCC" ForeColor="#003399" />
                 <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" HorizontalAlign=Center/>

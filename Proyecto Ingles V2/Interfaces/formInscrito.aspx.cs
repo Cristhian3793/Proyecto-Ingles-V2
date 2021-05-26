@@ -38,8 +38,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected void Page_Load(object sender, EventArgs e)
         {
 
-            if (!IsPostBack)
-            {
+
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
                 {
                     Response.Redirect("../Login/formLogin.aspx");
@@ -49,15 +48,17 @@ namespace Proyecto_Ingles_V2.Interfaces
                     Response.Redirect("../Interfaces/Default.aspx");
                 }
                 else
-                {
+                {            
+                    if (!IsPostBack)
+                    {
                     cargarComboPeriodo();
-                }
+                    }
+                    if (RabCedula.Checked == true)
+                    {
+                        txtCed.MaxLength = 10;
+                    }
+            }
 
-            }
-            if (RabCedula.Checked == true)
-            {
-                txtCed.MaxLength = 10;
-            }
         }
 
 
@@ -136,7 +137,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClEstadoEstudiante> estadoEstu = await ServicioGetEstadoEstudiante();
             int id = estadoEstu.Where(x => x.IdEstadoEstudiante == 1).Select(x => x.IdEstadoEstudiante).FirstOrDefault();
             return id;
-        }//revisar
+        }
 
         public async Task<List<ClInscritoAutonomo>> ServicioGetInscritos()
         {
@@ -161,7 +162,29 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
+        public async Task<List<ClPrueba>> ServicioGetPruebas() {
+            List<ClPrueba> compInf = new List<ClPrueba>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/Prueba");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClPrueba>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
 
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+
+        }
         public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
         {
             List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
@@ -297,7 +320,6 @@ namespace Proyecto_Ingles_V2.Interfaces
 
         public async Task<long> ServicioExtraerNivelprueba()
         {
-            //SEK1203
             List<ClNivel> nivel = await ServicioGetNiveles();
             var query = nivel.Where(x => x.codNivel.Trim() == "SEK1203").Select(x => x.idNivel).FirstOrDefault();
             return query;
@@ -305,7 +327,6 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         public async Task<long> ServicioExtraerNivelBasico()
         {
-            //SEK1203
             List<ClNivel> nivel = await ServicioGetNiveles();
             var query = nivel.Where(x => x.codNivel.Trim() == "SEK1333").Select(x => x.idNivel).FirstOrDefault();
             return query;
@@ -318,89 +339,121 @@ namespace Proyecto_Ingles_V2.Interfaces
             var lastid = niveles.OrderByDescending(x => x.IDNIVELESTUDIANTE).Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();
             return lastid;
         }
+        public async Task<bool>validarExistePrueba(string numdoc) {
+            bool resp = false;
+            List<ClInscritoAutonomo> inscrito = await ServicioGetInscritos();
+            List<ClPrueba> prueba = await ServicioGetPruebas();
+            var pruebas = from a in inscrito
+                          join b in prueba on a.IdInscrito equals b.IdInscrito
+                          where a.NumDocInscrito.Trim() == numdoc.Trim()
+                          select new { 
+                          IdInscrito=a.IdInscrito,
+                          NumDocumento=a.NumDocInscrito,
 
-        public async void ServicioInsertrInscrito(ClInscritoAutonomo insA) {
-            DateTime fecha = DateTime.Now;
-            bool resp =await  ValidarInscrito(insA.NumDocInscrito, insA.idPerInscripcion);
-            if (resp == false)
+                          };
+            if (pruebas.Count() > 0)//ya existe una prueba
             {
-                ClUsuarios user = new ClUsuarios();
-                insA.IdNivel = await extraerIdNivel();
-                insA.IdEstadoEstudiante = await extraerIdInscrito();
-                try
+                resp = true;
+            }
+            return resp;
+        }
+
+        public async void ServicioInsertrInscrito(ClInscritoAutonomo insA,long idPeriodo) {
+            DateTime fecha = DateTime.Now;
+            bool resp =await  ValidarInscrito(insA.NumDocInscrito, idPeriodo);
+            bool respPrueba =await validarExistePrueba(insA.NumDocInscrito.Trim());
+            long lastid;
+            //revisar que ya tiene prueba y no permitir guardar
+            if (respPrueba == false)
+            {
+                if (resp == false)
                 {
-                    string uri = "api/InscritoAutonomo";
-                    var myContent = JsonConvert.SerializeObject(insA);
-                    var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
-                    var client = new HttpClient();
-                    client.BaseAddress = new Uri(url);
-                    client.DefaultRequestHeaders.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                    HttpResponseMessage res = await client.PostAsync(uri, stringContent);
-                    if (res.IsSuccessStatusCode)
+                    ClUsuarios user = new ClUsuarios();
+                    insA.IdEstadoEstudiante = await extraerIdInscrito();
+                    try
                     {
-                        var empResponse = res.Content.ReadAsStringAsync().Result;
-                        if (insA.EstadoPrueba == 1)
+                        string uri = "api/InscritoAutonomo";
+                        var myContent = JsonConvert.SerializeObject(insA);
+                        var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                        var client = new HttpClient();
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                        HttpResponseMessage res = await client.PostAsync(uri, stringContent);
+                        if (res.IsSuccessStatusCode)
                         {
-                            /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
-                            listaInscritos = await ServicioGetInscritos();
-                            var lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Select(x => x.IdInscrito).FirstOrDefault();
-                            /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            ClNivelesInscrito niveles = new ClNivelesInscrito();
-                            niveles.IDINSCRITO = lastid;
-                            niveles.IDNIVEL = await ServicioExtraerNivelprueba();
-                            niveles.IDESTADONIVEL = 0;
-                            niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
-                            niveles.PRUEBA = 1;
-                            ServicioInsertarNivelIns(niveles,lastid);
-
-
+                            var empResponse = res.Content.ReadAsStringAsync().Result;
+                            if (insA.EstadoPrueba == 1)
+                            {
+                                /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                                List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
+                                listaInscritos = await ServicioGetInscritos();
+                                lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Select(x => x.IdInscrito).FirstOrDefault();
+                                /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                                ClNivelesInscrito niveles = new ClNivelesInscrito();
+                                niveles.IDINSCRITO = lastid;
+                                niveles.IDNIVEL = await ServicioExtraerNivelprueba();
+                                niveles.IDESTADONIVEL = 0;
+                                niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                                niveles.PRUEBA = 1;
+                                niveles.ESTADONIVEL = 0;
+                                ServicioInsertarNivelIns(niveles, lastid);
+                            }
+                            else
+                            {
+                                /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION NO DAR PRUEBA*/
+                                List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
+                                listaInscritos = await ServicioGetInscritos();
+                                lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Where(x => x.NumDocInscrito.Trim() == insA.NumDocInscrito.Trim()).Select(x => x.IdInscrito).FirstOrDefault();
+                                /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                                ClNivelesInscrito niveles = new ClNivelesInscrito();
+                                niveles.IDINSCRITO = lastid;
+                                niveles.IDNIVEL = await ServicioExtraerNivelBasico();
+                                niveles.IDESTADONIVEL = 0;
+                                niveles.PRUEBA = 0;
+                                niveles.ESTADONIVEL = 0;
+                                niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                                ServicioInsertarNivelIns(niveles, lastid);
+                            }
+                            string password = encriptarClave("Uisek*");
+                            user.Usuario = insA.NumDocInscrito;
+                            user.Password = password;
+                            user.Nombres = "";
+                            user.Apellidos = "";
+                            user.tipoUser = 1;
+                            user.Nombres = insA.NombreInscrito;
+                            user.Apellidos = insA.ApellidoInscrito;
+                            user.idInscrito = lastid;
+                            ServicioInsertarUser(user);
+                            EnviaCorreo_Alumno();
+                            string script = "confirm();";
+                            ScriptManager.RegisterStartupScript(this, typeof(Page), "xcript", script, true);
+                            limpiarCampos();
                         }
-                        else {
-                            /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
-                            listaInscritos = await ServicioGetInscritos();
-                            var lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Where(x => x.NumDocInscrito.Trim() == insA.NumDocInscrito.Trim()).Select(x => x.IdInscrito).FirstOrDefault();
-                            /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            ClNivelesInscrito niveles = new ClNivelesInscrito();
-                            niveles.IDINSCRITO = lastid;
-                            niveles.IDNIVEL = await ServicioExtraerNivelBasico();
-                            niveles.IDESTADONIVEL = 0;
-                            niveles.PRUEBA = 0;
-                            niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
-                            ServicioInsertarNivelIns(niveles,lastid);
+                        else
+                        {
+                            string script = "rechazado();";
+                            ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                            limpiarCampos();
                         }
-                        user.Usuario = insA.NumDocInscrito;
-                        user.Password = "Uisek*";
-                        user.Nombres = "";
-                        user.Apellidos = "";
-                        user.tipoUser = 1;
-                        user.Nombres = insA.NombreInscrito;
-                        user.Apellidos = insA.ApellidoInscrito;
-                        ServicioInsertarUser(user);
-                        EnviaCorreo_Alumno();
-                        string script = "confirm();";
-                        ScriptManager.RegisterStartupScript(this, typeof(Page), "xcript", script, true);
-                        limpiarCampos();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        string script = "rechazado();";
-                        ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
-                        limpiarCampos();
+                        Console.WriteLine(ex.Message);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex.Message);
+                    string script = "register();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                    limpiarCampos();
                 }
             }
             else {
-                string script = "register();";
+                string script = "existePrueba();";
                 ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
-                limpiarCampos();
             }
+          
         }
         #endregion
 
@@ -409,7 +462,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         public async Task<long> extraerIdNivel() {
             List<ClNivel> nivel = await ServicioGetNiveles();
             var query = from x in nivel
-                        where x.nomNivel.Trim().ToString() == "HIGH BEGINNER 1"
+                        where x.nomNivel.Trim().ToString() == "HIGH BEGINNER 1" || x.codNivel.Trim()== "SEK1333"
                         select new
                         {
                             IdNivel = x.idNivel,
@@ -437,13 +490,17 @@ namespace Proyecto_Ingles_V2.Interfaces
         public async Task<bool> ValidarInscrito(string cedula,long idPeriodo)
         {
             List<ClInscritoAutonomo> inscrito = await ServicioGetInscritos();
+            List<ClPeriodoInscripcion> periodo = await ServicioGetPeriodosInscripcion();
+            List<ClNivelesInscrito> nivelesInscrito = await ServicioGetNivelesInscritos();
             bool resp = false;
             var query = from a in inscrito
-                        where a.NumDocInscrito.Trim().ToString() == cedula.Trim().ToString() && a.idPerInscripcion==idPeriodo
+                        join b in nivelesInscrito on a.IdInscrito equals b.IDINSCRITO
+                        join c in periodo on b.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
+                        where a.NumDocInscrito.Trim().ToString() == cedula.Trim().ToString() && b.IDPERIODOINSCRIPCION == idPeriodo
                         select new
                         {
                             numDoc=a.NumDocInscrito,
-                            idPer=a.idPerInscripcion,
+                            idPer = b.IDPERIODOINSCRIPCION,
                         };
             if (query.Count() > 0)
             {
@@ -587,8 +644,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             RabTipoEstudiante.Checked = false;
 
 
-        }
-        
+        }        
         public  void guardarDatos()
         {       
             int tipoDocumento = 0;
@@ -618,8 +674,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                     tipoEstudiante = 1;
                 }
 
-                insA.idPerInscripcion = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString());
-                insA.IdNivel = null;
+                long Idperiodo = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString().Trim());
                 insA.IdTipoDocumento = tipoDocumento;
                 insA.IdTipoEstudiante = tipoEstudiante;
                 insA.NombreInscrito = txtNombres.Text.ToUpper().Trim();
@@ -650,15 +705,14 @@ namespace Proyecto_Ingles_V2.Interfaces
                 {
                     lblCedula.Text = "";
                     if (insA.NumDocInscrito.Trim().ToString() != "")
-                        ServicioInsertrInscrito(insA);
+                        ServicioInsertrInscrito(insA,Idperiodo);
                     else
                     {
                         string script = "rechazado();";
                         ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
                     }
 
-                }
-                
+                }              
             }
             catch (Exception ex)
             {
@@ -694,6 +748,13 @@ namespace Proyecto_Ingles_V2.Interfaces
         {
             txtCed.Text = "";
             txtCed.MaxLength = 12;
+        }
+        public string encriptarClave(string clave)
+        {
+            string result = string.Empty;
+            byte[] encryted = System.Text.Encoding.Unicode.GetBytes(clave);
+            result = Convert.ToBase64String(encryted);
+            return result;
         }
         #endregion
 

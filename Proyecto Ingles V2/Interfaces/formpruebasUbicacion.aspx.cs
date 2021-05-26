@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -27,6 +28,7 @@ namespace Proyecto_Ingles_V2.Interfaces
     public partial class pruebasUbicacion : System.Web.UI.Page
     {
         static conexionServidor cs = new conexionServidor();
+
         string url = cs.url.ToString();
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -123,13 +125,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        //public async Task<int> extraerIdInscrito()
-        //{
-        //    List<ClEstadoEstudiante> estadoEstu = await ServicioGetEstadoEstudiante();
-        //    int id = estadoEstu.Where(x => x.IdEstadoEstudiante == 2).Select(x => x.IdEstadoEstudiante).FirstOrDefault();
-        //    return id;
-        //}
-
         public async Task<List<ClInscritoAutonomo>> ServicioExtraerInscrito()//cargar todos inscritos
         {
             List<ClInscritoAutonomo> compInf = new List<ClInscritoAutonomo>();
@@ -160,8 +155,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClTipoEstudiante> compInf = new List<ClTipoEstudiante>();
             try
             {
-                //string url = "http://servicioinglesuisek/";
-
                 var client = new HttpClient();
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Clear();
@@ -181,27 +174,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        //public async void ServicioEliiminarInscrito(int idInscrito)
-        //{
-        //    try
-        //    {
-        //        var client = new HttpClient();
-        //        client.BaseAddress = new Uri(url);
-        //        client.DefaultRequestHeaders.Clear();
-        //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-        //        HttpResponseMessage res = await client.DeleteAsync("api/InscritoAutonomo/" + idInscrito);
-        //        if (res.IsSuccessStatusCode)
-        //        {
-        //            var empResponse = res.Content.ReadAsStringAsync().Result;
-        //        }
-        //        await ServicioExtraerInscrito();
-        //    }
-        //    catch (Exception ex)
-        //    {
 
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
         public async Task<List<ClPeriodoInscripcion>> ServicioExtraerPeriodo()
         {
             List<ClPeriodoInscripcion> compInf = new List<ClPeriodoInscripcion>();
@@ -253,36 +226,33 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
 
         }
-        public async void ActualizarNivelInscrito(long idInscrito, long IdNivel, int estado)
-        {
-            HttpResponseMessage response = new HttpResponseMessage();
-            try
-            {
-                ClInscritoAutonomo ins = new ClInscritoAutonomo();
-                ins.IdInscrito = idInscrito;
-                ins.IdNivel = IdNivel;
-                ins.IdEstadoEstudiante = estado;
-                string uri = "api/InscritoAutonomo?idInscrito=" + ins.IdInscrito;
-                var myContent = JsonConvert.SerializeObject(ins);
-                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                var method = new HttpMethod("PATCH");
-                var request = new HttpRequestMessage(method, uri)
-                {
-                    Content = stringContent
-                };
-                response = await client.SendAsync(request);
+        //public async void ActualizarNivelInscrito(long idInscrito, long IdNivel, int estado)
+        //{
+        //    HttpResponseMessage response = new HttpResponseMessage();
+        //    try
+        //    {
+        //        ClInscritoAutonomo ins = new ClInscritoAutonomo();
+        //        ins.IdInscrito = idInscrito;
+        //        ins.IdEstadoEstudiante = estado;
+        //        string uri = "api/InscritoAutonomo?idInscrito=" + ins.IdInscrito;
+        //        var myContent = JsonConvert.SerializeObject(ins);
+        //        var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+        //        var client = new HttpClient();
+        //        client.BaseAddress = new Uri(url);
+        //        client.DefaultRequestHeaders.Clear();
+        //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+        //        var method = new HttpMethod("PATCH");
+        //        var request = new HttpRequestMessage(method, uri)
+        //        {
+        //            Content = stringContent
+        //        };
+        //        response = await client.SendAsync(request);
 
-            }
-            catch (TaskCanceledException e)
-            {
-
-            }
-
-        }
+        //    }
+        //    catch (TaskCanceledException e)
+        //    {
+        //    }
+        //}
 
         public async Task<List<ClNivel>> ServicioExtraerNIvel()
         {
@@ -312,6 +282,9 @@ namespace Proyecto_Ingles_V2.Interfaces
         #endregion
 
         #region Metodos
+     
+
+
         public async void cargarGridPruebas()
         {
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
@@ -333,14 +306,13 @@ namespace Proyecto_Ingles_V2.Interfaces
                        // from d in s.DefaultIfEmpty()
                         join e in nivel on f.IDNIVEL equals e.idNivel
                         join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
-                        join c in periodo on a.idPerInscripcion equals c.IdPeriodoInscripcion
+                        join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
                         join g in estadoEstudiante on f.IDESTADONIVEL equals g.CodEstadoEstu
                         orderby a.NombreInscrito ascending
                         where f.PRUEBA==1 
                         select new
                         {
                             IdInscrito = a.IdInscrito,
-                            IdNivel = a.IdNivel,
                             IdTipoDocumento = a.IdTipoDocumento,
                             TipoEstudiante = b.DescTipoEstudiante,
                             NombreInscrito = a.NombreInscrito,
@@ -358,7 +330,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             Estado = g.DescEstEstudiante,
                             Calificacion = d.PunjatePrueba//s.Select(x => x.PunjatePrueba).FirstOrDefault(),
                         };
-            dgvNotasPruebas.DataSource = query;
+            dgvNotasPruebas.DataSource = query.ToList();
             dgvNotasPruebas.DataBind();
         }
         public async void cargarGridPruebasXInscrito(string cedula)
@@ -382,14 +354,13 @@ namespace Proyecto_Ingles_V2.Interfaces
                         //from x in s.DefaultIfEmpty()
                         join e in nivel on f.IDNIVEL equals e.idNivel
                         join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
-                        join c in periodo on a.idPerInscripcion equals c.IdPeriodoInscripcion
+                        join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
                         join g in estadoEstudiante on f.IDESTADONIVEL equals g.CodEstadoEstu
                         orderby a.NombreInscrito ascending
                         where a.NumDocInscrito.Trim() == cedula.Trim() && f.PRUEBA == 1
                         select new
                         {
                             IdInscrito = a.IdInscrito,
-                            IdNivel = a.IdNivel,
                             IdTipoDocumento = a.IdTipoDocumento,
                             TipoEstudiante = b.DescTipoEstudiante,
                             NombreInscrito = a.NombreInscrito,
@@ -407,7 +378,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             Estado=g.DescEstEstudiante,
                             Calificacion = d.PunjatePrueba,
                         };
-            dgvNotasPruebas.DataSource = query;
+            dgvNotasPruebas.DataSource = query.ToList();
             dgvNotasPruebas.DataBind();
 
         }
@@ -639,40 +610,28 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         #endregion
 
-        protected void btnExccel_Click(object sender, EventArgs e)
+         public override void VerifyRenderingInServerForm(Control control)
         {
+
+        }
+        public DataSet cargarDatosExcel()
+        {
+            DataSet lista = conexionBaseExterna.GetPruebas();
+            return lista;
+
+
+        }
+        protected  void LinkButton1_Click(object sender, EventArgs e)//excel
+        {
+            string[] cabecera = { "Cod Estudiante,Identificacion","Tipo Estudiante", "Periodo Inscripcion","Fecha Registro","Estado Prueba","Nombres", "Apellidos", "Celular", "Telefono", "Email","Estado","Calificacion" };
+            DataSet lista = cargarDatosExcel();
+            DataTable dt2 = lista.Tables[0];
             DateTime fecha = DateTime.Now;
             string fechaDocument = Convert.ToString(fecha);
             string nombreArchivo = "CalificacionPruebasUbicacion" + "_" + fechaDocument;
-            DataTable dt = new DataTable("calificacion");
-            foreach (TableCell cell in dgvNotasPruebas.HeaderRow.Cells)
-            {
-                dt.Columns.Add(cell.Text);
-            }
-            foreach (GridViewRow row in dgvNotasPruebas.Rows)
-            {
-                dt.Rows.Add();
-                for (int i = 0; i < row.Cells.Count; i++)
-                {
-                    string ss = dgvNotasPruebas.HeaderRow.Cells[i].Text;
-                    if (ss == "Calificacion")
-                    {
-                        TextBox txtCalificacion = (dgvNotasPruebas.Rows[1].Cells[i].FindControl("EditCalificacion") as TextBox);
-                        string valor = txtCalificacion.Text.ToString();
-                        dt.Rows[dt.Rows.Count - 1][i] = txtCalificacion.Text.ToString();
-                    }
-                    else {
-                        dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text;
-                        dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text.Replace("&nbsp;", "N.A");
-
-
-                    }
-
-                }
-            }
             using (XLWorkbook wb = new XLWorkbook())
             {
-                wb.Worksheets.Add(dt);
+                wb.Worksheets.Add(dt2);
 
                 Response.Clear();
                 Response.Buffer = true;
@@ -689,9 +648,11 @@ namespace Proyecto_Ingles_V2.Interfaces
                 }
             }
         }
-        public override void VerifyRenderingInServerForm(Control control)
-        {
 
+        protected void dgvNotasPruebas_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            dgvNotasPruebas.PageIndex = e.NewPageIndex;
+            cargarGridPruebas();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Logica.Mapping
         public mapUsuarios()
         {
             Id(x => x.idUser).Column("IDUSER");
+            Map(x => x.idInscrito).Column("IDINSCRITO");
             Map(x => x.Usuario).Column("USUARIO");
             Map(x => x.Password).Column("PASSWORD");
             Map(x => x.Nombres).Column("NOMBRES");

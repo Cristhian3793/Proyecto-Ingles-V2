@@ -43,14 +43,14 @@ namespace Proyecto_Ingles_V2.Interfaces
 
 
                     }
-                lbl_fecha.Text = "Fecha: " + DateTime.Now.ToShortDateString();
-                //listaCompras = (List<Producto>)Session["listaCompras"];
-                string usuario = (string)Session["usuario"];
-                cargarInformacionFactura();
-                listaCompras = await CargarInformacion(usuario);
-                Previsualizar();
+                    lbl_fecha.Text = "Fecha: " + DateTime.Now.ToShortDateString();
+                    //listaCompras = (List<Producto>)Session["listaCompras"];
+                    string usuario = (string)Session["usuario"];
+                    cargarInformacionFactura();
+                    listaCompras = await CargarInformacion(usuario);
+                    Previsualizar();
 
-            }             
+                    }             
         }
         private void RevisaEnProceso(string identificacion, string identificacionFactura)
         {
@@ -910,30 +910,10 @@ namespace Proyecto_Ingles_V2.Interfaces
         {
             LlenarMeses(ddl_Tarjeta.SelectedValue, ddl_Banco.SelectedValue, ddl_TipoCredito.SelectedValue);
         }
-        public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
-        {
-            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
-            try
-            {
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito");
-                if (res.IsSuccessStatusCode)
-                {
-                    var empResponse = res.Content.ReadAsStringAsync().Result;
-                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
-                }
-            }
-            catch (Exception ex)
-            {
 
-                Console.WriteLine(ex.Message);
-            }
-            return compInf;
-        }
         #region Metodos
+
+
         public async Task<List<Producto>> CargarInformacion(string usuario)
         {
             Producto pro = new Producto();
@@ -944,87 +924,55 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClPrueba> prueba = await ServicioExtraerPrueba();
             //NIveles
             List<ClNivel> nivel = await ServicioGetNiveles();
+            List<ClEstadoEstudiante> estadoEstu = await ServicioGetEstadoEstudiante();
             List<ClTipoNivel> tiponivel = await ServicioCargarTipoNivel();
             List<ClCurso> curso = await ServicioCargarCursos();
             List<ClNivelesInscrito> nivIns = await ServicioGetNivelesInscritos();
 
 
-            var queryInscritos = from a in ins
-                                 join b in per on a.idPerInscripcion equals b.IdPeriodoInscripcion
-                                 join c in tipo on a.IdTipoEstudiante equals c.IdTipoEstudiante
-                                 join d in nivIns on a.IdInscrito equals d.IDINSCRITO
-                                 join e in prueba on d.IDINSCRITO equals e.IdInscrito
-                                 where a.NumDocInscrito.Trim().ToString() == usuario.Trim().ToString() && d.IDESTADONIVEL == 0
-                                 select new
-                                 {
-                                     IDINSCRITO = a.IdInscrito,
-                                     IDNIVEL = d.IDNIVEL,
-                                     NUMDOCINSCRITO = a.NumDocInscrito,
-                                     NOMBINSCRITO = a.NombreInscrito,
-                                     APELLIINSCRITO = a.ApellidoInscrito,
-                                     PERIODO = b.Periodo,
-                                     PUNTAJEPRUEBA = e.PunjatePrueba,
-                                     Email = a.EmailInscrito,
+            var infoNivelPago = from a in ins                               
+                                join c in nivIns on a.IdInscrito equals c.IDINSCRITO
+                                join b in per on c.IDPERIODOINSCRIPCION equals b.IdPeriodoInscripcion
+                                join h in prueba on c.IDPRUEBAUBICACION equals h.IdPrueba into NivelesPrueba
+                                from i in NivelesPrueba.DefaultIfEmpty()
+                                join d in nivel on c.IDNIVEL equals d.idNivel
+                                join e in curso on d.idCurso equals e.IdCurso
+                                join f in tiponivel on d.idTipoNivel equals f.idtipoNivel
+                                join g in estadoEstu on c.IDESTADONIVEL equals g.CodEstadoEstu
 
-                                     IDNIVELESTUDIANTE = d.IDNIVELESTUDIANTE,
-                                     IDESTADONIVEL = d.IDESTADONIVEL,
-                                 };
+                                where a.NumDocInscrito.Trim() == usuario && c.IDESTADONIVEL == 0
+                                select new
+                                {
+                                    IDINSCRITO = a.IdInscrito,
+                                    IDNIVEL = c.IDNIVELESTUDIANTE,
+                                    NUMDOCINSCRITO = a.NumDocInscrito,
+                                    NOMBINSCRITO = a.NombreInscrito,
+                                    APELLIINSCRITO = a.ApellidoInscrito,
+                                    PERIODO = b.Periodo,
+                                    PUNTAJEPRUEBA = NivelesPrueba.Select(x => x.PunjatePrueba).FirstOrDefault(),
+                                    Email = a.EmailInscrito,
+                                    DESCCURSO = e.DescCurso,
+                                    DESCTIPONIVEL = d.descNivel,
+                                    NOMNIVEL = d.nomNivel,
+                                    DESCNIVEL = d.descNivel,
+                                    COSTONIVEL = d.costoNIvel,
+                                    CODCURSO = d.codNivel,
+                                    IDNIVELESTUDIANTE = c.IDNIVELESTUDIANTE,
+                                    IDESTADONIVEL = c.IDESTADONIVEL,
+                                    DESCESTADOESTUDIANTE = g.DescEstEstudiante,
 
-
-            var queryNiveles = from a in nivel
-                               join b in tiponivel on a.idTipoNivel equals b.idtipoNivel
-                               join c in curso on a.idCurso equals c.IdCurso
-                               select new
-                               {
-
-                                   IDNIVEL = a.idNivel,
-                                   DESCCURSO = c.DescCurso,
-                                   DESCTIPONIVEL = b.descTipoNivel,
-                                   NOMNIVEL = a.nomNivel,
-                                   DESCNIVEL = a.nomNivel,
-                                   COSTONIVEL = a.costoNIvel,
-                                   CODCURSO = a.codNivel,
-
-
-                               };
-
-            var qeryfin = from a in queryInscritos
-                          join b in queryNiveles on a.IDNIVEL equals b.IDNIVEL
-                          select new
-                          {
-                              IDINSCRITO = a.IDINSCRITO,
-                              IDNIVEL = a.IDNIVEL,
-                              NUMDOCINSCRITO = a.NUMDOCINSCRITO,
-                              NOMBINSCRITO = a.NOMBINSCRITO,
-                              APELLIINSCRITO = a.APELLIINSCRITO,
-                              PERIODO = a.PERIODO,
-                              PUNTAJEPRUEBA = a.PUNTAJEPRUEBA,
-                              Email = a.Email,
-                              DESCCURSO = b.DESCCURSO,
-                              DESCTIPONIVEL = b.DESCTIPONIVEL,
-                              NOMNIVEL = b.NOMNIVEL,
-                              DESCNIVEL = b.DESCNIVEL,
-                              COSTONIVEL = b.COSTONIVEL,
-                              CODCURSO = b.CODCURSO,
-                              
-
-                              IDNIVELESTUDIANTE = a.IDNIVELESTUDIANTE,
-                              IDESTADONIVEL = a.IDESTADONIVEL,
-                          };
-
-            if (qeryfin.Count() > 0)
+                                };
+            if (infoNivelPago.Count() > 0)
             {
                 listaCompras = new List<Producto>();
-                Session["idNivel"] = qeryfin.Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();
-                Session["codNivel"]= qeryfin.Select(x => x.CODCURSO).FirstOrDefault().Trim().ToString();
-                pro.codConcepto = qeryfin.Select(x => x.CODCURSO).FirstOrDefault().ToString().Trim();
-                pro.concepto = qeryfin.Select(x => x.DESCNIVEL).FirstOrDefault();
-                pro.importe = Convert.ToDecimal(qeryfin.Select(x => x.COSTONIVEL).FirstOrDefault());
+                Session["idNivel"] = infoNivelPago.Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();
+                Session["codNivel"]= infoNivelPago.Select(x => x.CODCURSO).FirstOrDefault().Trim().ToString();
+                pro.codConcepto = infoNivelPago.Select(x => x.CODCURSO).FirstOrDefault().ToString().Trim();
+                pro.concepto = infoNivelPago.Select(x => x.NOMNIVEL).FirstOrDefault();
+                pro.importe = Convert.ToDecimal(infoNivelPago.Select(x => x.COSTONIVEL).FirstOrDefault());
                 pro.cantidad = 1;
                 pro.iva = 0;
                 listaCompras.Add(pro);
-
-
             }
             else
             {
@@ -1041,14 +989,35 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         #endregion
         #region Servicios
+        public async Task<List<ClEstadoEstudiante>> ServicioGetEstadoEstudiante()
+        {
+            List<ClEstadoEstudiante> compInf = new List<ClEstadoEstudiante>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoEstudiante");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoEstudiante>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         public async Task<List<ClInscritoAutonomo>> getDatosInscrito() {
             List<ClInscritoAutonomo> ins =await ServicioExtraerInscritos();
-
-
             return ins;
         }
 
-        public async Task<List<ClInscritoAutonomo>> ServicioExtraerInscritos()//cargar todos inscritos
+        public async Task<List<ClInscritoAutonomo>> ServicioExtraerInscritos()
         {
             List<ClInscritoAutonomo> compInf = new List<ClInscritoAutonomo>();
             try
@@ -1073,7 +1042,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        public async Task<List<ClPeriodoInscripcion>> ServicioExtraerPeriodos()//cargar todos inscritos
+        public async Task<List<ClPeriodoInscripcion>> ServicioExtraerPeriodos()
         {
             List<ClPeriodoInscripcion> compInf = new List<ClPeriodoInscripcion>();
             try
@@ -1100,7 +1069,30 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        public async Task<List<ClTipoEstudiante>> ServicioGetTipoEstudiante()//cargar todos inscritos
+        public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
+        {
+            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        public async Task<List<ClTipoEstudiante>> ServicioGetTipoEstudiante()
         {
             List<ClTipoEstudiante> compInf = new List<ClTipoEstudiante>();
             try
@@ -1155,7 +1147,7 @@ namespace Proyecto_Ingles_V2.Interfaces
 
         }
 
-        public async Task<List<ClNivel>> ServicioGetNiveles()//cargar todos niveles 
+        public async Task<List<ClNivel>> ServicioGetNiveles()
         {
             List<ClNivel> compInf = new List<ClNivel>();
             try
@@ -1180,7 +1172,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
         }
 
-        public async Task<List<ClCurso>> ServicioCargarCursos()//cargar todos inscritos
+        public async Task<List<ClCurso>> ServicioCargarCursos()
         {
             List<ClCurso> cur = new List<ClCurso>();
             try

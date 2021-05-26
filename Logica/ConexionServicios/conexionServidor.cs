@@ -10,6 +10,7 @@ namespace Logica.ConexionServicios
     {
         public string url { get; set; }
         public conexionServidor() {
+            //this.url = "http://servicioinglesuisek/";
             this.url = "https://localhost:44308/";
         }
 

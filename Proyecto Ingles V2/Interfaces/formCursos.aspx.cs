@@ -31,10 +31,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             {
                 Response.Redirect("../Interfaces/Default.aspx");
             }
-            else
-            {
-                
-            }
         }
         protected async void Button1_Click(object sender, EventArgs e)
         {

@@ -9,8 +9,6 @@ namespace Logica.Modelos
     public class ClInscritoAutonomo
     {
         public virtual long IdInscrito { get; set;}
-        public virtual long idPerInscripcion { get; set; }
-        public virtual long? IdNivel { get; set; }
         public virtual long IdTipoDocumento { get; set; }
         public virtual int IdTipoEstudiante { get; set; }
         public virtual int IdEstadoEstudiante { get; set; }

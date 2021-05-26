@@ -12,8 +12,6 @@ namespace Logica.Mapping
         public mapInscritoAutonomo()
         {
             Id(x => x.IdInscrito).Column("IDINSCRITO");
-            Map(x => x.idPerInscripcion, "IDPERIODOINSCRIPCION");
-            Map(x => x.IdNivel).Column("IDNIVEL");
             Map(x => x.IdTipoDocumento).Column("IDTIPODOCUMENTO");
             Map(x => x.IdTipoEstudiante).Column("IDTIPOESTUDIANTE");
             Map(x => x.IdEstadoEstudiante).Column("IDESTADOESTUDIANTE");

@@ -44,9 +44,14 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected async void Page_Load(object sender, EventArgs e)
         {
 
-   
-            try
+            if (Session["usuario"] == null || (string)Session["usuario"] == "")
             {
+                Response.Redirect("../Login/formLogin.aspx");
+            }
+            if ((int)Session["TipoUser"] == 1)
+            { 
+            try
+                {
                     if (!IsPostBack)
                     {
                     List<Producto> listaCompras = new List<Producto>();
@@ -79,6 +84,9 @@ namespace Proyecto_Ingles_V2.Interfaces
             {
                 ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", @"alert('Error al ingresar su transacción.');console.log('" + ex.Message.Replace("'", "**") + "'); window.location.href='default.aspx';  ", true);
             }
+            
+            }
+
         }
 
 
@@ -102,8 +110,9 @@ namespace Proyecto_Ingles_V2.Interfaces
                 }
                 //se carga
                 //se busca el semestre activo para matricular
-                DataSet ds_semestre = Conexion.BuscarUMAS_ds("UT_Semestre_Activo", "*", "where activo='1'");              
-                string anio_periodo = await getPeriodo(cedula);//cambiar por periodo que tiene sistema ingles autonomo
+                DataSet ds_semestre = Conexion.BuscarUMAS_ds("UT_Semestre_Activo", "*", "where activo='1'");
+                //string anio_periodo = await getPeriodo(cedula);//cambiar por periodo que tiene sistema ingles autonomo
+                string anio_periodo = hiddenPeriodo.Value;//cambiar por periodo que tiene sistema ingles autonomo
                 DataSet ds_comprobantevalidador = Conexion.BuscarNAV_ds("[dbo].[DTA_Info]", "*", "where no_comprobante='" + txt_comprobante.Text + "' and semestre='" + anio_periodo + "'");
                 if (ds_comprobantevalidador.Tables[0].Rows.Count != 0 || txt_comprobante.Text == "")
                 {
@@ -133,7 +142,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             string cedula =(string)Session["usuario"];//cargar cedula de usuario
 
 
-            string anio_periodo = await getPeriodo(cedula);// cargar periodo de ingles
+            string anio_periodo = hiddenPeriodo.Value;// cargar periodo de ingles
 
 
 
@@ -650,6 +659,85 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
         }
 
+
+        #region METODOS
+        public async Task<List<Producto>> CargarInformacion(string usuario)
+        {
+            Producto pro = new Producto();
+            List<Producto> listaCompras = new List<Producto>();
+            List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
+            List<ClPeriodoInscripcion> per = await ServicioExtraerPeriodos();
+            List<ClNivel> nivel = await ServicioGetNiveles();
+            List<ClCurso> curso = await ServicioCargarCursos();
+            List<ClNivelesInscrito> nivIns = await ServicioGetNivelesInscritos();
+            List<ClPrueba> prueba = await ServicioExtraerPrueba();
+            List<ClTipoNivel> tiponivel = await ServicioCargarTipoNivel();
+            List<ClEstadoEstudiante> estadoEstu = await ServicioGetEstadoEstudiante();
+            var infoNivelPago = from a in ins
+                               
+                                join c in nivIns on a.IdInscrito equals c.IDINSCRITO
+                                join b in per on c.IDPERIODOINSCRIPCION equals b.IdPeriodoInscripcion
+                                join h in prueba on c.IDPRUEBAUBICACION equals h.IdPrueba into NivelesPrueba
+                                from i in NivelesPrueba.DefaultIfEmpty()
+                                join d in nivel on c.IDNIVEL equals d.idNivel
+                                join e in curso on d.idCurso equals e.IdCurso
+                                join f in tiponivel on d.idTipoNivel equals f.idtipoNivel
+                                join g in estadoEstu on c.IDESTADONIVEL equals g.CodEstadoEstu
+
+                                where a.NumDocInscrito.Trim() == usuario && c.IDESTADONIVEL == 0
+                                select new
+                                {
+                                    IDINSCRITO = a.IdInscrito,
+                                    IDNIVEL = c.IDNIVELESTUDIANTE,
+                                    NUMDOCINSCRITO = a.NumDocInscrito,
+                                    NOMBINSCRITO = a.NombreInscrito,
+                                    APELLIINSCRITO = a.ApellidoInscrito,
+                                    PERIODO = b.Periodo,
+                                    PUNTAJEPRUEBA = NivelesPrueba.Select(x => x.PunjatePrueba).FirstOrDefault(),
+                                    Email = a.EmailInscrito,
+                                    DESCCURSO = e.DescCurso,
+                                    DESCTIPONIVEL = d.descNivel,
+                                    NOMNIVEL = d.nomNivel,
+                                    DESCNIVEL = d.descNivel,
+                                    COSTONIVEL = d.costoNIvel,
+                                    CODCURSO = d.codNivel,
+                                    IDNIVELESTUDIANTE = c.IDNIVELESTUDIANTE,
+                                    IDESTADONIVEL = c.IDESTADONIVEL,
+                                    DESCESTADOESTUDIANTE = g.DescEstEstudiante,
+
+                                };
+
+
+
+            if (Convert.ToInt32(infoNivelPago.Count()) > 0)
+            {
+                hiddenPeriodo.Value= infoNivelPago.Select(x => x.PERIODO).FirstOrDefault().Trim().ToString();
+                double valorDepositado= infoNivelPago.Select(x => x.COSTONIVEL).FirstOrDefault();
+                txt_valor_depositado.Text = valorDepositado.ToString("#.00");
+                Session["idNivel"] = infoNivelPago.Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();
+                Session["codNivel"] = infoNivelPago.Select(x => x.CODCURSO).FirstOrDefault().Trim().ToString();
+                pro.codConcepto = infoNivelPago.Select(x => x.CODCURSO).FirstOrDefault().ToString().Trim();
+                pro.concepto = infoNivelPago.Select(x => x.NOMNIVEL).FirstOrDefault();
+                pro.importe = Convert.ToDecimal(infoNivelPago.Select(x => x.COSTONIVEL).FirstOrDefault());
+                pro.cantidad = 1;
+                pro.iva = 0;
+                listaCompras.Add(pro);
+            }
+            else
+            {
+                Session["idNivel"] = "";
+                Session["codNivel"] = "";
+                pro.codConcepto = "";
+                pro.concepto = "";
+                pro.importe = 0;
+                pro.cantidad = 0;
+                pro.iva = 0;
+            }
+
+                return listaCompras;
+        }
+        #endregion
+        #region Servicios
         public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
         {
             List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
@@ -673,86 +761,42 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        #region SERVICIOS
-
-
-
-
-
-        public async Task<List<Producto>> CargarInformacion(string usuario)
+        public async Task<List<ClEstadoEstudiante>> ServicioGetEstadoEstudiante()
         {
-            Producto pro = new Producto();
-            List<Producto> listaCompras = new List<Producto>();
-            List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
-            List<ClPeriodoInscripcion> per = await ServicioExtraerPeriodos();
-            List<ClNivel> nivel = await ServicioGetNiveles();
-            List<ClCurso> curso = await ServicioCargarCursos();
-            List<ClNivelesInscrito> nivIns = await ServicioGetNivelesInscritos();
-
-            var queryInscritos = from a in ins
-                                 join b in per on a.idPerInscripcion equals b.IdPeriodoInscripcion
-                                 join d in nivIns on a.IdInscrito equals d.IDINSCRITO
-                                 join e in nivel on d.IDNIVEL equals e.idNivel
-                                 join f in curso on e.idCurso equals f.IdCurso
-                                 where a.NumDocInscrito.Trim().ToString() == usuario.Trim().ToString() && d.IDESTADONIVEL == 0
-                                 select new
-                                 {
-                                     IDINSCRITO = a.IdInscrito,
-                                     IDNIVEL = d.IDNIVEL,
-                                     NUMDOCINSCRITO = a.NumDocInscrito.Trim(),
-                                     NOMBINSCRITO = a.NombreInscrito.Trim(),
-                                     APELLIINSCRITO = a.ApellidoInscrito.Trim(),
-                                     PERIODO = b.Periodo.Trim(),
-                                     Email = a.EmailInscrito.Trim(),
-                                     IDNIVELESTUDIANTE = d.IDNIVELESTUDIANTE,
-                                     IDESTADONIVEL = d.IDESTADONIVEL,
-                                     DESCCURSO=f.DescCurso.Trim(),
-                                     DESCNIVEL=e.descNivel.Trim(),
-                                     COSTONIVEL=e.costoNIvel,
-                                     CODCURSO=f.CodCurso,
-                                     CODNIVEL=e.codNivel,
-                                     NOMNIVEL=e.nomNivel,
-                                 };
-            if (Convert.ToInt32(queryInscritos.Count()) > 0)
+            List<ClEstadoEstudiante> compInf = new List<ClEstadoEstudiante>();
+            try
             {
-                double valorDepositado= queryInscritos.Select(x => x.COSTONIVEL).FirstOrDefault();
-                txt_valor_depositado.Text = valorDepositado.ToString("#.00");
-                Session["idNivel"] = queryInscritos.Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();
-                Session["codNivel"] = queryInscritos.Select(x => x.CODNIVEL).FirstOrDefault().Trim().ToString();
-                pro.codConcepto = queryInscritos.Select(x => x.CODNIVEL).FirstOrDefault().ToString().Trim();
-                pro.concepto = queryInscritos.Select(x => x.NOMNIVEL).FirstOrDefault();
-                pro.importe = Convert.ToDecimal(queryInscritos.Select(x => x.COSTONIVEL).FirstOrDefault());
-                pro.cantidad = 1;
-                pro.iva = 0;
-                listaCompras.Add(pro);
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoEstudiante");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoEstudiante>>(empResponse);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Session["idNivel"] = "";
-                Session["codNivel"] = "";
-                pro.codConcepto = "";
-                pro.concepto = "";
-                pro.importe = 0;
-                pro.cantidad = 0;
-                pro.iva = 0;
-            }
 
-                return listaCompras;
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
         }
-        #endregion
-        #region Servicios
         public async Task<string> getPeriodo(string usuario) {
             List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
             List<ClPeriodoInscripcion> periodo = await ServicioExtraerPeriodos();
-            var query = from a in ins join b in periodo on a.idPerInscripcion equals b.IdPeriodoInscripcion
+            List<ClNivelesInscrito> nivelesIns = await ServicioGetNivelesInscritos();
+            var query = from a in ins 
+                        join c in nivelesIns on a.IdInscrito equals c.IDINSCRITO
+                        join b in periodo on c.IDPERIODOINSCRIPCION equals b.IdPeriodoInscripcion
                         where a.NumDocInscrito.Trim().ToString() == usuario.ToString().Trim()
                         select new {
                             Periodo = b.Periodo,
                         };
             return query.Select(x => x.Periodo).FirstOrDefault().ToString().Trim();
-
         }
-
         public async Task<List<ClInscritoAutonomo>> getDatosInscrito()
         {
             List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
@@ -962,6 +1006,7 @@ namespace Proyecto_Ingles_V2.Interfaces
 
 
                                  };
+
 
             string nombre = queryInscritos.Select(x => x.NOMBINSCRITO).FirstOrDefault().ToString().Trim();
             string apellido = queryInscritos.Select(x => x.APELLIINSCRITO).FirstOrDefault().ToString().Trim();

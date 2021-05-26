@@ -11,7 +11,7 @@ namespace Proyecto_Ingles_V2.Interfaces
 {
 
 
-    public partial class formVerNotas
+    public partial class formHistoricoNotas
     {
 
         /// <summary>
@@ -78,13 +78,13 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.Button btnConsultar;
 
         /// <summary>
-        /// Control btnSubmit.
+        /// Control btnExccel.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnSubmit;
+        protected global::System.Web.UI.WebControls.LinkButton btnExccel;
 
         /// <summary>
         /// Control dgvInscrito.
@@ -114,15 +114,6 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.Panel PanelModal2;
 
         /// <summary>
-        /// Control txtNivel.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtNivel;
-
-        /// <summary>
         /// Control txtNombres.
         /// </summary>
         /// <remarks>
@@ -141,6 +132,15 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.TextBox txtCed;
 
         /// <summary>
+        /// Control txtNivel.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtNivel;
+
+        /// <summary>
         /// Control HiddenIdIns.
         /// </summary>
         /// <remarks>
@@ -157,15 +157,6 @@ namespace Proyecto_Ingles_V2.Interfaces
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HiddenField HiddenNivel;
-
-        /// <summary>
-        /// Control HiddenNivelEstudiante.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField HiddenNivelEstudiante;
 
         /// <summary>
         /// Control UpdatePanel1.
@@ -211,15 +202,6 @@ namespace Proyecto_Ingles_V2.Interfaces
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtPromedio;
-
-        /// <summary>
-        /// Control btnCalcPromedio.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCalcPromedio;
 
         /// <summary>
         /// Control Button2.

@@ -60,7 +60,7 @@ namespace Proyecto_Ingles_V2.Login
             var query = from a in users
                         where a.Usuario == usuario
                         select new { 
-                        Usuario=a.Usuario,
+                        Usuario_=a.Usuario,
                         Password=a.Password,
                         Nombres=a.Nombres,
                         Apellidos=a.Apellidos,
@@ -69,14 +69,14 @@ namespace Proyecto_Ingles_V2.Login
 
             if (query.Count() >= 1)
             {
-                user = query.Select(x => x.Usuario).FirstOrDefault().Trim().ToString();
+                user = query.Select(x => x.Usuario_).FirstOrDefault().Trim().ToString();
                 pass = query.Select(x => x.Password).FirstOrDefault().Trim().ToString();
+                pass = DesencriptarClave(pass);
                 nombres= query.Select(x => x.Nombres).FirstOrDefault().Trim().ToString();
                 apellidos = query.Select(x => x.Apellidos).FirstOrDefault().Trim().ToString();
                 tipoUser = Convert.ToInt32(query.Select(x => x.TipoUser).FirstOrDefault().ToString());
                 if (user.Trim() != null && user.Trim() != "" && pass.Trim() != "")
                 {
-
                     if (pass.Trim().ToString() == password.Trim().ToString())
                     {
 
@@ -101,12 +101,16 @@ namespace Proyecto_Ingles_V2.Login
                     ScriptManager.RegisterStartupScript(this, typeof(Page), "script", script, false);
                 }
             }
-
-
-
         }
-
         #endregion
+        public static string DesencriptarClave(string password)
+        {
+            string result = string.Empty;
+            byte[] decryted = Convert.FromBase64String(password);
+            //result = System.Text.Encoding.Unicode.GetString(decryted, 0, decryted.ToArray().Length);
+            result = System.Text.Encoding.Unicode.GetString(decryted);
+            return result;
+        }
         protected void btnGuardar_Click(object sender, EventArgs e)
         {
             string user = txtUser.Text.Trim().ToString();

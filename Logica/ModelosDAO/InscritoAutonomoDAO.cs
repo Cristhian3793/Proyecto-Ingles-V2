@@ -14,7 +14,7 @@ namespace Logica.ModelosDAO
         bool actualizarInscritoAutonomo(ClInscritoAutonomo insA,long idInscrito);
         IList<ClInscritoAutonomo> getInscritoAXNumDoc(string numdoc);
 
-        bool actualizarNivel(ClInscritoAutonomo insA, long idInscrito);
+        //bool actualizarNivel(ClInscritoAutonomo insA, long idInscrito);
 
     }
 }

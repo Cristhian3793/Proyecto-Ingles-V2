@@ -222,6 +222,15 @@ input:checked + .slider:before {
             footer: '<a href></a>'
         })
     }
+    function existePrueba() {
+
+        Swal.fire({
+            icon: 'error',
+            title: 'error',
+            text: 'Usted ya se encuentra registrado para rendir prueba de ubicación',
+            footer: '<a href></a>'
+        })
+    }
     $("document").ready(function () {
         /*si es cedula*/
         if ($("#<%=RabCedula.ClientID%>").is(':checked')) {

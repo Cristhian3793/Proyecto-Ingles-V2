@@ -124,7 +124,6 @@ namespace Logica.Servicios
                         ins.EmailInscrito = insA.EmailInscrito;
                         ins.EstadoPrueba = insA.EstadoPrueba;
                         ins.IdTipoEstudiante = insA.IdTipoEstudiante;
-                        ins.idPerInscripcion = insA.idPerInscripcion;
                         ins.InformacionCurso = insA.InformacionCurso;
                         mySesions.Update(ins);
                         transaction.Commit();
@@ -142,36 +141,36 @@ namespace Logica.Servicios
                 }
             }
         }
-        public bool actualizarNivel(ClInscritoAutonomo insA, long idInscrito)
-        {
-            ISession mySesions = SessionFactory.OpenSession;
-            bool resp = false;
-            using (mySesions)
-            {
-                using (ITransaction transaction = mySesions.BeginTransaction())
-                {
-                    try
-                    {
-                        IQuery query = mySesions.CreateQuery("FROM ClInscritoAutonomo  WHERE IdInscrito=: idInscrito").SetInt64("idInscrito", idInscrito);
-                        ClInscritoAutonomo ins = query.List<ClInscritoAutonomo>()[0];
-                        ins.IdNivel = insA.IdNivel;
-                        ins.IdEstadoEstudiante = insA.IdEstadoEstudiante;
-                        mySesions.Update(ins);
-                        transaction.Commit();
-                        resp = true;
-                        return resp;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw ex;
-                    }
-                    finally
-                    {
-                        mySesions.Flush();
-                    }
-                }
-            }
-        }
+        //public bool actualizarNivel(ClInscritoAutonomo insA, long idInscrito)
+        //{
+        //    ISession mySesions = SessionFactory.OpenSession;
+        //    bool resp = false;
+        //    using (mySesions)
+        //    {
+        //        using (ITransaction transaction = mySesions.BeginTransaction())
+        //        {
+        //            try
+        //            {
+        //                IQuery query = mySesions.CreateQuery("FROM ClInscritoAutonomo  WHERE IdInscrito=: idInscrito").SetInt64("idInscrito", idInscrito);
+        //                ClInscritoAutonomo ins = query.List<ClInscritoAutonomo>()[0];
+        //                ins.IdNivel = insA.IdNivel;
+        //                ins.IdEstadoEstudiante = insA.IdEstadoEstudiante;
+        //                mySesions.Update(ins);
+        //                transaction.Commit();
+        //                resp = true;
+        //                return resp;
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                throw ex;
+        //            }
+        //            finally
+        //            {
+        //                mySesions.Flush();
+        //            }
+        //        }
+        //    }
+        //}
 
 
     }

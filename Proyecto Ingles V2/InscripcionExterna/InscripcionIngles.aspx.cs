@@ -74,7 +74,50 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
             }
             return compInf;
         }
+        public async Task<List<ClPrueba>> ServicioGetPruebas()
+        {
+            List<ClPrueba> compInf = new List<ClPrueba>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/Prueba");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClPrueba>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
 
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+
+        }
+        public async Task<bool> validarExistePrueba(string numdoc)
+        {
+            bool resp = false;
+            List<ClInscritoAutonomo> inscrito = await ServicioGetInscritos();
+            List<ClPrueba> prueba = await ServicioGetPruebas();
+            var pruebas = from a in inscrito
+                          join b in prueba on a.IdInscrito equals b.IdInscrito
+                          where a.NumDocInscrito.Trim() == numdoc.Trim()
+                          select new
+                          {
+                              IdInscrito = a.IdInscrito,
+                              NumDocumento = a.NumDocInscrito,
+
+                          };
+            if (pruebas.Count() > 0)//ya existe una prueba
+            {
+                resp = true;
+            }
+            return resp;
+        }
         public async Task<List<ClPeriodoInscripcion>> ServicioGetPeriodosInscripcion()
         {
             List<ClPeriodoInscripcion> compInf = new List<ClPeriodoInscripcion>();
@@ -319,106 +362,125 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                 Console.WriteLine(ex.Message);
             }
         }
-        public async void ServicioInsertrInscrito(ClInscritoAutonomo insA)
+        public async void ServicioInsertrInscrito(ClInscritoAutonomo insA,long idperiodo)
         {
             DateTime fecha = DateTime.Now;
-            bool resp = await ValidarInscrito(insA.NumDocInscrito, insA.idPerInscripcion);
+            bool resp = await ValidarInscrito(insA.NumDocInscrito, idperiodo);
+            bool respPrueba = await validarExistePrueba(insA.NumDocInscrito.Trim());
+            long lastid;
+
             if (resp == false)
             {
-                ClUsuarios user = new ClUsuarios();
-                insA.IdNivel = await extraerIdNivel();
-                insA.IdEstadoEstudiante = await extraerIdInscrito();
-                try
+                if (respPrueba == false)
                 {
-                    string uri = "api/InscritoAutonomo";
-                    var myContent = JsonConvert.SerializeObject(insA);
-                    var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
-                    var client = new HttpClient();
-                    client.BaseAddress = new Uri(url);
-                    client.DefaultRequestHeaders.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                    HttpResponseMessage res = await client.PostAsync(uri, stringContent);
-                    if (res.IsSuccessStatusCode)
+                    ClUsuarios user = new ClUsuarios();
+                    insA.IdEstadoEstudiante = await extraerIdInscrito();
+                    try
                     {
-                        var empResponse = res.Content.ReadAsStringAsync().Result;
-                        if (insA.EstadoPrueba == 1)
+                        string uri = "api/InscritoAutonomo";
+                        var myContent = JsonConvert.SerializeObject(insA);
+                        var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                        var client = new HttpClient();
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                        HttpResponseMessage res = await client.PostAsync(uri, stringContent);
+                        if (res.IsSuccessStatusCode)
                         {
-                            /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
-                            listaInscritos = await ServicioGetInscritos();
-                            var lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Select(x => x.IdInscrito).FirstOrDefault();
-                            /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            ClNivelesInscrito niveles = new ClNivelesInscrito();
-                            niveles.IDINSCRITO = lastid;
-                            niveles.IDNIVEL = await ServicioExtraerNivelprueba();
-                            niveles.IDESTADONIVEL = 0;
-                            niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
-                            niveles.PRUEBA = 1;
-                            ServicioInsertarNivelIns(niveles, lastid);
+                            var empResponse = res.Content.ReadAsStringAsync().Result;
+                            if (insA.EstadoPrueba == 1)
+                            {
+                                /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                                List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
+                                listaInscritos = await ServicioGetInscritos();
+                                lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Select(x => x.IdInscrito).FirstOrDefault();
+                                /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                                ClNivelesInscrito niveles = new ClNivelesInscrito();
+                                niveles.IDINSCRITO = lastid;
+                                niveles.IDNIVEL = await ServicioExtraerNivelprueba();
+                                niveles.IDESTADONIVEL = 0;
+                                niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                                niveles.PRUEBA = 1;
+                                niveles.ESTADONIVEL = 0;
+                                ServicioInsertarNivelIns(niveles, lastid);
 
 
+                            }
+                            else
+                            {
+                                /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION NO DAR PRUEBA*/
+                                List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
+                                listaInscritos = await ServicioGetInscritos();
+                                lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Where(x => x.NumDocInscrito.Trim() == insA.NumDocInscrito.Trim()).Select(x => x.IdInscrito).FirstOrDefault();
+                                /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
+                                ClNivelesInscrito niveles = new ClNivelesInscrito();
+                                niveles.IDINSCRITO = lastid;
+                                niveles.IDNIVEL = await ServicioExtraerNivelBasico();
+                                niveles.IDESTADONIVEL = 0;
+                                niveles.PRUEBA = 0;
+                                niveles.ESTADONIVEL = 0;
+                                niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                                ServicioInsertarNivelIns(niveles, lastid);
+                            }
+                            string password = encriptarClave("Uisek*");
+                            user.Usuario = insA.NumDocInscrito;
+                            user.Password = password;
+                            user.Nombres = "";
+                            user.Apellidos = "";
+                            user.tipoUser = 1;
+                            user.Nombres = insA.NombreInscrito;
+                            user.Apellidos = insA.ApellidoInscrito;
+                            user.idInscrito = lastid;
+                            ServicioInsertarUser(user);
+                            EnviaCorreo_Alumno();
+                            string script = @"Swal.fire({
+                            icon: 'success',
+                            title: 'OK',
+                            text: 'Registro Correcto Revise su correo!',
+                            footer: '<a href></a>'
+                        })";
+                            ClientScript.RegisterStartupScript(GetType(), "script", script, true);
+                            limpiarCampos();
                         }
                         else
                         {
-                            /*EXTRAER ID INSCRITO REGISTRADO SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            List<ClInscritoAutonomo> listaInscritos = new List<ClInscritoAutonomo>();
-                            listaInscritos = await ServicioGetInscritos();
-                            var lastid = listaInscritos.OrderByDescending(x => x.IdInscrito).Where(x => x.NumDocInscrito.Trim() == insA.NumDocInscrito.Trim()).Select(x => x.IdInscrito).FirstOrDefault();
-                            /*INSERTAR PRUEBA SI USUARIO ELIGE OPCION DAR PRUEBA*/
-                            ClNivelesInscrito niveles = new ClNivelesInscrito();
-                            niveles.IDINSCRITO = lastid;
-                            niveles.IDNIVEL = await ServicioExtraerNivelBasico();
-                            niveles.IDESTADONIVEL = 0;
-                            niveles.PRUEBA = 0;
-                            niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
-                            ServicioInsertarNivelIns(niveles, lastid);
+                            string script = @"Swal.fire({
+                            icon: 'error',
+                            title: 'error',
+                            text: 'Registro No se pudo Guardar',
+                            footer: '<a href></a>'
+                            })";
+                            ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                            limpiarCampos();
                         }
-                        user.Usuario = insA.NumDocInscrito;
-                        user.Password = "Uisek*";
-                        user.Nombres = "";
-                        user.Apellidos = "";
-                        user.tipoUser = 1;
-                        user.Nombres = insA.NombreInscrito;
-                        user.Apellidos = insA.ApellidoInscrito;
-                        ServicioInsertarUser(user);
-                        EnviaCorreo_Alumno();
-                        string script = @"Swal.fire({
-                        icon: 'success',
-                        title: 'OK',
-                        text: 'Registro Correcto Revise su correo!',
-                        footer: '<a href></a>'
-                    })";
-                        ClientScript.RegisterStartupScript(GetType(), "script", script, true);
-                        limpiarCampos();
-                    }
-                    else
-                    {
-                        string script = @"Swal.fire({
-                        icon: 'error',
-                        title: 'error',
-                        text: 'Registro No se pudo Guardar',
-                        footer: '<a href></a>'
-                        })";
-                        ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
-                        limpiarCampos();
-                    }
 
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex.Message);
+                    string script = @"Swal.fire({
+                    icon: 'error',
+                    title: 'error',
+                    text: 'Usted ya se encuentra registrado para rendir prueba de ubicación',
+                    footer: '<a href></a>'
+                    })";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
                 }
             }
-            else {
+            else
+            {
                 string script = @"Swal.fire({
-                icon: 'error',
-                title: 'error',
-                text: 'Usted ya se encuentra Registrado',
-                footer: '<a href></a>'
-                })";
+                    icon: 'error',
+                    title: 'error',
+                    text: 'Usted ya se encuentra Registrado',
+                    footer: '<a href></a>'
+                    })";
                 ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
                 limpiarCampos();
-
             }
 
         }
@@ -429,13 +491,17 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
         public async Task<bool> ValidarInscrito(string cedula, long idPeriodo)
         {
             List<ClInscritoAutonomo> inscrito = await ServicioGetInscritos();
+            List<ClPeriodoInscripcion> periodo = await ServicioGetPeriodosInscripcion();
+            List<ClNivelesInscrito> nivelesInscrito = await ServicioGetNivelesInscritos();
             bool resp = false;
             var query = from a in inscrito
-                        where a.NumDocInscrito.Trim().ToString() == cedula.Trim().ToString() && a.idPerInscripcion == idPeriodo
+                        join b in nivelesInscrito on a.IdInscrito equals b.IDINSCRITO
+                        join c in periodo on b.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
+                        where a.NumDocInscrito.Trim().ToString() == cedula.Trim().ToString() && b.IDPERIODOINSCRIPCION == idPeriodo
                         select new
                         {
                             numDoc = a.NumDocInscrito,
-                            idPer = a.idPerInscripcion,
+                            idPer = b.IDPERIODOINSCRIPCION,
                         };
             if (query.Count() > 0)
             {
@@ -570,9 +636,7 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                 {
                     tipoEstudiante = 1;
                 }
-
-                insA.idPerInscripcion = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString());
-                insA.IdNivel = null;
+                long Idperiodo = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString().Trim());
                 insA.IdTipoDocumento = tipoDocumento;
                 insA.IdTipoEstudiante = tipoEstudiante;
                 insA.NombreInscrito = txtNombres.Text.ToUpper().Trim();
@@ -604,7 +668,7 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                 {
                     lblCedula.Text = "";
                     if (insA.NumDocInscrito.Trim().ToString() != "")
-                        ServicioInsertrInscrito(insA);
+                        ServicioInsertrInscrito(insA, Idperiodo);
                     else
                     {
                         string script = "rechazado();";
@@ -635,18 +699,19 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
             txtCed.MaxLength = 10;
 
         }
-        private void txtCed_Leave(object sender, EventArgs e)
-        {
-            cargarDatosUisek();
-        }
+
 
         protected void RabPasaporte_CheckedChanged(object sender, EventArgs e)
         {
             txtCed.Text = "";
             txtCed.MaxLength = 12;
         }
-        public void cargarDatosUisek() {
-            //txtCed.Text = "1719631754";
+
+        public string encriptarClave(string clave) {
+            string result = string.Empty;
+            byte[] encryted = System.Text.Encoding.Unicode.GetBytes(clave);
+            result = Convert.ToBase64String(encryted);
+            return result;
         }
         #endregion
     }

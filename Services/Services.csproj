@@ -179,6 +179,7 @@
     <Compile Include="Controllers\EstadoEstudianteController.cs" />
     <Compile Include="Controllers\EstadoEstudianteUController.cs" />
     <Compile Include="Controllers\EstadoNivelController.cs" />
+    <Compile Include="Controllers\EstadoNivelInscritoController.cs" />
     <Compile Include="Controllers\EstadoPruebaController.cs" />
     <Compile Include="Controllers\HorariosController.cs" />
     <Compile Include="Controllers\InscritoAutonomoController.cs" />
@@ -197,6 +198,7 @@
     <Compile Include="Controllers\TipoEstudianteController.cs" />
     <Compile Include="Controllers\TipoNivelController.cs" />
     <Compile Include="Controllers\UnidadesController.cs" />
+    <Compile Include="Controllers\ActualizarMatriculasController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">

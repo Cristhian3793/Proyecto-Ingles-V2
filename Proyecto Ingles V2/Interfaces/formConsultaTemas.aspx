@@ -77,9 +77,7 @@
                     <div class="container-fluid well">
                         <div class="row-fluid">
                             <div class="span4"> 
-                                <div class="">
-                                    <asp:DropDownList ID ="ddlUnidades" runat="server"></asp:DropDownList>
-                                </div>
+
                                  <div class="form-group col-sm-12">                                            
                                     <label class="control-label" ><strong>Nivel</strong></label>
                                     <div class="controls">

@@ -28,7 +28,7 @@
                                 <div class="col-sm-12">      
                                  <div class="form-group">
                                 <asp:Label ID="Label3" runat="server" Text="Unidad"></asp:Label> 
-                                <asp:TextBox ID="txtUnidad" runat="server" class="form-control"></asp:TextBox>
+                                <asp:TextBox ID="txtUnidad" runat="server" class="form-control" required="required"></asp:TextBox>
                                 </div>
                                 <div class="form-group">
                                     <asp:Button ID="Button1" runat="server" Text="Guardar Unidad" class="btn btn-success" OnClick="Button1_Click"/>

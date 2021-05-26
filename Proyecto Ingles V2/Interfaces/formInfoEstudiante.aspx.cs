@@ -243,6 +243,29 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
+        public async Task<List<ClEstadoEstudiante>> ServicioGetEstadoEstudiante()
+        {
+            List<ClEstadoEstudiante> compInf = new List<ClEstadoEstudiante>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoEstudiante");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoEstudiante>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         #endregion
         #region Metodos
 
@@ -280,6 +303,8 @@ namespace Proyecto_Ingles_V2.Interfaces
 
         }
         public async void CargarInformacion(string usuario) {
+
+
             //Inscritos
             List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
             List<ClPeriodoInscripcion> per = await ServicioExtraerPeriodos();
@@ -287,74 +312,46 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClPrueba> prueba = await ServicioExtraerPrueba();
             //NIveles
             List<ClNivel> nivel = await ServicioGetNiveles();
+            List<ClEstadoEstudiante> estadoEstu = await ServicioGetEstadoEstudiante();
             List<ClTipoNivel> tiponivel =await ServicioCargarTipoNivel();
             List<ClCurso> curso = await ServicioCargarCursos();
             List<ClNivelesInscrito> nivIns =await ServicioGetNivelesInscritos();
+            //falta llamar servicio estado nivel
 
-            var queryInscritos = from a in ins
-                                 join b in per on a.idPerInscripcion equals b.IdPeriodoInscripcion
-                                 join c in tipo on a.IdTipoEstudiante equals c.IdTipoEstudiante
-                                 join d in nivIns on a.IdInscrito equals d.IDINSCRITO
-                                 join e in prueba on d.IDINSCRITO equals e.IdInscrito
-                                 where a.NumDocInscrito.Trim().ToString() == usuario.Trim().ToString() && d.IDESTADONIVEL == 0
-                        select new {
-                            IDINSCRITO=a.IdInscrito,
-                            IDNIVEL=d.IDNIVEL,
-                            NUMDOCINSCRITO=a.NumDocInscrito,
-                            NOMBINSCRITO=a.NombreInscrito,
-                            APELLIINSCRITO=a.ApellidoInscrito,
-                            PERIODO=b.Periodo,
-                            PUNTAJEPRUEBA=e.PunjatePrueba,
-                            Email=a.EmailInscrito,
+            var infoNivelPago = from a in ins
 
-                            IDNIVELESTUDIANTE=d.IDNIVELESTUDIANTE,
-                            IDESTADONIVEL=d.IDESTADONIVEL,
-                        };
-
-
-            var queryNiveles = from a in nivel
-                               join b in tiponivel on a.idTipoNivel equals b.idtipoNivel
-                               join c in curso on a.idCurso equals c.IdCurso
-                               select new
-                               {
-
-                                   IDNIVEL=a.idNivel,
-                                   DESCCURSO=c.DescCurso,
-                                   DESCTIPONIVEL=b.descTipoNivel,
-                                   NOMNIVEL=a.nomNivel,
-                                   DESCNIVEL=a.nomNivel,
-                                   COSTONIVEL=a.costoNIvel,
-                                   CODCURSO=a.codNivel,
-
-                               };
-
-            var qeryfin = from a in queryInscritos join b in queryNiveles on a.IDNIVEL equals b.IDNIVEL                         
-                        select new {
-                            IDINSCRITO = a.IDINSCRITO,
-                            IDNIVEL = a.IDNIVEL,
-                            NUMDOCINSCRITO = a.NUMDOCINSCRITO,
-                            NOMBINSCRITO = a.NOMBINSCRITO,
-                            APELLIINSCRITO = a.APELLIINSCRITO,
-                            PERIODO = a.PERIODO,
-                            PUNTAJEPRUEBA = a.PUNTAJEPRUEBA,
-                            Email=a.Email,
-                            DESCCURSO = b.DESCCURSO,
-                            DESCTIPONIVEL = b.DESCTIPONIVEL,
-                            NOMNIVEL = b.NOMNIVEL,
-                            DESCNIVEL = b.DESCNIVEL,
-                            COSTONIVEL = b.COSTONIVEL,
-                            CODCURSO = b.CODCURSO,
-
-                            IDNIVELESTUDIANTE = a.IDNIVELESTUDIANTE,
-                            IDESTADONIVEL = a.IDESTADONIVEL,
-
-                        };
-            //txtNombres.Text = qeryfin.Select(x => x.NOMBINSCRITO).FirstOrDefault();
-            //txtApellidos.Text= qeryfin.Select(x => x.APELLIINSCRITO).FirstOrDefault();
-            //txtCed.Text= qeryfin.Select(x => x.NUMDOCINSCRITO).FirstOrDefault();
-            //txtEmail.Text = qeryfin.Select(x => x.Email).FirstOrDefault();
-            //Session["periodo"] = qeryfin.Select(x => x.PERIODO).FirstOrDefault().ToString();
-            dgvEstudiante.DataSource = qeryfin;
+                                join c in nivIns on a.IdInscrito equals c.IDINSCRITO
+                                join b in per on c.IDPERIODOINSCRIPCION equals b.IdPeriodoInscripcion
+                                join h in prueba  on c.IDPRUEBAUBICACION equals h.IdPrueba into NivelesPrueba from i in NivelesPrueba.DefaultIfEmpty()
+                                join d in nivel on c.IDNIVEL equals d.idNivel 
+                                join e in curso on d.idCurso equals e.IdCurso
+                                join f in tiponivel on d.idTipoNivel equals f.idtipoNivel
+                                join g in estadoEstu on c.IDESTADONIVEL equals g.CodEstadoEstu
+                               
+                                where a.NumDocInscrito.Trim()==usuario && c.IDESTADONIVEL==0
+                                select new
+                                {
+                                    IDINSCRITO = a.IdInscrito,
+                                    IDNIVEL = c.IDNIVELESTUDIANTE,
+                                    NUMDOCINSCRITO = a.NumDocInscrito,
+                                    NOMBINSCRITO = a.NombreInscrito,
+                                    APELLIINSCRITO = a.ApellidoInscrito,
+                                    PERIODO = b.Periodo,
+                                    PUNTAJEPRUEBA = NivelesPrueba.Select(x=>x.PunjatePrueba).FirstOrDefault(),
+                                    Email = a.EmailInscrito,
+                                    DESCCURSO = e.DescCurso,
+                                    DESCTIPONIVEL = d.descNivel,
+                                    NOMNIVEL = d.nomNivel,
+                                    DESCNIVEL = d.descNivel,
+                                    COSTONIVEL = d.costoNIvel,
+                                    CODCURSO = d.codNivel,
+                                    IDNIVELESTUDIANTE = c.IDNIVELESTUDIANTE,
+                                    IDESTADONIVEL = c.IDESTADONIVEL,            
+                                    DESCESTADOESTUDIANTE=g.DescEstEstudiante,
+                                    
+                                };
+            hiidenIdNivelEstudiante.Value = infoNivelPago.Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault().ToString();
+            dgvEstudiante.DataSource = infoNivelPago;
             dgvEstudiante.DataBind();
 
         }

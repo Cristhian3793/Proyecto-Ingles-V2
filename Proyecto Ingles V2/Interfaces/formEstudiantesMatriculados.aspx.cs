@@ -228,7 +228,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             {
                 ClInscritoAutonomo ins = new ClInscritoAutonomo();
                 ins.IdInscrito = idInscrito;
-                ins.IdNivel = IdNivel;
                 ins.IdEstadoEstudiante = estado;
                 string uri = "api/InscritoAutonomo?idInscrito=" + ins.IdInscrito;
                 var myContent = JsonConvert.SerializeObject(ins);
@@ -301,14 +300,13 @@ namespace Proyecto_Ingles_V2.Interfaces
                         //from d in s.DefaultIfEmpty()
                         join e in nivel on f.IDNIVEL equals e.idNivel
                         join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
-                        join c in periodo on a.idPerInscripcion equals c.IdPeriodoInscripcion
+                        join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
                         join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
                         orderby a.NombreInscrito ascending
                         where f.PRUEBA==0
                         select new
                         {
                             IdInscrito = a.IdInscrito,
-                            IdNivel = a.IdNivel,
                             IdTipoDocumento = a.IdTipoDocumento,
                             TipoEstudiante = b.DescTipoEstudiante,
                             NombreInscrito = a.NombreInscrito,
@@ -349,7 +347,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                         join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
                         join e in nivel on f.IDNIVEL equals e.idNivel
                         join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
-                        join c in periodo on a.idPerInscripcion equals c.IdPeriodoInscripcion
+                        join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
                         join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
                         orderby a.NombreInscrito ascending
                         orderby a.NombreInscrito ascending
@@ -357,7 +355,6 @@ namespace Proyecto_Ingles_V2.Interfaces
                         select new
                         {
                             IdInscrito = a.IdInscrito,
-                            IdNivel = a.IdNivel,
                             IdTipoDocumento = a.IdTipoDocumento,
                             TipoEstudiante = b.DescTipoEstudiante,
                             NombreInscrito = a.NombreInscrito,

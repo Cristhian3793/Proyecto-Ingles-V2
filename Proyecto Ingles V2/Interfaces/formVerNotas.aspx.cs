@@ -24,7 +24,6 @@ namespace Proyecto_Ingles_V2.Interfaces
         string url = cs.url.ToString();
         protected void Page_Load(object sender, EventArgs e)
         {
-
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
                 {
                     Response.Redirect("../Login/formLogin.aspx");
@@ -37,83 +36,91 @@ namespace Proyecto_Ingles_V2.Interfaces
                 {
                 if (!IsPostBack)
                 {
-                    cargarGridPruebas();
+                    cargarComboNiveles();
+                    cargarComboPeriodo();
+                    cargarGridEstudiante();
                 }
-
             }
         }
-        public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
+
+
+
+        protected void dgvInscrito_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
-            try
-            {
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito");
-                if (res.IsSuccessStatusCode)
-                {
-                    var empResponse = res.Content.ReadAsStringAsync().Result;
-                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
-                }
-            }
-            catch (Exception ex)
-            {
+            if (e.CommandName == "VerNotas") {
+                string nombre, apellidos;
+                txtPromedio.Text = "";
+                int fila = Convert.ToInt32(e.CommandArgument);//captura el indice de la fila del gridview
+                long idInscito = Convert.ToInt64(dgvInscrito.DataKeys[fila]["IdInscrito"].ToString());
+                string numDoc= dgvInscrito.Rows[fila].Cells[2].Text.ToString().Trim();//captura la cedula o pasaporte
+                long idNivel = Convert.ToInt64(dgvInscrito.DataKeys[fila]["IdNivel"].ToString());
+                long idNivelestudiante = Convert.ToInt64(dgvInscrito.DataKeys[fila]["IdNivelInscrito"].ToString());
+                nombre = dgvInscrito.Rows[fila].Cells[5].Text.ToString().Trim();
+                apellidos = dgvInscrito.Rows[fila].Cells[6].Text.ToString().Trim();
+                txtNivel.Text= dgvInscrito.Rows[fila].Cells[8].Text.ToString().Trim();
+                txtNombres.Text = nombre + " " + apellidos;
+                txtCed.Text = numDoc;
+                HiddenIdIns.Value = idInscito.ToString();
+                HiddenNivel.Value = idNivel.ToString();
+                HiddenNivelEstudiante.Value = idNivelestudiante.ToString();
+                CargarGridNotasAlumno(idInscito,idNivel,idNivelestudiante);
+                btnPopUp_ModalPopupExtender2.Show();
 
-                Console.WriteLine(ex.Message);
             }
-            return compInf;
+            if(e.CommandName== "CrearNotas")
+            {
+                int fila = Convert.ToInt32(e.CommandArgument);
+                long idInscrito = Convert.ToInt64(dgvInscrito.DataKeys[fila]["IdInscrito"].ToString());
+                long idNivel = Convert.ToInt64(dgvInscrito.DataKeys[fila]["IdNivel"].ToString());
+                long idNivelestudiante = Convert.ToInt64(dgvInscrito.DataKeys[fila]["IdNivelInscrito"].ToString());
+                crearNotas(idInscrito, idNivel, idNivelestudiante);
+
+            }
         }
-        public async Task<List<ClPrueba>> ServicioExtraerPrueba()
+        protected async void dgvNotas_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
-            List<ClPrueba> compInf = new List<ClPrueba>();
-            try
-            {
-                //string url = "http://servicioinglesuisek/";               
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/Prueba");
-                if (res.IsSuccessStatusCode)
-                {
-                    var empResponse = res.Content.ReadAsStringAsync().Result;
-                    compInf = JsonConvert.DeserializeObject<List<ClPrueba>>(empResponse);
-                    return compInf;
-                }
-            }
-            catch (Exception ex)
-            {
 
-                Console.WriteLine(ex.Message);
-            }
-            return compInf;
+
+                ClNota no = new ClNota();
+                long id = Convert.ToInt64(dgvNotas.DataKeys[e.RowIndex]["IDNota"].ToString());
+                TextBox txtUnit1 = (dgvNotas.Rows[e.RowIndex].Cells[1].FindControl("EditUnit1") as TextBox);
+                no.CALIFICACION = Convert.ToDouble(txtUnit1.Text);
+                long idIns = Convert.ToInt64(HiddenIdIns.Value);//idInscrito
+                long idNiv = Convert.ToInt64(HiddenNivel.Value);//idnivel
+                long idnivelestu= Convert.ToInt64(HiddenNivelEstudiante.Value);
+                bool resp =await validarEditNotas(id,idIns);
+                if (resp == false)
+                {
+                    actualizarNotas(no, id, idIns, idNiv,idnivelestu);
+                }
+                else
+                {
+                string script = "NoActualizar();";
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "xscript", script, true);
+                }               
+                dgvNotas.EditIndex = -1;
         }
-        public async Task<List<ClEstadoEstudiante>> ServicioGetEstadoEstudiante()
+        protected void dgvNotas_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
-            List<ClEstadoEstudiante> compInf = new List<ClEstadoEstudiante>();
-            try
-            {
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/EstadoEstudiante");
-                if (res.IsSuccessStatusCode)
-                {
-                    var empResponse = res.Content.ReadAsStringAsync().Result;
-                    compInf = JsonConvert.DeserializeObject<List<ClEstadoEstudiante>>(empResponse);
-                }
-            }
-            catch (Exception ex)
-            {
 
-                Console.WriteLine(ex.Message);
-            }
-            return compInf;
+                dgvNotas.EditIndex = -1;
+                long idIns = Convert.ToInt64(HiddenIdIns.Value);
+                long idNivel= Convert.ToInt64(HiddenNivel.Value);
+                long idNivelEstudiante = Convert.ToInt64(HiddenNivelEstudiante.Value);
+                CargarGridNotasAlumno(idIns, idNivel,idNivelEstudiante);
+            
         }
-        public async void actualizarNotas(ClNota no,long idnota,long idIns,long idNiv)
+        protected void dgvNotas_RowEditing(object sender, GridViewEditEventArgs e)
+        {
+            dgvNotas.EditIndex = e.NewEditIndex;
+            long idIns = Convert.ToInt64(HiddenIdIns.Value);
+            long idNivel = Convert.ToInt64(HiddenNivel.Value);
+            long idNivelEstudiante = Convert.ToInt64(HiddenNivelEstudiante.Value);
+            CargarGridNotasAlumno(idIns, idNivel, idNivelEstudiante);
+
+        }
+        #region metodos
+        public async void actualizarNotas(ClNota no, long idnota, long idIns, long idNiv,long idnivelestu)
         {
             try
             {
@@ -128,8 +135,9 @@ namespace Proyecto_Ingles_V2.Interfaces
                 if (res.IsSuccessStatusCode)
                 {
                     var empResponse = res.Content.ReadAsStringAsync().Result;
-                    llenarModal(idIns, idNiv);
-                    cargarGridPruebas();
+                    long idNivelEstudiante = Convert.ToInt64(HiddenNivelEstudiante.Value);
+                    CargarGridNotasAlumno(idIns, idNiv, idnivelestu);
+                    cargarGridEstudiante();
                 }
             }
             catch (Exception ex)
@@ -137,6 +145,454 @@ namespace Proyecto_Ingles_V2.Interfaces
                 Console.WriteLine(ex.Message);
             }
         }
+        public async void ActualizarEstadoCalificacion(long idNota, int estado)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                ClNota no = new ClNota();
+                no.ESTADO = estado;
+                string uri = "api/Notas?idNota=" + idNota;
+                var myContent = JsonConvert.SerializeObject(no);
+                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                var method = new HttpMethod("PATCH");
+                var request = new HttpRequestMessage(method, uri)
+                {
+                    Content = stringContent
+                };
+                response = await client.SendAsync(request);
+
+            }
+            catch (TaskCanceledException e)
+            {
+            }
+        }
+        public async void crearNotas(long idInscrito, long idnivel,long idNivelestudiante)
+        {
+            //verificar si las notas ya fueron creadas
+            int contador_notas = 0;
+            List<ClNota> notas = await ServicioGetNotas(idInscrito);
+            foreach (ClNota a in notas) {
+                if (a.IDNIVELESTUDINTE==idNivelestudiante) {
+                    contador_notas++;
+                }
+            }
+
+            if (contador_notas == 0)//crear notas
+            {
+                ClNota nota = new ClNota();
+                //servicio extraer temas
+                List<ClUnidad> unidades = await ServicioGetTemas(idnivel);
+                foreach (ClUnidad a in unidades)
+                {
+                    long idNomUnidad = a.idNomUnidad;
+                    nota.IDTEMA = idNomUnidad;
+                    nota.IDNIVEL = idnivel;
+                    nota.IDINSCRITO = idInscrito;
+                    nota.IDNIVELESTUDINTE = idNivelestudiante;
+                    ServicioInsertarNotas(nota);
+
+                }
+            }
+            else//ya existen notas no debe volver a crear
+            {
+                string script = "rechazado_notas();";
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "xscript", script, true);
+
+            }
+
+        }
+
+        //actualizar nivel inscrito
+        public async void ActualizarEstadoNivelInscrito(long idNivelestu, int estado)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                ClNivelesInscrito no = new ClNivelesInscrito();
+                no.ESTADONIVEL = estado;
+                string uri = "api/EstadoNivelInscrito/" + idNivelestu;
+                var myContent = JsonConvert.SerializeObject(no);
+                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                var method = new HttpMethod("PATCH");
+                var request = new HttpRequestMessage(method, uri)
+                {
+                    Content = stringContent
+                };
+                response = await client.SendAsync(request);
+
+            }
+            catch (TaskCanceledException e)
+            {
+            }
+        }
+
+
+
+
+        public async void CargarGridNotasAlumno(long idInscrito, long idNivel,long idNivelEstudiante)
+        {
+            try
+            {
+                List<ClNota> notas = await ServicioGetNotas(idInscrito);
+                List<ClInscritoAutonomo> ins = await ServicioExtraerInscrito();
+                List<ClNivel> niv = await ServicioExtraerNIvel();
+                List<ClUnidad> uni = await ServicioGetAllTemas();
+                var queryNotasEnProceso = from a in notas
+                                          where a.ESTADO == 0 && a.IDNIVEL==idNivel && a.IDNIVELESTUDINTE==idNivelEstudiante
+                                          select new
+                                          {
+                                              IdNota=a.IDNOTA,
+                                              IdInscrito=a.IDINSCRITO,
+                                              idNivel=a.IDNIVEL,
+                                              idTema=a.IDTEMA,
+                                              calificacion=a.CALIFICACION,
+                                              a.ESTADO
+                                          };
+
+
+                if (uni.Count() > 0)
+                {
+                    if (queryNotasEnProceso.Count() > 0) { 
+                    
+                    var query = from a in notas
+                                join b in uni on a.IDTEMA equals b.idNomUnidad
+                                join c in niv on a.IDNIVEL equals c.idNivel
+                                join d in ins on a.IDINSCRITO equals d.IdInscrito
+                                where a.IDNIVELESTUDINTE==idNivelEstudiante && a.ESTADO == 0 && a.IDNIVEL == idNivel
+                                select new
+                                {
+                                    NombreAlumno = d.NombreInscrito,
+                                    ApellidosAlumno = d.ApellidoInscrito,
+                                    NomNivel = c.nomNivel,
+                                    idNiv = a.IDNIVEL,
+                                    idIns = a.IDINSCRITO,
+                                    NomUnidad = b.NomUnidad,
+                                    IDNota = a.IDNOTA,
+                                    Calificacion = a.CALIFICACION,
+                                    Estado = a.ESTADO,
+                                };
+                    dgvNotas.DataSource = query;
+                    dgvNotas.DataBind();              
+                    }
+                    else
+                    {
+                        dgvNotas.DataSource = "";
+                        dgvNotas.DataBind();
+                    }
+
+
+                }
+                else
+                {
+                    string script = "rechazado();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "xscript", script, true);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string script = "rechazado();";
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "xscript", script, true);
+
+            }
+
+        }
+        //public async void CargarComboNivelesAlumno(string numdoc, long idInscrito)
+        //{
+        //    List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
+        //    List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
+        //    List<ClNivel> nivel = new List<ClNivel>();
+        //    List<ClNivelesInscrito> nivelesIns = new List<ClNivelesInscrito>();
+        //    nivelesIns = await ServicioGetNivelesInscritos();
+        //    inscrito = await ServicioExtraerInscrito();
+        //    periodo = await ServicioExtraerPeriodo();
+        //    nivel = await ServicioExtraerNIvel();
+        //    var query = from a in inscrito
+        //                join b in nivelesIns on a.IdInscrito equals b.IDINSCRITO
+        //                join c in nivel on b.IDNIVEL equals c.idNivel
+        //                join d in periodo on a.idPerInscripcion equals d.IdPeriodoInscripcion
+        //                where b.PRUEBA == 0 && b.IDESTADONIVEL == 1 && a.NumDocInscrito.Trim() == numdoc && b.IDINSCRITO == idInscrito && b.ESTADONIVEL==0
+        //                select new
+        //                {
+        //                    IdNivelInscrito=b.IDNIVELESTUDIANTE,
+        //                    IdInscrito = a.IdInscrito,
+        //                    IdTipoDocumento = a.IdTipoDocumento,
+        //                    NombreInscrito = a.NombreInscrito,
+        //                    ApellidoInscrito = a.ApellidoInscrito,
+        //                    NumDocInscrito = a.NumDocInscrito,
+        //                    IdNivel = b.IDNIVEL,
+        //                    NomNivel = c.nomNivel
+        //                };
+        //    ddlNivel.DataSource = query;
+        //    ddlNivel.DataValueField = "IdNivelInscrito";
+        //    ddlNivel.DataTextField = "NomNivel";
+        //    ddlNivel.DataBind();
+        //    //CargarGridNotasAlumno(idInscrito, Convert.ToInt64(ddlNivel.SelectedValue.ToString()));
+
+        //    btnPopUp_ModalPopupExtender2.Show();
+        //}
+        public async void cargarComboNiveles()
+        {
+            List<ClNivel> niveles = await ServicioExtraerNIvel();
+            var niveles_ = from a in niveles
+                           where a.codNivel.Trim() != "SEK1203"
+                           orderby a.descNivel ascending
+                           select new
+                           {
+                               idNivel = a.idNivel,
+                               nomNivel = a.nomNivel
+                           };
+            cbxNiveles.DataSource = niveles_;
+            cbxNiveles.DataValueField = "idNivel";
+            cbxNiveles.DataTextField = "nomNivel";
+            cbxNiveles.DataBind();
+        }
+        public async void cargarGridEstudiante()
+        {
+            List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
+            List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
+            List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
+            List<ClPrueba> prueba = new List<ClPrueba>();
+            List<ClNivel> nivel = new List<ClNivel>();
+            List<ClNivelesInscrito> nivelesIns = new List<ClNivelesInscrito>();
+            List<ClEstadoEstudiante> estadoEstu = new List<ClEstadoEstudiante>();
+            List<ClNota> notas = new List<ClNota>();
+            nivelesIns = await ServicioGetNivelesInscritos();
+            tipoEstudiante = await ServicioExtraerTipoEstudiante();
+            inscrito = await ServicioExtraerInscrito();
+            periodo = await ServicioExtraerPeriodo();
+            prueba = await ServicioExtraerPrueba();
+            nivel = await ServicioExtraerNIvel();
+            estadoEstu = await ServicioGetEstadoEstudiante();
+            var query = from a in inscrito
+                        join b in nivelesIns on a.IdInscrito equals b.IDINSCRITO
+                        join c in nivel on b.IDNIVEL equals c.idNivel
+                        join d in tipoEstudiante on a.IdTipoEstudiante equals d.IdTipoEstudiante
+                        join e in periodo on b.IDPERIODOINSCRIPCION equals e.IdPeriodoInscripcion
+                        join f in estadoEstu on b.IDESTADONIVEL equals f.CodEstadoEstu
+                        where b.PRUEBA == 0 && b.ESTADONIVEL == 0 && b.IDESTADONIVEL == 1
+                        //0 son solo niveles 1 significa nivel cerrado,1 significa pagado
+                        select new
+                        {
+                            IdNivelInscrito = b.IDNIVELESTUDIANTE,
+                            IdInscrito = a.IdInscrito,
+                            IdTipoDocumento = a.IdTipoDocumento,
+                            TipoEstudiante = d.DescTipoEstudiante,
+                            NombreInscrito = a.NombreInscrito,
+                            ApellidoInscrito = a.ApellidoInscrito,
+                            NumDocInscrito = a.NumDocInscrito,
+                            NomNivel = c.nomNivel,
+                            IdPeriodo = b.IDPERIODOINSCRIPCION,
+                            IdNivel=b.IDNIVEL,
+                            Periodo = e.Periodo,
+                            
+                        };
+            dgvInscrito.DataSource = query;
+            dgvInscrito.DataBind();
+        }
+        public async Task<long> extraerIdNivel(double? calificacion)
+        {
+            long nivel = 0;
+            List<ClCalificacionNivel> calif = new List<ClCalificacionNivel>();
+            double califDesde;
+            double califHasta;
+
+            calif = await ServicioExtraerCalificacion();
+            foreach (ClCalificacionNivel a in calif)
+            {
+                califDesde = Convert.ToDouble(a.calificacionNivelDesde);
+                califHasta = Convert.ToDouble(a.calificacionNivelHasta);
+
+                if (calificacion >= califDesde && calificacion <= califHasta)
+                {
+                    nivel = a.idNivel;
+                }
+            }
+            return nivel;
+        }
+        public async void UpdateNivelInscrito(ClNivelesInscrito pru, long idNIvelInscrito)
+        {
+            string uri = "api/NivelesInscrito/" + idNIvelInscrito;
+            var myContent = JsonConvert.SerializeObject(pru);
+            var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(url);
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+            HttpResponseMessage res = await client.PutAsync(uri, stringContent);
+            if (res.IsSuccessStatusCode)
+            {
+                var empResponse = res.Content.ReadAsStringAsync().Result;
+            }
+        }
+        protected async void btnCalcPromedio_Click(object sender, EventArgs e)//calcular promedio y asignar nivel
+        {
+            int cantNiveles = 6;
+            long idInscrito = 0;
+            long idNIvelEstudiante = 0;
+            long idNivel = 0;
+            int contNivels = 0;
+            idInscrito = Convert.ToInt64(HiddenIdIns.Value);
+            idNivel = Convert.ToInt64(HiddenNivel.Value);
+            idNIvelEstudiante= Convert.ToInt64(HiddenNivelEstudiante.Value);
+            ActualizarEstadoNivelInscrito(idNIvelEstudiante, 1);//1 significa cerrdado
+            double promedio = 0;
+            List<ClNota> notas = await ServicioGetNotas(idInscrito);
+            var query = from a in notas
+                        where a.IDNIVELESTUDINTE == idNIvelEstudiante && a.IDINSCRITO==idInscrito
+                        select new
+                        {
+                            IDCALIFICACION = a.IDNOTA,
+                            IDNIVEL = a.IDNIVEL,
+                            IDINSCRITO = a.IDINSCRITO,
+                            Calificacion = a.CALIFICACION,
+
+
+
+                        };
+
+            foreach (var a in query)
+            {
+                if (a.Calificacion != 0)
+                {
+                    promedio = promedio + a.Calificacion;
+                    contNivels++;
+                }
+
+            }
+            if (contNivels == cantNiveles)
+            {
+                ClNota nota = new ClNota();
+
+                promedio = promedio / cantNiveles;
+                txtPromedio.Text = Convert.ToDouble(promedio).ToString();
+                if (promedio >= 6)//aprueba el nivel y se agrega nuevo nivel a estudiante
+                {
+                    //estados
+                    //0 en proceso
+                    //1 aprobado
+                    //2 reprobrado
+                    //3 promedio
+                    //actulizar notas con estatus aprobado
+                    foreach (var a in query)
+                    {
+                        long idCalif = a.IDCALIFICACION;
+                        int estado = 1;
+                        ActualizarEstadoCalificacion(idCalif, estado);
+                    }
+                    //guardar linea con promedio
+                    nota.IDINSCRITO = idInscrito;
+                    nota.IDNIVEL = idNivel;
+                    nota.IDTEMA = 0;
+                    nota.CALIFICACION = promedio;
+                    nota.ESTADO = 3;
+                    nota.IDNIVELESTUDINTE = idNIvelEstudiante;
+                    //nota.IDNIVELESTUDINTE = Convert.ToInt64(ddlNivel.SelectedValue.ToString());
+                    ServicioInsertarPromedio(nota);
+                    //llamar servicio para extraer id de nivel enviar parametros idnivel y recuperar el nivel, buscar el nivel y extraer el idnivel
+                    List<ClNivel> nivel = await ServicioExtraerNIvel();
+                    int nivel_Desc = -1;
+                    foreach (ClNivel a in nivel)
+                    {
+                        if (a.idNivel == idNivel)
+                        {
+                            nivel_Desc = Convert.ToInt32(a.descNivel);//nivel_desc es el numero de nivel
+                        }
+                    }
+                    int idNuevoNivel = -1;
+                    foreach (ClNivel a in nivel)
+                    {
+                        if (Convert.ToInt32(a.descNivel) == (nivel_Desc + 1) && nivel_Desc<8)
+                        {
+                            idNuevoNivel = Convert.ToInt32(a.idNivel);
+                        }
+                    }
+                    //guardar nivel nuevo con estatus en proceso
+                    ClNivelesInscrito nivIns = new ClNivelesInscrito();
+                    nivIns.IDNIVEL = idNuevoNivel;
+                    nivIns.IDESTADONIVEL = 0;
+                    nivIns.IDINSCRITO = idInscrito;
+                    nivIns.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                    nivIns.IDPRUEBAUBICACION = null;
+                    nivIns.PRUEBA = 0;
+                    nivIns.ESTADONIVEL = 0;
+                    ServicioInsertarNivelIns(nivIns);
+                }
+                else if (promedio < 6)//pierde nivel y se guarda nivel actual
+                {
+                    //actualizar estatus en proceso para niveles que aun no se hayan cerrado
+                    //poner estatus nivel perdido
+                    foreach (var a in query)
+                    {
+                        long idCalif = a.IDCALIFICACION;
+                        int estado = 2;//reprobado
+                        ActualizarEstadoCalificacion(idCalif, estado);
+                    }
+                    //guardar linea com promedio
+                    nota.IDINSCRITO = idInscrito;
+                    nota.IDNIVEL = idNivel;
+                    nota.IDTEMA = 0;
+                    nota.CALIFICACION = promedio;
+                    nota.ESTADO = 3;
+                    nota.IDNIVELESTUDINTE = idNIvelEstudiante;
+                    //nota.IDNIVELESTUDINTE = Convert.ToInt64(ddlNivel.SelectedValue.ToString());
+                    ServicioInsertarPromedio(nota);
+                    //volver asignar nivel con estatus en proceso
+                    ClNivelesInscrito nivIns = new ClNivelesInscrito();
+                    nivIns.IDNIVEL = idNivel;
+                    nivIns.IDESTADONIVEL = 0;
+                    nivIns.IDINSCRITO = idInscrito;
+                    nivIns.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                    nivIns.IDPRUEBAUBICACION = null;
+                    nivIns.PRUEBA = 0;
+                    nivIns.ESTADONIVEL = 0;
+                    ServicioInsertarNivelIns(nivIns);
+                }
+            }
+            else//no se inserto las 6 notas completas
+            {
+                txtPromedio.Text = Convert.ToInt32(-1).ToString();
+            }
+        }
+
+        public async Task<bool> validarEditNotas(long idNota,long idInscrito) //no dejar editar notas
+        {
+            bool resp = false;
+            int estado;
+            List<ClNota> notas = await ServicioGetNotas(idInscrito);
+            if (notas.Count() > 0) {
+                foreach (ClNota a in notas) {
+                    if (a.IDNOTA == idNota) {
+                        estado = a.ESTADO;
+                        if (estado != 0) {
+                            resp = true;//si es verdadero ya no se puede modificar
+                            break;
+                        }
+                    }
+                }
+            }
+            return resp;
+        }
+        public async void cargarComboPeriodo()
+        {
+            List<ClPeriodoInscripcion> periodos = await ServicioExtraerPeriodo();
+            cbxPeriodo.DataSource = periodos;
+            cbxPeriodo.DataValueField = "IdPeriodoInscripcion";
+            cbxPeriodo.DataTextField = "Periodo";
+            cbxPeriodo.DataBind();
+        }
+
+        #endregion
+        #region Servicios
         public async Task<List<ClInscritoAutonomo>> ServicioExtraerInscrito()//cargar todos inscritos
         {
             List<ClInscritoAutonomo> compInf = new List<ClInscritoAutonomo>();
@@ -167,8 +623,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClTipoEstudiante> compInf = new List<ClTipoEstudiante>();
             try
             {
-                //string url = "http://servicioinglesuisek/";
-
                 var client = new HttpClient();
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Clear();
@@ -240,37 +694,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
 
         }
-        public async void ActualizarNivelInscrito(long idInscrito, long IdNivel, int estado)
-        {
-            HttpResponseMessage response = new HttpResponseMessage();
-            try
-            {
-                ClInscritoAutonomo ins = new ClInscritoAutonomo();
-                ins.IdInscrito = idInscrito;
-                ins.IdNivel = IdNivel;
-                ins.IdEstadoEstudiante = estado;
-                string uri = "api/InscritoAutonomo?idInscrito=" + ins.IdInscrito;
-                var myContent = JsonConvert.SerializeObject(ins);
-                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                var method = new HttpMethod("PATCH");
-                var request = new HttpRequestMessage(method, uri)
-                {
-                    Content = stringContent
-                };
-                response = await client.SendAsync(request);
-
-            }
-            catch (TaskCanceledException e)
-            {
-
-            }
-
-        }
-
         public async Task<List<ClNivel>> ServicioExtraerNIvel()
         {
             List<ClNivel> compInf = new List<ClNivel>();
@@ -296,141 +719,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
 
         }
-
-        #region Metodos
-        public async void cargarGridPruebas()
-        {
-            List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
-            List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
-            List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
-            List<ClPrueba> prueba = new List<ClPrueba>();
-            List<ClNivel> nivel = new List<ClNivel>();
-            List<ClNivelesInscrito> nivelesIns = new List<ClNivelesInscrito>();
-            List<ClEstadoEstudiante> estadoEstu = new List<ClEstadoEstudiante>();
-            nivelesIns = await ServicioGetNivelesInscritos();
-            tipoEstudiante = await ServicioExtraerTipoEstudiante();
-            inscrito = await ServicioExtraerInscrito();
-            periodo = await ServicioExtraerPeriodo();
-            prueba = await ServicioExtraerPrueba();
-            nivel = await ServicioExtraerNIvel();
-            estadoEstu = await ServicioGetEstadoEstudiante();
-            var query = from a in inscrito
-                        join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
-                        //join d in prueba on f.IDNIVELESTUDIANTE equals d.IDNIVELESTUDIANTE //into s
-                        //from d in s.DefaultIfEmpty()
-                        join e in nivel on f.IDNIVEL equals e.idNivel
-                        join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
-                        join c in periodo on a.idPerInscripcion equals c.IdPeriodoInscripcion
-                        join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
-                        orderby a.NombreInscrito ascending
-                        where f.PRUEBA == 0
-                        select new
-                        {
-                            IdInscrito = a.IdInscrito,
-                            IdNivel = a.IdNivel,
-                            IdTipoDocumento = a.IdTipoDocumento,
-                            TipoEstudiante = b.DescTipoEstudiante,
-                            NombreInscrito = a.NombreInscrito,
-                            ApellidoInscrito = a.ApellidoInscrito,
-                            NumDocInscrito = a.NumDocInscrito,
-                            CeluInscrito = a.CeluInscrito,
-                            TelefInscrito = a.TelefInscrito,
-                            DirecInscrito = a.DirecInscrito,
-                            EmailInscrito = a.EmailInscrito,
-                            FechaRegistro = a.FechaRegistro,
-                            EstadoPrueba = a.EstadoPrueba,
-                            PeriodoLectivo = c.Periodo,
-                            //IdPrueba = d.IdPrueba,//s.Select(x => x.IdPrueba).FirstOrDefault(),
-                            NomNivel = e.nomNivel,
-                            Estado = d.DescEstEstudiante,
-                            //Calificacion = d.PunjatePrueba//s.Select(x => x.PunjatePrueba).FirstOrDefault(),
-                        };
-            dgvInscrito.DataSource = query;
-            dgvInscrito.DataBind();
-        }
-        public async void cargarGridPruebasXInscrito(string cedula)
-        {
-            List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
-            List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
-            List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
-            List<ClPrueba> prueba = new List<ClPrueba>();
-            List<ClNivel> nivel = new List<ClNivel>();
-            List<ClNivelesInscrito> nivelesIns = new List<ClNivelesInscrito>();
-            List<ClEstadoEstudiante> estadoEstu = new List<ClEstadoEstudiante>();
-            nivelesIns = await ServicioGetNivelesInscritos();
-            tipoEstudiante = await ServicioExtraerTipoEstudiante();
-            inscrito = await ServicioExtraerInscrito();
-            periodo = await ServicioExtraerPeriodo();
-            prueba = await ServicioExtraerPrueba();
-            nivel = await ServicioExtraerNIvel();
-            estadoEstu = await ServicioGetEstadoEstudiante();
-            var query = from a in inscrito
-                        join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
-                        join e in nivel on f.IDNIVEL equals e.idNivel
-                        join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
-                        join c in periodo on a.idPerInscripcion equals c.IdPeriodoInscripcion
-                        join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
-                        orderby a.NombreInscrito ascending
-                        orderby a.NombreInscrito ascending
-                        where a.NumDocInscrito.Trim() == cedula.Trim() && f.PRUEBA == 0
-                        select new
-                        {
-                            IdInscrito = a.IdInscrito,
-                            IdNivel = a.IdNivel,
-                            IdTipoDocumento = a.IdTipoDocumento,
-                            TipoEstudiante = b.DescTipoEstudiante,
-                            NombreInscrito = a.NombreInscrito,
-                            ApellidoInscrito = a.ApellidoInscrito,
-                            NumDocInscrito = a.NumDocInscrito,
-                            CeluInscrito = a.CeluInscrito,
-                            TelefInscrito = a.TelefInscrito,
-                            DirecInscrito = a.DirecInscrito,
-                            EmailInscrito = a.EmailInscrito,
-                            FechaRegistro = a.FechaRegistro,
-                            EstadoPrueba = a.EstadoPrueba,
-                            PeriodoLectivo = c.Periodo,
-                            NomNivel = e.nomNivel,
-                            Estado = d.DescEstEstudiante,
-                        };
-            dgvInscrito.DataSource = query;
-            dgvInscrito.DataBind();
-
-        }
-        public async Task<long> extraerIdNivel(double? calificacion)
-        {
-            long nivel = 0;
-            List<ClCalificacionNivel> calif = new List<ClCalificacionNivel>();
-            double califDesde;
-            double califHasta;
-
-            calif = await ServicioExtraerCalificacion();
-            foreach (ClCalificacionNivel a in calif)
-            {
-                califDesde = Convert.ToDouble(a.calificacionNivelDesde);
-                califHasta = Convert.ToDouble(a.calificacionNivelHasta);
-
-                if (calificacion >= califDesde && calificacion <= califHasta)
-                {
-                    nivel = a.idNivel;
-                }
-            }
-            return nivel;
-        }
-        public async void UpdateNivelInscrito(ClNivelesInscrito pru, long idNIvelInscrito)
-        {
-            string uri = "api/NivelesInscrito/" + idNIvelInscrito;
-            var myContent = JsonConvert.SerializeObject(pru);
-            var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
-            var client = new HttpClient();
-            client.BaseAddress = new Uri(url);
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-            HttpResponseMessage res = await client.PutAsync(uri, stringContent);
-            if (res.IsSuccessStatusCode)
-            {
-                var empResponse = res.Content.ReadAsStringAsync().Result;
-            }
-        }
         public async void ServicioInsertarSoloNivel(ClNivelesInscrito pru)
         {
             try
@@ -454,63 +742,13 @@ namespace Proyecto_Ingles_V2.Interfaces
                 Console.WriteLine(ex.Message);
             }
         }
-        public async void actualizarNotaPruebaUbicacion(ClPrueba pru)
-        {
-            try
-            {
-                string uri = "api/Prueba?codigo=" + pru.IdPrueba;
-                var myContent = JsonConvert.SerializeObject(pru);
-                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
-                var client = new HttpClient();
-                client.BaseAddress = new Uri(url);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.PutAsync(uri, stringContent);
-                if (res.IsSuccessStatusCode)
-                {
-                    var empResponse = res.Content.ReadAsStringAsync().Result;
-                    //obtener idnivel 
-                    long IdNIvel = await extraerIdNivel(pru.PunjatePrueba);
-                    //recupera id de nuevo nivel
-                    List<ClNivelesInscrito> nivelesInscrito = new List<ClNivelesInscrito>();
-                    nivelesInscrito = await ServicioGetNivelesInscritos();
-                    long existePrueba = nivelesInscrito.Where(x => x.IDPRUEBAUBICACION == pru.IdPrueba).Count();
-                    if (existePrueba > 0)
-                    {
-                        long IdnivelEstudiante = nivelesInscrito.Where(x => x.IDPRUEBAUBICACION == pru.IdPrueba).Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();
-                        ClNivelesInscrito nivIns = new ClNivelesInscrito();
-                        nivIns.IDNIVEL = IdNIvel;
-                        nivIns.IDESTADONIVEL = 0;
-                        nivIns.IDPRUEBAUBICACION = pru.IdPrueba;
-                        UpdateNivelInscrito(nivIns, IdnivelEstudiante);
-                    }
-                    else
-                    {
-                        ClNivelesInscrito niv = new ClNivelesInscrito();
-                        niv.IDNIVEL = IdNIvel;
-                        niv.IDESTADONIVEL = 0;
-                        niv.IDINSCRITO = pru.IdInscrito;
-                        niv.IDPRUEBAUBICACION = pru.IdPrueba;
-                        niv.FECHAREGISTRO = Convert.ToString(DateTime.Now);
-                        ServicioInsertarSoloNivel(niv);
-
-                    }
-                    cargarGridPruebas();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
         public async Task<List<ClUnidad>> ServicioGetTemas(long idNIvel)
         {
             List<ClUnidad> compInf = new List<ClUnidad>();
             try
             {
 
-              
+
                 var client = new HttpClient();
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Clear();
@@ -529,9 +767,36 @@ namespace Proyecto_Ingles_V2.Interfaces
                 Console.WriteLine(ex.Message);
             }
             return compInf;
+        }
+        public async Task<List<ClUnidad>> ServicioGetAllTemas()
+        {
+            List<ClUnidad> compInf = new List<ClUnidad>();
+            try
+            {
+
+
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/Unidades");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClUnidad>>(empResponse);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
 
         }
-        public async void ServicioInsertarNotas(ClNota nota)
+
+        public async void ServicioInsertarPromedio(ClNota nota)//crear promedio
         {
 
             try
@@ -556,19 +821,105 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
 
         }
-        public async void crearNotas(long idInscrito,long idnivel) {
-            ClNota nota = new ClNota();
 
-            //servicio extraer temas
-            List<ClUnidad> unidades =await ServicioGetTemas(idnivel);
-            foreach (ClUnidad a in unidades) {
-                long idNomUnidad = a.idNomUnidad;
-                nota.IDTEMA = idNomUnidad;
-                nota.IDNIVEL = idnivel;
-                nota.IDINSCRITO = idInscrito;
-                ServicioInsertarNotas(nota);
+        public async void ServicioInsertarNotas(ClNota nota)//crear notas
+        {
+
+            try
+            {
+                string uri = "api/Notas";
+                var myContent = JsonConvert.SerializeObject(nota);
+                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.PostAsync(uri, stringContent);
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    string script = "confirm();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "xscript", script, true);
+                }
 
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
+        public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
+        {
+            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        public async Task<List<ClPrueba>> ServicioExtraerPrueba()
+        {
+            List<ClPrueba> compInf = new List<ClPrueba>();
+            try
+            {
+                //string url = "http://servicioinglesuisek/";               
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/Prueba");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClPrueba>>(empResponse);
+                    return compInf;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        public async Task<List<ClEstadoEstudiante>> ServicioGetEstadoEstudiante()
+        {
+            List<ClEstadoEstudiante> compInf = new List<ClEstadoEstudiante>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoEstudiante");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoEstudiante>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
         }
         public async Task<List<ClNota>> ServicioGetNotas(long idInscrito)
         {
@@ -595,134 +946,62 @@ namespace Proyecto_Ingles_V2.Interfaces
                 Console.WriteLine(ex.Message);
             }
             return compInf;
-
         }
-
-
-
-        #endregion
-        public async void llenarModal(long idInscrito, long idNivel) {
-            List<ClNota> notas = new List<ClNota>();
-            notas = await ServicioGetNotas(idInscrito);
-            List<ClInscritoAutonomo> ins = await ServicioExtraerInscrito();
-            List<ClNivel> niv = await ServicioExtraerNIvel();
-            List<ClUnidad> uni = await ServicioGetTemas(idNivel);
-            string nombresCompletos;
-            var query = from a in notas 
-                        join b in uni on a.IDTEMA equals b.idNomUnidad 
-                        join c in niv on a.IDNIVEL equals c.idNivel 
-                        join d in ins on a.IDINSCRITO equals d.IdInscrito 
-                        select new {
-                            NombreAlumno=d.NombreInscrito,
-                            ApellidosAlumno=d.ApellidoInscrito,
-                            NomNivel=c.nomNivel,
-                            idNiv=a.IDNIVEL,
-                            idIns=a.IDINSCRITO,
-
-                            NomUnidad=b.NomUnidad,
-                            IDNota=a.IDNOTA,
-                            Unit1=a.UNIT_1,
-                            Done1=a.DONE_1,
-                            Unit2 = a.UNIT_2,
-                            Done2 = a.DONE_2,
-                            Unit3 = a.UNIT_3,
-                            Done3 = a.DONE_3,
-                            Ckeckpoint=a.CHECK_POINT,
-                            Unit4 = a.UNIT_4,
-                            Done4 = a.DONE_4,
-                            Unit5 = a.UNIT_5,
-                            Done5 = a.DONE_5,
-                            Unit6 = a.UNIT_6,
-                            Done6 = a.DONE_6,
-                            Estado = a.ESTADO,
-                        };
-            nombresCompletos= query.Select(x => x.NombreAlumno).FirstOrDefault().Trim()+" "+query.Select(x => x.ApellidosAlumno).FirstOrDefault().Trim();
-            txtNombres.Text = nombresCompletos;
-            txtnivel.Text = query.Select(x => x.NomNivel).FirstOrDefault();
-            string inscrito= query.Select(x => x.idIns).FirstOrDefault().ToString();
-            string nivel = query.Select(x => x.idNiv).FirstOrDefault().ToString();
-            HiddenIdIns.Value = inscrito;
-            HiddenNivel.Value = nivel;
-            dgvNotas.DataSource = query;
-            dgvNotas.DataBind();
-        }
-        protected void dgvInscrito_RowCommand(object sender, GridViewCommandEventArgs e)
+        public async void ServicioInsertarNivelIns(ClNivelesInscrito pru)
         {
-            if (e.CommandName == "CrearNotas")
+            try
             {
-                int fila = Convert.ToInt32(e.CommandArgument);
-                long idNivel = Convert.ToInt64(dgvInscrito.Rows[fila].Cells[9].Text);
-                long idInscito = Convert.ToInt64(dgvInscrito.DataKeys[fila].Value);
-                crearNotas(idInscito,idNivel);
+                string uri = "api/NivelesInscrito";
+                var myContent = JsonConvert.SerializeObject(pru);
+                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.PostAsync(uri, stringContent);
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                }
             }
-            if (e.CommandName == "VerNotas") {
-                
-                int fila = Convert.ToInt32(e.CommandArgument);
-                long idNivel = Convert.ToInt64(dgvInscrito.Rows[fila].Cells[9].Text);
-                long idInscito = Convert.ToInt64(dgvInscrito.DataKeys[fila].Value);
-                llenarModal(idInscito,idNivel);
-                btnPopUp_ModalPopupExtender2.Show();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
+        }
+        public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritosxId(long id)
+        {
+            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito/"+id);
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
 
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        #endregion
+        protected void btnConsultarNotas_Click(object sender, EventArgs e)
+        {
+            //long idNivel = Convert.ToInt64(ddlNivel.SelectedValue.ToString());
+            long idInscrito = Convert.ToInt64(HiddenIdIns.Value);
+            //CargarGridNotasAlumno(idInscrito,idNivel);
         }
 
-        protected void dgvNotas_RowUpdating(object sender, GridViewUpdateEventArgs e)
+        protected void btnSubmit_Click(object sender, EventArgs e)
         {
-
-
-                ClNota no = new ClNota();
-                int id = Convert.ToInt32(dgvNotas.DataKeys[e.RowIndex]["IDNota"].ToString());
-                TextBox txtUnit1 = (dgvNotas.Rows[e.RowIndex].Cells[1].FindControl("EditUnit1") as TextBox);
-                TextBox txtDone1 = (dgvNotas.Rows[e.RowIndex].Cells[2].FindControl("EditDone1") as TextBox);
-                TextBox txtUnit2 = (dgvNotas.Rows[e.RowIndex].Cells[3].FindControl("EditUnit2") as TextBox);
-                TextBox txtDone2 = (dgvNotas.Rows[e.RowIndex].Cells[4].FindControl("EditDone2") as TextBox);
-                TextBox txtUnit3 = (dgvNotas.Rows[e.RowIndex].Cells[5].FindControl("EditUnit3") as TextBox);
-                TextBox txtDone3 = (dgvNotas.Rows[e.RowIndex].Cells[6].FindControl("EditDone3") as TextBox);
-                TextBox txtCheck = (dgvNotas.Rows[e.RowIndex].Cells[7].FindControl("EditCkeckpoint") as TextBox);
-                TextBox txtUnit4 = (dgvNotas.Rows[e.RowIndex].Cells[8].FindControl("EditUnit4") as TextBox);
-                TextBox txtDone4 = (dgvNotas.Rows[e.RowIndex].Cells[9].FindControl("EditDone4") as TextBox);
-                TextBox txtUnit5 = (dgvNotas.Rows[e.RowIndex].Cells[10].FindControl("EditUnit5") as TextBox);
-                TextBox txtDone5 = (dgvNotas.Rows[e.RowIndex].Cells[11].FindControl("EditDone5") as TextBox);
-                TextBox txtUnit6 = (dgvNotas.Rows[e.RowIndex].Cells[12].FindControl("EditUnit6") as TextBox);
-                TextBox txtDone6 = (dgvNotas.Rows[e.RowIndex].Cells[13].FindControl("EditDone6") as TextBox);
-                TextBox txtEstado = (dgvNotas.Rows[e.RowIndex].Cells[14].FindControl("EditEstado") as TextBox);
-                no.UNIT_1 = txtUnit1.Text;
-                no.DONE_1 = txtDone1.Text;
-                no.UNIT_2 = txtUnit2.Text;
-                no.DONE_2 = txtDone2.Text;
-                no.UNIT_3 = txtUnit3.Text;
-                no.DONE_3 = txtDone3.Text;
-                no.UNIT_4 = txtUnit4.Text;
-                no.DONE_4 = txtDone4.Text;
-                no.UNIT_5 = txtUnit5.Text;
-                no.DONE_5 = txtDone5.Text;
-                no.UNIT_6 = txtUnit6.Text;
-                no.DONE_6 = txtDone6.Text;
-                no.ESTADO = txtEstado.Text;
-                no.CHECK_POINT = txtCheck.Text;
-                long idIns = Convert.ToInt64(HiddenIdIns.Value);
-                long idNiv = Convert.ToInt64(HiddenNivel.Value);
-                actualizarNotas(no, id,idIns,idNiv);
-                dgvNotas.EditIndex = -1;
-        }
-
-        protected void dgvNotas_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
-        {
-
-                dgvNotas.EditIndex = -1;
-                long idIns = Convert.ToInt64(HiddenIdIns.Value);
-                long idNiv = Convert.ToInt64(HiddenNivel.Value);
-                llenarModal(idIns, idNiv);
-            
-        }
-
-        protected void dgvNotas_RowEditing(object sender, GridViewEditEventArgs e)
-        {
-
-                dgvNotas.EditIndex = e.NewEditIndex;
-                long idIns = Convert.ToInt64(HiddenIdIns.Value);
-                long idNiv = Convert.ToInt64(HiddenNivel.Value);
-                llenarModal(idIns, idNiv);
 
         }
     }

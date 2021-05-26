@@ -11,14 +11,14 @@ namespace Proyecto_Ingles_V2.Interfaces
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack) {
 
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
-                {
-                    Response.Redirect("../Login/formLogin.aspx");
-                }
+                {            
+                    if (!IsPostBack) {
+                        Response.Redirect("../Login/formLogin.aspx");
+                    }
 
-            }
+                }
 
         }
     }
