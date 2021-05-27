@@ -342,8 +342,12 @@
  
     <script>
         $(document).ready(
-
             function () {
+                var d = new Date();
+                var fecha = d.format("yyyy-MM-dd");
+                $("#<%=txt_fecha_deposito.ClientID%>").val(fecha);
+
+
                 $(".clDate").datepicker({ dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true, yearRange: '-2:+1', editable: false, maxDate: '0' });
 
                 $.datepicker.regional['es'] = {
@@ -368,5 +372,7 @@
             });
 
     </script>
+
+
 
 </asp:Content>

@@ -45,7 +45,6 @@ namespace Proyecto_Ingles_V2.Interfaces
                 else
                 {
                 }
-
             }
         }
         protected  void Button1_Click(object sender, EventArgs e)

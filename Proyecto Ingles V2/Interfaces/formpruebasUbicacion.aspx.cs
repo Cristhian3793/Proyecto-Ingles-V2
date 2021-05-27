@@ -443,7 +443,8 @@ namespace Proyecto_Ingles_V2.Interfaces
         public async void actualizarNotaPruebaUbicacion(ClPrueba pru)
         {
             bool resp;
-            resp = await VerificarPagos(pru.IdInscrito);
+            long idnivelestudiante = pru.IDNIVELESTUDIANTE;
+            resp = await VerificarPagos(pru.IdInscrito, idnivelestudiante);
             if (resp == false)
             {
                 try
@@ -484,6 +485,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             niv.IDINSCRITO = pru.IdInscrito;
                             niv.IDPRUEBAUBICACION = pru.IdPrueba;
                             niv.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                            niv.IDPERIODOINSCRIPCION =await  extrarIdPeridoActivo();
                             ServicioInsertarSoloNivel(niv);
 
                         }
@@ -504,10 +506,21 @@ namespace Proyecto_Ingles_V2.Interfaces
           
         }
         #endregion
-
-
         #region Metodos forms
+        public async Task<long> extrarIdPeridoActivo()
+        {
+            List<ClPeriodoInscripcion> periodoActivo = await ServicioExtraerPeriodo();
+            long idPeriodo;
+            var periodo = from a in periodoActivo
+                          where a.EstadoPeriodo == 1
+                          select new
+                          {
+                              IDPERIODO = a.IdPeriodoInscripcion,
+                          };
+            idPeriodo = Convert.ToInt64(periodo.Select(x => x.IDPERIODO).FirstOrDefault());
+            return idPeriodo;
 
+        }
 
         protected void dgvNotasPruebas_RowEditing(object sender, GridViewEditEventArgs e)
         {
@@ -526,7 +539,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             clif = await ServicioExtraerCalificacion();
             return clif;
         }
-        public async Task<bool> VerificarPagos(long idEstu) {
+        public async Task<bool> VerificarPagos(long idEstu,long idNivelEstu) {
             List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
             int contador=0;
             bool resp = false;
@@ -543,7 +556,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                     var empResponse = res.Content.ReadAsStringAsync().Result;
                     compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
                     var query = from a in compInf
-                                where a.IDINSCRITO == idEstu
+                                where a.IDINSCRITO == idEstu && a.IDNIVELESTUDIANTE==idNivelEstu
                                 select new
                                 {
                                     EstadoNivel=a.IDESTADONIVEL,
@@ -594,9 +607,9 @@ namespace Proyecto_Ingles_V2.Interfaces
                 actualizarNotaPruebaUbicacion(pru);
                 dgvNotasPruebas.EditIndex = -1;
                 cargarGridPruebas();
-            
 
         }
+
         protected void Button1_Click(object sender, EventArgs e)
         {
             if (txtCedula.Text.Trim().ToString() != "")

@@ -55,6 +55,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                     if (!IsPostBack)
                     {
                     List<Producto> listaCompras = new List<Producto>();
+
                     //consulta los banco a los q se les hace transferencia.
                     DataSet dsBanco = Conexion.BuscarNAV_ds("[dbo].[DTA_Banco]", "*", "");
                         ddl_origen_deposito.DataSource = dsBanco.Tables[0];
@@ -63,18 +64,35 @@ namespace Proyecto_Ingles_V2.Interfaces
                         ddl_origen_deposito.DataBind();
                         ddl_origen_deposito.Items.Insert(0, new ListItem("- Seleccione una opción -", "0"));
                         //consulta los tipos de concepto para la transacción
-                        DataSet ds_concepto = Conexion.BuscarNAV_ds("[dbo].[DTA_Concepto]", "*", "where nombre like 'Inglés Autónomo%'");//bloquer no escoja una opcion diferente de las de ingles
+                        DataSet ds_concepto=null; //bloquer no escoja una opcion diferente de las de ingles
+                        string usuario = (string)Session["usuario"].ToString();
+                        cargarInformacionFactura();
+                        listaCompras = await CargarInformacion(usuario);
+                        string codProducto = listaCompras.Select(x => x.codConcepto).FirstOrDefault();
+                        
+                        if (codProducto == "SEK1333" || codProducto == "SEK1335" || codProducto == "SEK1337" || codProducto == "SEK1339" || codProducto == "SEK1341" || codProducto == "SEK1343" || codProducto == "SEK1345" || codProducto == "SEK1347")//niveles
+                        {
+                            ds_concepto= Conexion.BuscarNAV_ds("[dbo].[DTA_Concepto]", "*", "where nombre like 'Inglés Autónomo Nivel%'");
+                        }
+                        else if (codProducto == "SEK1203")//prueba de ubicacion
+                        {
+                            ds_concepto = Conexion.BuscarNAV_ds("[dbo].[DTA_Concepto]", "*", "where nombre like 'Inglés Autónomo Prueba Ubicación%'");
+
+                        }
+                        else if(codProducto== "SEK1074")//examen suficiencia
+                        {
+                            ds_concepto = Conexion.BuscarNAV_ds("[dbo].[DTA_Concepto]", "*", "Inglés Autónomo Prueba Suficiencia%'");
+                        }
+                        else if (codProducto == "SEK1205")//reconocimiento ingles
+                        {
+                            ds_concepto = Conexion.BuscarNAV_ds("[dbo].[DTA_Concepto]", "*", "Inglés Autónomo Reconocimiento%'");
+                        }
 
                         ddl_concepto.DataSource = ds_concepto.Tables[0];
                         ddl_concepto.DataTextField = "nombre";
                         ddl_concepto.DataValueField = "id";
-                        ddl_concepto.DataBind();
-                        ddl_concepto.SelectedValue = "0";
-
-
-                    string usuario = (string)Session["usuario"].ToString();
-                    cargarInformacionFactura();
-                    listaCompras = await CargarInformacion(usuario);
+                        ddl_concepto.DataBind();                     
+                        //ddl_concepto.SelectedValue = "";
                     Previsualizar();
                         //si hay facturas cone se codigo cliente podemos sacar los datos para facturacion sino queda en blanco
 
