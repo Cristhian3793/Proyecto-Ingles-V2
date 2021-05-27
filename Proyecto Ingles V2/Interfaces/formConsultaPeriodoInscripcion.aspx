@@ -233,6 +233,22 @@
             })
             return false;
         }
+        function ExistPeriodoActivo() {
+            Swal.fire({
+                icon: 'error',
+
+                text: 'Ya existe un periodo activo!',
+                footer: '<a href></a>'
+            })
+        }
+        function confirm() {
+            Swal.fire({
+                icon: 'success',
+                title: 'OK',
+                text: 'El Registro se Actualizo Corectamente!',
+                footer: '<a href></a>'
+            })
+        }
     </script>
 
 </asp:Content>

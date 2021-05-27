@@ -397,6 +397,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                                 niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
                                 niveles.PRUEBA = 1;
                                 niveles.ESTADONIVEL = 0;
+                                niveles.IDPERIODOINSCRIPCION = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString());
                                 ServicioInsertarNivelIns(niveles, lastid);
                             }
                             else
@@ -413,6 +414,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                                 niveles.PRUEBA = 0;
                                 niveles.ESTADONIVEL = 0;
                                 niveles.FECHAREGISTRO = Convert.ToString(DateTime.Now);
+                                niveles.IDPERIODOINSCRIPCION = Convert.ToInt64(cbxPeriodoLectivo.SelectedValue.ToString());
                                 ServicioInsertarNivelIns(niveles, lastid);
                             }
                             string password = encriptarClave("Uisek*");

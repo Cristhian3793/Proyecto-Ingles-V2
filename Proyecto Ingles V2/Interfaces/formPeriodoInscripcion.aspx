@@ -111,6 +111,16 @@ input:checked + .slider:before {
                         </div>
                  </div>
   <script type="text/javascript">
+      $(document).ready(function () {
+          var d = new Date();
+          var fecha = d.format("yyyy-MM-dd");
+            $("#<%=txtFechaInicio.ClientID%>").val(fecha);
+            $("#<%=txtFechaFin.ClientID%>").val(fecha);
+      });
+
+
+      
+
        function confirm() {
            Swal.fire({
                icon: 'success',
@@ -119,7 +129,14 @@ input:checked + .slider:before {
                footer: '<a href></a>'
            })
        }
+      function ExistPeriodoActivo() {
+          Swal.fire({
+              icon: 'error',
 
+              text: 'Ya existe un periodo activo!',
+              footer: '<a href></a>'
+          })
+      }
   </script>
 </asp:Content>
 

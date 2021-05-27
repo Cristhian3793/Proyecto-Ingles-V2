@@ -32,7 +32,7 @@ namespace Logica.Servicios
                     }
                     finally
                     {
-                        mySesion.Flush();
+                        mySesion.Close();
                     }
                 }
             }

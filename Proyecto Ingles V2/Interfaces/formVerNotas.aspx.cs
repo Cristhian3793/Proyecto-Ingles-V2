@@ -399,6 +399,20 @@ namespace Proyecto_Ingles_V2.Interfaces
             dgvInscrito.DataSource = query;
             dgvInscrito.DataBind();
         }
+        public async Task<long> extrarIdPeridoActivo()
+        {
+            List<ClPeriodoInscripcion> periodoActivo = await ServicioExtraerPeriodo();
+            long idPeriodo;
+            var periodo = from a in periodoActivo
+                          where a.EstadoPeriodo == 1
+                          select new
+                          {
+                              IDPERIODO=a.IdPeriodoInscripcion,
+                          };
+            idPeriodo = Convert.ToInt64(periodo.Select(x => x.IDPERIODO).FirstOrDefault());
+            return idPeriodo;
+
+        }
         public async Task<long> extraerIdNivel(double? calificacion)
         {
             long nivel = 0;
@@ -436,6 +450,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         protected async void btnCalcPromedio_Click(object sender, EventArgs e)//calcular promedio y asignar nivel
         {
+            long idperiodoActivo= await extrarIdPeridoActivo();
             int cantNiveles = 6;
             long idInscrito = 0;
             long idNIvelEstudiante = 0;
@@ -455,9 +470,6 @@ namespace Proyecto_Ingles_V2.Interfaces
                             IDNIVEL = a.IDNIVEL,
                             IDINSCRITO = a.IDINSCRITO,
                             Calificacion = a.CALIFICACION,
-
-
-
                         };
 
             foreach (var a in query)
@@ -525,6 +537,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                     nivIns.IDPRUEBAUBICACION = null;
                     nivIns.PRUEBA = 0;
                     nivIns.ESTADONIVEL = 0;
+                    nivIns.IDPERIODOINSCRIPCION = idperiodoActivo;
                     ServicioInsertarNivelIns(nivIns);
                 }
                 else if (promedio < 6)//pierde nivel y se guarda nivel actual
@@ -555,6 +568,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                     nivIns.IDPRUEBAUBICACION = null;
                     nivIns.PRUEBA = 0;
                     nivIns.ESTADONIVEL = 0;
+                    nivIns.IDPERIODOINSCRIPCION = idperiodoActivo;
                     ServicioInsertarNivelIns(nivIns);
                 }
             }

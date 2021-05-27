@@ -86,11 +86,54 @@ namespace Proyecto_Ingles_V2.Interfaces
 
 
         }
+        public async Task<List<ClPeriodoInscripcion>> ServicioExtraerPeriodos()//cargar todos inscritos
+        {
+            List<ClPeriodoInscripcion> compInf = new List<ClPeriodoInscripcion>();
+            try
+            {
+
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/PeriodoInscripcion");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClPeriodoInscripcion>>(empResponse);
+
+                }
+
+                return compInf;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
         #endregion
 
         #region Metodos
-        public void InsertarPeriodo()
+        public async Task<bool> ValidarPeridoActivo() {
+            List<ClPeriodoInscripcion> periodos = await ServicioExtraerPeriodos();
+            bool resp = false;
+            var periodos_ = from a in periodos
+                           where a.EstadoPeriodo == 1
+                           select new
+                           {
+                               IDPERIODO = a.IdPeriodoInscripcion,
+                           };
+            if (periodos_.Count() > 0)
+            {
+                resp = true;
+            }
+            return resp;
+        }
+        public async void InsertarPeriodo()
         {
+            bool existeActivo =await ValidarPeridoActivo();
             DateTime fecha = DateTime.Now;
             ClPeriodoInscripcion per = new ClPeriodoInscripcion();
             int activo = 0;
@@ -101,10 +144,10 @@ namespace Proyecto_Ingles_V2.Interfaces
             per.FechaFin = Convert.ToDateTime(txtFechaFin.Text);
             if (RabActivo.Checked == true)
             {
-                activo = 1;
+                activo = 1;//activo
             }
             else
-                activo = 0;
+                activo = 0;//noactivo
             per.EstadoPeriodo = activo;
             if (Convert.ToDateTime(txtFechaFin.Text) < Convert.ToDateTime(txtFechaInicio.Text))
             {
@@ -114,10 +157,36 @@ namespace Proyecto_Ingles_V2.Interfaces
                 ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, false);
             }
             else {
+                if (RabActivo.Checked == true)
+                {
+                    if (existeActivo == true)
+                    {
+                        string script = "ExistPeriodoActivo();";
+                        ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
 
-                ServicioInsertarPeriodo(per);
-                string script = "confirm();";
-                ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                    }
+                    else
+                    {
+                        ServicioInsertarPeriodo(per);
+                        string script = "confirm();";
+                        ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                    }
+                }else
+                {
+                    if (existeActivo == true)
+                    {
+                        ServicioInsertarPeriodo(per);
+                        string script = "confirm();";
+                        ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                    }
+                    else
+                    {
+                        ServicioInsertarPeriodo(per);
+                        string script = "confirm();";
+                        ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                    }
+                }
+
             }
         }
         public void limpiarCampos()

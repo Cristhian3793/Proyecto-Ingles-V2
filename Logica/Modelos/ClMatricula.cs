@@ -16,6 +16,7 @@ namespace Logica.Modelos
         public virtual string CODNIVEL { get; set; }
         public virtual string NOMNIVEL { get; set; }
         public virtual int PRUEBA { get; set; }
+        public virtual string Periodo { get; set; }
 
     }
 }

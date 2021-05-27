@@ -34,7 +34,7 @@ namespace Proyecto_Ingles_V2.Interfaces
 
             }
         }
-        public async Task<List<ClMatricula>> ServicioGetEstadoEstudiante(string numdoc, string codProducto)
+        public async Task<List<ClMatricula>> ServicioGetEstadoEstudiante(string numdoc, string codProducto,string periodo)
         {
             List<ClMatricula> compInf = new List<ClMatricula>();
             try
@@ -43,7 +43,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/ActualizarMatriculas?numdoc="+numdoc+"&codProducto="+codProducto);
+                HttpResponseMessage res = await client.GetAsync("api/ActualizarMatriculas?numdoc="+numdoc+"&codProducto="+codProducto+"&periodo="+periodo);
                 if (res.IsSuccessStatusCode)
                 {
                     var empResponse = res.Content.ReadAsStringAsync().Result;
@@ -87,7 +87,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         {
 
             int estado = 0;
-            List<ClMatricula> matricula = await ServicioGetEstadoEstudiante("1721441895", "SEK1335");//recupero registro a pagar añadir periodo
+            List<ClMatricula> matricula = await ServicioGetEstadoEstudiante("1721441895", "SEK1335", "2021-2");//recupero registro a pagar añadir periodo
             long IDNIVELESTUDIANTE = matricula.Select(x => x.IDNIVELESTUDIANTE).FirstOrDefault();//este es el que se envia para actualizar 
             long IDINSCRITO = matricula.Select(x => x.IDINSCRITO).FirstOrDefault();
             string NUMDOCINSCRITO = matricula.Select(x => x.NUMDOCINSCRITO).FirstOrDefault();

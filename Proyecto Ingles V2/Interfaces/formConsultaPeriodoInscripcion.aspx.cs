@@ -46,7 +46,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
         }
         #region Invocacion Servicios
-        public async void ServicioExtraerPeriodosXid()
+        public async Task<List<ClPeriodoInscripcion>>  ServicioExtraerPeriodosXid(long idPeriodo)
         {
             List<ClPeriodoInscripcion> compInf = new List<ClPeriodoInscripcion>();
             try
@@ -55,20 +55,40 @@ namespace Proyecto_Ingles_V2.Interfaces
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/PeriodoInscripcion?idper=" + txtPeriodo.Text.ToString().Trim());
+                HttpResponseMessage res = await client.GetAsync("api/PeriodoInscripcion?idper=" + idPeriodo);
                 if (res.IsSuccessStatusCode)
                 {
                     var empResponse = res.Content.ReadAsStringAsync().Result;
                     compInf = JsonConvert.DeserializeObject<List<ClPeriodoInscripcion>>(empResponse);
                 }
-                dgvPeriodo.DataSource = compInf;
-                dgvPeriodo.DataBind();
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+            return compInf;
         }
+        public async void cargarPeriodoxId(string periodo) {
+            List<ClPeriodoInscripcion> periodos = await ServicioExtraerPeriodos();
+            List<ClEstadoPeriodo> estadoPeriodo = await servicioGetEstadoPeriodo();
+            var periodos_ = from a in periodos
+                            join b in estadoPeriodo on a.EstadoPeriodo equals b.CODESTADOPERIODO
+                            where a.Periodo.Trim()==periodo.Trim()
+                            select new
+                            {
+                                IDPERIODOINSCRIPCION = a.IdPeriodoInscripcion,
+                                PERIODO = a.Periodo,
+                                ANOLECTIVO = a.AnoLectivo,
+                                FechaInicio = a.FechaInicio,
+                                FechaFin = a.FechaFin,
+                                EstadoPeriodo = b.DESCESTADOPERIODO,
+                            };
+            dgvPeriodo.DataSource = periodos_;
+            dgvPeriodo.DataBind();
+
+        }
+
         public async Task<List<ClPeriodoInscripcion>> ServicioExtraerPeriodos()//cargar todos inscritos
         {
             List<ClPeriodoInscripcion> compInf = new List<ClPeriodoInscripcion>();
@@ -138,12 +158,49 @@ namespace Proyecto_Ingles_V2.Interfaces
 
         }
         #endregion
+        public async Task<List<ClEstadoPeriodo>> servicioGetEstadoPeriodo()
+        {
+            List<ClEstadoPeriodo> compInf = new List<ClEstadoPeriodo>();
+            try
+            {
 
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoPeriodo");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoPeriodo>>(empResponse);
+
+                }
+
+                return compInf;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+
+        }
         #region Metodos
         public async void CargarPeriodos() {
             List<ClPeriodoInscripcion> periodos = new List<ClPeriodoInscripcion>();
             periodos=await ServicioExtraerPeriodos();
-            dgvPeriodo.DataSource = periodos;
+            List<ClEstadoPeriodo> estadoPeriodo = await servicioGetEstadoPeriodo();
+            var periodos_ = from a in periodos join b in estadoPeriodo on a.EstadoPeriodo equals b.CODESTADOPERIODO 
+                            select new {
+                                IDPERIODOINSCRIPCION=a.IdPeriodoInscripcion,
+                                PERIODO=a.Periodo,
+                                ANOLECTIVO=a.AnoLectivo,
+                                FechaInicio=a.FechaInicio,
+                                FechaFin=a.FechaFin,
+                                EstadoPeriodo=b.DESCESTADOPERIODO,
+                            };
+            dgvPeriodo.DataSource = periodos_;
             dgvPeriodo.DataBind();
         }
         public async void llenarmodal(long idperiodoRegistro) {
@@ -185,8 +242,8 @@ namespace Proyecto_Ingles_V2.Interfaces
         {
             if (txtPeriodo.Text.ToString().Trim() != "")
             {
-                long identificacion = Convert.ToInt64(txtPeriodo.Text.Trim().ToString());
-                ServicioExtraerPeriodosXid();
+                string  periodo =txtPeriodo.Text.Trim().ToString();
+                cargarPeriodoxId(periodo);
             }
             else
             {
@@ -207,8 +264,25 @@ namespace Proyecto_Ingles_V2.Interfaces
         {
             
         }
-        protected void btnActualizar_Click(object sender, EventArgs e)
+        public async Task<bool> ValidarPeridoActivo()
         {
+            List<ClPeriodoInscripcion> periodos = await ServicioExtraerPeriodos();
+            bool resp = false;
+            var periodos_ = from a in periodos
+                            where a.EstadoPeriodo == 1
+                            select new
+                            {
+                                IDPERIODO = a.IdPeriodoInscripcion,
+                            };
+            if (periodos_.Count() > 0)
+            {
+                resp = true;
+            }
+            return resp;
+        }
+        protected async void btnActualizar_Click(object sender, EventArgs e)
+        {
+            bool existeActivo = await ValidarPeridoActivo();
             ClPeriodoInscripcion periodo = new ClPeriodoInscripcion();
             int activo = 0;
             periodo.IdPeriodoInscripcion = Convert.ToInt32(txtId.Text);
@@ -225,7 +299,39 @@ namespace Proyecto_Ingles_V2.Interfaces
                 activo = 0;
             }
             periodo.EstadoPeriodo = activo;
-            ServicioActualizarPeriodo(periodo);
+            if (RabActivo.Checked == true)
+            {
+                if (existeActivo == true)
+                {
+                    string script = "ExistPeriodoActivo();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+
+                }
+                else
+                {
+                    ServicioActualizarPeriodo(periodo);
+                    string script = "confirm();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                }
+            }
+            else
+            {
+                if (existeActivo == true)
+                {
+                    ServicioActualizarPeriodo(periodo);
+                    string script = "confirm();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                }
+                else
+                {
+                    ServicioActualizarPeriodo(periodo);
+                    string script = "confirm();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                }
+            }
+
+
+
         }
         protected void dgvPeriodo_RowDeleting(object sender, System.Web.UI.WebControls.GridViewDeleteEventArgs e)
         {

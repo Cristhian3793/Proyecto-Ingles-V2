@@ -17,24 +17,30 @@ namespace Services.Controllers
         ServiciosInscritoAutonomo servInscrito = new ServiciosInscritoAutonomo();
         ServiciosNivelesInscrito servNivelesInscrito = new ServiciosNivelesInscrito();
         ServiciosNiveles servNivel = new ServiciosNiveles();
+        ServiciosPeriodoInscripcion servPeriodos = new ServiciosPeriodoInscripcion();
         [HttpGet]
-        public IHttpActionResult GetEstadoMatricula(string numdoc,string codProducto)
+        public IHttpActionResult GetEstadoMatricula(string numdoc,string codProducto,string periodo)
         {
             IList<ClInscritoAutonomo> inscrito = servInscrito.getInscritosAutonomos();
             IList<ClNivelesInscrito> nivInscrito = servNivelesInscrito.getNivelIns();
             IList<ClNivel> nivel = servNivel.getNivel();
+            IList<ClPeriodoInscripcion> periodos = servPeriodos.getPeriodoInscripcion();
 
-            var query = from a in inscrito join b in nivInscrito on a.IdInscrito equals b.IDINSCRITO join c in nivel on b.IDNIVEL equals c.idNivel
-                        where b.IDESTADONIVEL==0 && a.NumDocInscrito.Trim()==numdoc && c.codNivel.Trim()==codProducto
+            var query = from a in inscrito 
+                        join b in nivInscrito on a.IdInscrito equals b.IDINSCRITO 
+                        join c in nivel on b.IDNIVEL equals c.idNivel
+                        join d in periodos on b.IDPERIODOINSCRIPCION equals d.IdPeriodoInscripcion
+                        where b.IDESTADONIVEL==0 && a.NumDocInscrito.Trim()==numdoc && c.codNivel.Trim()==codProducto && d.Periodo.Trim()==periodo.Trim()
                         select new { 
                             IDNIVELESTUDIANTE=b.IDNIVELESTUDIANTE,
                             IDINSCRITO=a.IdInscrito,
-                            NUMDOCINSCRITO=a.NumDocInscrito,
+                            NUMDOCINSCRITO=a.NumDocInscrito.Trim(),
                             IDNIVEL=b.IDNIVEL,
                             ESTADONIVEL=b.IDESTADONIVEL,
-                            CODNIVEL=c.codNivel,
-                            NOMNIVEL=c.nomNivel,
-                            PRUEBA=b.PRUEBA
+                            CODNIVEL=c.codNivel.Trim(),
+                            NOMNIVEL=c.nomNivel.Trim(),
+                            PRUEBA=b.PRUEBA,
+                            PERIODO=d.Periodo.Trim(),
                         };
 
             return Ok(query);
