@@ -385,9 +385,11 @@
     <Content Include="InscripcionExterna\InscripcionIngles.aspx" />
     <Content Include="Interfaces\BotonPagos.aspx" />
     <Content Include="Interfaces\Depositos.aspx" />
+    <Content Include="Interfaces\formAsignacionLicencias.aspx" />
     <Content Include="Interfaces\formCalificacionNivel.aspx" />
     <Content Include="Interfaces\formConsultaCalificacionNivel.aspx" />
     <Content Include="Interfaces\formConsultaInscritos.aspx" />
+    <Content Include="Interfaces\formConsultaLicenciasCambridge_.aspx" />
     <Content Include="Interfaces\formConsultaPeriodoInscripcion.aspx" />
     <Content Include="Interfaces\formConsultaTemas.aspx" />
     <Content Include="Interfaces\formConsultaUnidades.aspx" />
@@ -799,6 +801,13 @@
     <Compile Include="Interfaces\Depositos.aspx.designer.cs">
       <DependentUpon>Depositos.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\formAsignacionLicencias.aspx.cs">
+      <DependentUpon>formAsignacionLicencias.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Interfaces\formAsignacionLicencias.aspx.designer.cs">
+      <DependentUpon>formAsignacionLicencias.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Interfaces\formCalificacionNivel.aspx.cs">
       <DependentUpon>formCalificacionNivel.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -819,6 +828,13 @@
     </Compile>
     <Compile Include="Interfaces\formConsultaInscritos.aspx.designer.cs">
       <DependentUpon>formConsultaInscritos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Interfaces\formConsultaLicenciasCambridge_.aspx.cs">
+      <DependentUpon>formConsultaLicenciasCambridge_.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Interfaces\formConsultaLicenciasCambridge_.aspx.designer.cs">
+      <DependentUpon>formConsultaLicenciasCambridge_.aspx</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\formConsultaPeriodoInscripcion.aspx.cs">
       <DependentUpon>formConsultaPeriodoInscripcion.aspx</DependentUpon>

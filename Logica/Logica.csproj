@@ -80,6 +80,7 @@
     <Compile Include="Mapping\mapInscritoAutonomo.cs" />
     <Compile Include="Mapping\mapLibros.cs" />
     <Compile Include="Mapping\mapLicenciaCambridge.cs" />
+    <Compile Include="Mapping\mapLicenciasEstudiante.cs" />
     <Compile Include="Mapping\mapNivel.cs" />
     <Compile Include="Mapping\mapEquivalenciaNivel.cs" />
     <Compile Include="Mapping\mapNivelAutonomo.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Modelos\ClInscritoAutonomo.cs" />
     <Compile Include="Modelos\CLLibros.cs" />
     <Compile Include="Modelos\ClLicenciaCambridge.cs" />
+    <Compile Include="Modelos\ClLicenciasEstudiante.cs" />
     <Compile Include="Modelos\ClMatricula.cs" />
     <Compile Include="Modelos\ClModalidadEstudio.cs" />
     <Compile Include="Modelos\ClModoPago.cs" />
@@ -164,6 +166,7 @@
     <Compile Include="Servicios\ServiciosInscritoAutonomo.cs" />
     <Compile Include="Servicios\ServiciosLibros.cs" />
     <Compile Include="Servicios\ServiciosLicenciasCambridge.cs" />
+    <Compile Include="Servicios\ServiciosLicenciasEstudiante.cs" />
     <Compile Include="Servicios\ServiciosNiveles.cs" />
     <Compile Include="Servicios\ServiciosNivelesAutonomos.cs" />
     <Compile Include="Servicios\ServiciosNivelesInscrito.cs" />

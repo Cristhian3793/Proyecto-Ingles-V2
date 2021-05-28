@@ -187,6 +187,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LibrosController.cs" />
     <Compile Include="Controllers\LicenciasCambridgeController.cs" />
+    <Compile Include="Controllers\LicenciasEstudianteController.cs" />
     <Compile Include="Controllers\NivelAutonomoController.cs" />
     <Compile Include="Controllers\NivelesController.cs" />
     <Compile Include="Controllers\NivelesInscritoController.cs" />

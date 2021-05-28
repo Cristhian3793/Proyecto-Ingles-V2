@@ -48,7 +48,6 @@ namespace Proyecto_Ingles_V2.Interfaces
                 {
                     cargarGridLicencias();
                 }
-
             }
         }
         #region Invocacion Servicios

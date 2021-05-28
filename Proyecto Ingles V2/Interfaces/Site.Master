@@ -153,7 +153,8 @@
                         <ul class="collapse list-unstyled" id="licenciaCambridge">                            
                             <li><a href="formSolicitudLicencias.aspx">Solicitud Licencias</a></li>
                             <li><a href="formLicencias.aspx">Ingreso Licencias</a></li>
-                            <li><a href="formConsultaLicenciasCambridge.aspx">Consulta Licencias</a></li>
+                            <li><a href="formConsultaLicenciasCambridge_.aspx">Consulta Licencias</a></li>
+                            <li><a href="formAsignacionLicencias.aspx">Asignacion Licencias</a></li>
                         </ul>
                     </li>
                     <li>
