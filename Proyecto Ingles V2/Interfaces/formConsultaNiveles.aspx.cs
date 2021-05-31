@@ -25,7 +25,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         string url = cs.url.ToString();
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack) {
+            
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
                 {
                     Response.Redirect("../Login/formLogin.aspx");
@@ -36,6 +36,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 }
                 else
                 {
+                if (!IsPostBack) {
                     cargarGridNiveles();
                     cargarCbxSearcTipoNiveles();
                 }
@@ -174,7 +175,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        public async Task<List<ClNivel>> ServicioGetNivelesXCod(string cod)//cargar niveles 
+        public async Task<List<ClNivel>> ServicioGetNivelesXCod()//cargar niveles 
         {
             List<ClNivel> compInf = new List<ClNivel>();
             try
@@ -183,7 +184,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-                HttpResponseMessage res = await client.GetAsync("api/Niveles?codigo=" + cod);
+                HttpResponseMessage res = await client.GetAsync("api/Niveles");
                 if (res.IsSuccessStatusCode)
                 {
                     var empResponse = res.Content.ReadAsStringAsync().Result;
@@ -234,7 +235,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             libro = e.descLibro,
                             CostoNivel = a.costoNIvel,
                         };
-            dgvNiveles.DataSource = query;
+            dgvNiveles.DataSource = query.ToList();
             dgvNiveles.DataBind();
 
         }
@@ -326,7 +327,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             txtIdNivel.Text = query.Select(x => x.IdNIvel).FirstOrDefault().ToString();
             txtCodNivel.Text = query.Select(x => x.CodNivel).FirstOrDefault().ToString();
             txtNomNivel.Text = query.Select(x => x.NomNIvel).FirstOrDefault().ToString();
-            txtCostoNivel.Text= query.Select(x => x.CostoNivel).FirstOrDefault().ToString();
+            txtCostoNivel.Text = query.Select(x => x.CostoNivel).FirstOrDefault().ToString();
             nivel = Convert.ToInt32(query.Select(x => x.DescNivel).FirstOrDefault().ToString());
             estadoNivel = Convert.ToInt32(query.Select(x => x.IdEstadoNivel).FirstOrDefault().ToString());
             idlibro = Convert.ToInt32(query.Select(x => x.IdLIbro).FirstOrDefault().ToString());
@@ -380,14 +381,14 @@ namespace Proyecto_Ingles_V2.Interfaces
                             idTipoNivel = a.idTipoNivel,
                             idCurso = a.idCurso,
                             nomCurso = b.DescCurso,
-                            codNivel = a.codNivel.Trim(),
+                            codNivel = a.codNivel,
                             nomNivel = a.nomNivel,
                             descNivel = a.descNivel,
                             tipoNivel = d.descTipoNivel,
                             libro = e.descLibro,
                             CostoNivel = a.costoNIvel,
                         };
-            dgvNiveles.DataSource = query;
+            dgvNiveles.DataSource = query.ToList();
             dgvNiveles.DataBind();
         }
 
@@ -424,7 +425,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             libro = e.descLibro,
                             CostoNivel = a.costoNIvel,
                         };
-            dgvNiveles.DataSource = query;
+            dgvNiveles.DataSource = query.ToList();
             dgvNiveles.DataBind();
         }
         public async void cargarGridNivelesXcod(string codnivel)
@@ -434,7 +435,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClEstadoNivel> estNivel = new List<ClEstadoNivel>();
             List<ClTipoNivel> tipoNivel = new List<ClTipoNivel>();
             List<CLLibros> libros = new List<CLLibros>();
-            nivelesxcod = await ServicioGetNivelesXCod(codnivel);
+            nivelesxcod = await ServicioGetNivelesXCod();
             curso = await ServicioGetCurso();
             estNivel = await ServicioGetEstadoNivel();
             tipoNivel = await ServicioGetTipoNivel();
@@ -445,6 +446,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                         join c in estNivel on a.idEstadoNivel equals c.IdEstadoNivel
                         join d in tipoNivel on a.idTipoNivel equals d.idtipoNivel
                         join e in libros on a.idLibro equals e.idLibro
+                        where a.codNivel.Trim()==codnivel
                         select new
                         {
                             idNivel = a.idNivel,
@@ -453,31 +455,20 @@ namespace Proyecto_Ingles_V2.Interfaces
                             idTipoNivel = a.idTipoNivel,
                             idCurso = a.idCurso,
                             nomCurso = b.DescCurso,
-                            codNivel = a.codNivel.Trim(),
+                            codNivel = a.codNivel,
                             nomNivel = a.nomNivel,
                             descNivel = a.descNivel,
                             tipoNivel = d.descTipoNivel,
                             libro = e.descLibro,
                             CostoNivel = a.costoNIvel,
                         };
-            dgvNiveles.DataSource = query;
+            dgvNiveles.DataSource = query.ToList();
             dgvNiveles.DataBind();
         }
         #endregion
 
         #region MetodosForms
-        protected void btnConsultar_Click(object sender, EventArgs e)
-        {
-            string codnivel = txtCodCurso.Text.Trim().ToString();
-            if (txtCodCurso.Text.ToString().Trim() != "")
-            {
-                cargarGridNivelesXcod(codnivel);
-            }
-            else
-            {
-                cargarGridNiveles();
-            }
-        }
+
         protected void dgvNiveles_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandName == "Editar")
@@ -509,18 +500,33 @@ namespace Proyecto_Ingles_V2.Interfaces
             ServicioEliminarNivel(id);
         }
         #endregion
-
-        protected void cbxSearchNiveles_SelectedIndexChanged(object sender, EventArgs e)
+        protected void btnConsultar_Click(object sender, EventArgs e)
         {
-            long idTipoNIv = Convert.ToInt32(cbxSearchNiveles.SelectedValue);
-            if (idTipoNIv == 0) {
+            string codnivel = txtCodCurso.Text.Trim();
+            int idTipoNivel = Convert.ToInt32(cbxSearchNiveles.SelectedValue);
+            if (codnivel != "" && Convert.ToInt32(cbxSearchNiveles.SelectedValue) == 0)//POR CODIGO
+            {
+                cargarGridNivelesXcod(codnivel);
+            }
+            else if (Convert.ToInt32(cbxSearchNiveles.SelectedValue) == 0 && codnivel != "")//TODOS
+            {
                 cargarGridNiveles();
             }
-            else
+            else if (Convert.ToInt32(cbxSearchNiveles.SelectedValue) != 0 && codnivel == "")// POR TIPO NIVEL 
             {
-                cargarGridNivelesXTipo(idTipoNIv);
+                cargarGridNivelesXTipo(idTipoNivel);
             }
-            
+            else if (Convert.ToInt32(cbxSearchNiveles.SelectedValue) == 0 && codnivel == "")// POR TIPO NIVEL 
+            {
+                cargarGridNiveles();
+            }
+
+        }
+
+        protected void dgvNiveles_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            dgvNiveles.PageIndex = e.NewPageIndex;
+            cargarGridNiveles();
         }
     }
 }

@@ -92,7 +92,7 @@
                     <div class="container" style="background: #EAE8E8; padding: 5px; width: 100%; border: solid 1px #DBDADA; border-radius: 5px">
                         <div class="row">
                             <div class="col-sm-2">
-                                <asp:Label ID="Label1" runat="server" Text=" Número Documento:"></asp:Label>
+                                <asp:Label ID="Label1" runat="server" Text="N° Identificación:"></asp:Label>
                             </div>
                             <div class="row">
                                 <div class="col-sm-2">
@@ -106,13 +106,22 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <asp:DropDownList ID="cbxPeriodo" AppendDataBoundItems="true" runat="server" AutoPostBack="true" class="form-control" OnSelectedIndexChanged="cbxPeriodo_SelectedIndexChanged">
+                                    <asp:DropDownList ID="cbxPeriodo" AppendDataBoundItems="true" runat="server" AutoPostBack="true" class="form-control">
                                         <asp:ListItem Text="-Todos-" Value="0" />
                                     </asp:DropDownList>
                                 </div>
                             </div>
                         </div>
-
+                       <div class="row">
+                            <div class="col-sm-2">
+                                <asp:Label ID="Label4" runat="server" Text="Niveles"></asp:Label>
+                            </div>
+                            <div class="col-sm-2">
+                                <asp:DropDownList ID="cbxNiveles" AppendDataBoundItems="true" runat="server" AutoPostBack="true" class="form-control">
+                                    <asp:ListItem Text="-Todos-" Value="0" />
+                                </asp:DropDownList>
+                            </div>
+                        </div>
 
 
                         <div class="row">
@@ -135,7 +144,7 @@
                                     <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
                                     <Columns>
                                         <asp:BoundField DataField="IdInscrito" HeaderText="Id Estudiante" SortExpression="IdInscrito" />
-                                        <asp:BoundField DataField="NumDocInscrito" HeaderText="N° Documento" SortExpression="NumDocInscrito" />
+                                        <asp:BoundField DataField="NumDocInscrito" HeaderText="N° Identificación" SortExpression="NumDocInscrito" />
                                         <asp:BoundField DataField="PeriodoLectivo" HeaderText="Período" SortExpression="PeriodoLectivo" />
                                         <asp:BoundField DataField="IdNivel" HeaderText="Nivel" SortExpression="IdNivel" Visible="false" />
                                         <asp:BoundField DataField="NombreInscrito" HeaderText="Nombres" SortExpression="NombreInscrito" />
@@ -150,6 +159,7 @@
                                         <asp:BoundField DataField="Prueba" HeaderText="Prueba" SortExpression="Prueba" />
                                         <asp:BoundField DataField="Info" HeaderText="Info" SortExpression="Info" />
                                         <asp:BoundField DataField="Estado" HeaderText="Estado" SortExpression="Estado" />
+                                        <asp:BoundField DataField="NomNivel" HeaderText="Nivel" SortExpression="NomNivel" />
                                         <asp:ButtonField ButtonType="Button" Text="Editar" CommandName="Editar" AccessibleHeaderText="Edicion">
                                             <ControlStyle BackColor="#2568A3" BorderColor="Black" BorderStyle="Outset" CssClass="btn btn-success" />
                                         </asp:ButtonField>

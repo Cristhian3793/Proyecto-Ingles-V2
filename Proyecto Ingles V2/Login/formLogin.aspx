@@ -87,7 +87,7 @@ input:checked + .slider:before {
           <nav class="navbar-head">
             <div style="float:left;width:15%;height:100%;" class="nomAplicacion">
            <a href="#">
-               <asp:Image src="../images/logo-sek-2.png" alt="Dont exist image" runat="server" style="width:100%;height:100%"/>
+               <asp:Image src="/interfaces/images/logo-sek-2.png" alt="Dont exist image" runat="server" style="width:100%;height:100%"/>
             </a>
             </div>
               <p style="float:right">

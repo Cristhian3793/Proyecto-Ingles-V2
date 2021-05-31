@@ -20,8 +20,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         string url = cs.url.ToString();
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
+
 
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
                 {
@@ -32,12 +31,14 @@ namespace Proyecto_Ingles_V2.Interfaces
                     Response.Redirect("../Interfaces/Default.aspx");
                 }
                 else {
-                    CargarComboTipoNiveles();
-                    CargarComboNiveles();
+                    if (!IsPostBack)
+                    {
+                        CargarComboTipoNiveles();
+                        CargarComboNiveles();
+
+                    }
 
                 }
-
-            }
         }
         #region Invocacion Servicios
         public async Task<List<ClNivel>> ServicioGetNiveles() 

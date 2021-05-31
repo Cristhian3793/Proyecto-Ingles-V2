@@ -33,8 +33,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         string url = cs.url.ToString();
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
+
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
                 {
 
@@ -45,7 +44,10 @@ namespace Proyecto_Ingles_V2.Interfaces
                     Response.Redirect("../Interfaces/Default.aspx");
                 }
                 else
+                {            
+                if (!IsPostBack)
                 {
+                    cargarComboNiveles();
                     cargarGridLicencias();
                 }
             }
@@ -117,7 +119,28 @@ namespace Proyecto_Ingles_V2.Interfaces
                              NOMLIBRO=a.descLibro
 
                          };
-            dgvNiveles.DataSource = query;
+            dgvNiveles.DataSource = query.ToList();
+            dgvNiveles.DataBind();
+        }
+        public async void cargarGridLicenciasxNivel(int idnivel)
+        {
+            List<CLLibros> libros = await ServicioExtraerLibros();
+            List<ClNivel> niveles = await ServicioExtraerNiveles();
+            string[] lista = { "SEK1203", "SEK1074", "SEK1205" };//codigos de productos que no son niveles
+            var query = from a in libros
+                        join b in niveles on a.idLibro equals b.idLibro
+                        where !lista.Contains(b.codNivel.Trim()) && b.idNivel==idnivel
+                        select new
+                        {
+
+                            IDNIVEL = b.idNivel,
+                            IDLIBRO = a.idLibro,
+                            NOMNIVEL = b.nomNivel,
+                            CODNIVEL = b.codNivel,
+                            NOMLIBRO = a.descLibro
+
+                        };
+            dgvNiveles.DataSource = query.ToList();
             dgvNiveles.DataBind();
         }
 
@@ -169,9 +192,43 @@ namespace Proyecto_Ingles_V2.Interfaces
             };
             txtLibro_.Text = libro;
             txtNivel.Text = nivel;
-            dgvLicencias.DataSource = licencias_;
+            dgvLicencias.DataSource = licencias_.ToList();
             dgvLicencias.DataBind();
 
+        }
+
+        protected void dgvNiveles_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            dgvNiveles.PageIndex = e.NewPageIndex;
+            cargarGridLicencias();
+        }
+        public async void cargarComboNiveles() {
+            string[] noNiveles = { "SEK1203", "SEK1074", "SEK1205" };
+            List<ClNivel> niveles = await ServicioExtraerNiveles();
+            var niveles_ = from a in niveles
+                           where !noNiveles.Contains(a.codNivel.Trim())
+                           orderby a.descNivel ascending
+                           select new
+                           {
+                               idNivel = a.idNivel,
+                               nomNivel = a.nomNivel
+                           };
+            cbxNiveles.DataSource = niveles_;
+            cbxNiveles.DataValueField = "idNivel";
+            cbxNiveles.DataTextField = "nomNivel";
+            cbxNiveles.DataBind();
+        }
+
+        protected void btnConsultar_Click(object sender, EventArgs e)
+        {
+            int idNivel = Convert.ToInt32(cbxNiveles.SelectedValue.ToString());
+            if (idNivel == 0) {
+                cargarGridLicencias();
+            }
+            else if (idNivel != 0)
+            {
+                cargarGridLicenciasxNivel(idNivel);
+            }
         }
     }
 }

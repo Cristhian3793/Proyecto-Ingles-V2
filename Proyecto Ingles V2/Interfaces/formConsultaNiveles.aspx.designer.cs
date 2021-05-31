@@ -33,13 +33,13 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.TextBox txtCodCurso;
 
         /// <summary>
-        /// Control btnConsultar.
+        /// Control Label1.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnConsultar;
+        protected global::System.Web.UI.WebControls.Label Label1;
 
         /// <summary>
         /// Control cbxSearchNiveles.
@@ -49,6 +49,15 @@ namespace Proyecto_Ingles_V2.Interfaces
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList cbxSearchNiveles;
+
+        /// <summary>
+        /// Control btnConsultar.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnConsultar;
 
         /// <summary>
         /// Control dgvNiveles.

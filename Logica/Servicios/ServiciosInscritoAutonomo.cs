@@ -53,6 +53,9 @@ namespace Logica.Servicios
                     {
                         throw ex;
                     }
+                    finally {
+                        mySesions.Close();
+                    }
                 }
             }          
         }
@@ -76,7 +79,7 @@ namespace Logica.Servicios
                     }
                     finally
                     {
-                        mySesions.Flush();
+                        mySesions.Close();
                     }
                 }
              }
@@ -99,7 +102,7 @@ namespace Logica.Servicios
                         throw ex;
                     }
                     finally {
-                        mySesionsD.Flush();
+                        mySesionsD.Close();
                     }
                 }  
             }
@@ -136,42 +139,11 @@ namespace Logica.Servicios
                     }
                     finally
                     {
-                        mySesions.Flush();
+                        mySesions.Close();
                     }
                 }
             }
         }
-        //public bool actualizarNivel(ClInscritoAutonomo insA, long idInscrito)
-        //{
-        //    ISession mySesions = SessionFactory.OpenSession;
-        //    bool resp = false;
-        //    using (mySesions)
-        //    {
-        //        using (ITransaction transaction = mySesions.BeginTransaction())
-        //        {
-        //            try
-        //            {
-        //                IQuery query = mySesions.CreateQuery("FROM ClInscritoAutonomo  WHERE IdInscrito=: idInscrito").SetInt64("idInscrito", idInscrito);
-        //                ClInscritoAutonomo ins = query.List<ClInscritoAutonomo>()[0];
-        //                ins.IdNivel = insA.IdNivel;
-        //                ins.IdEstadoEstudiante = insA.IdEstadoEstudiante;
-        //                mySesions.Update(ins);
-        //                transaction.Commit();
-        //                resp = true;
-        //                return resp;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                throw ex;
-        //            }
-        //            finally
-        //            {
-        //                mySesions.Flush();
-        //            }
-        //        }
-        //    }
-        //}
-
 
     }
 }

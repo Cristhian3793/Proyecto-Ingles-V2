@@ -24,22 +24,22 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected global::System.Web.UI.WebControls.Label Label2;
 
         /// <summary>
-        /// Control txtLibro.
+        /// Control cbxNiveles.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLibro;
+        protected global::System.Web.UI.WebControls.DropDownList cbxNiveles;
 
         /// <summary>
-        /// Control Button1.
+        /// Control btnConsultar.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Button1;
+        protected global::System.Web.UI.WebControls.Button btnConsultar;
 
         /// <summary>
         /// Control dgvNiveles.

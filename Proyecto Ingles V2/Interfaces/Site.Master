@@ -71,7 +71,7 @@
           <nav class="navbar-head" >
             <div style="float:left;" class="imagen" >        
               <a href="/interfaces/Default.aspx">
-               <img src="../images/logo-sek-2.png" alt="Dont exist image" style="float:left;height:auto;width:35%"/>
+               <img src="/interfaces/images/logo-sek-2.png" alt="Dont exist image" style="float:left;height:auto;width:35%"/>
                 
              </a> 
              </div>   

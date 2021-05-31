@@ -34,14 +34,13 @@ namespace Proyecto_Ingles_V2.Interfaces
                     else
                     {
                          if (!IsPostBack)
-                         {
-                           
-                            cargarTipoNivel();
+                         {                          
+                            cargarComboNiveles();
                             cargarGridNiveles();
                          } 
                     }
         }
-        public async Task<List<ClNivel>> ServicioGetNiveles()//cargar todos niveles 
+        public async Task<List<ClNivel>> ServicioGetNiveles()
         {
             List<ClNivel> compInf = new List<ClNivel>();
             try
@@ -65,7 +64,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        public async Task<List<ClTipoNivel>> ServicioGetTipoNivel()//cargar todos niveles 
+        public async Task<List<ClTipoNivel>> ServicioGetTipoNivel()
         {
             List<ClTipoNivel> compInf = new List<ClTipoNivel>();
             try
@@ -131,42 +130,17 @@ namespace Proyecto_Ingles_V2.Interfaces
             txtnivel.Text = nomnivel;
             dgvTemaUnidad.DataSource = query;
             dgvTemaUnidad.DataBind();
-          //  cargarUnidades();
-
         }
 
 
-        public async void cargarTipoNivel() {
+        public async void cargarComboNiveles() {
 
-            List<ClTipoNivel> tipoNivel = await ServicioGetTipoNivel();
-            ddlTipoNIvel.DataSource = tipoNivel;
-            ddlTipoNIvel.DataValueField = "idtipoNivel";
-            ddlTipoNIvel.DataTextField = "descTipoNivel";
-            ddlTipoNIvel.DataBind();
+            List<ClNivel> nivel = await ServicioGetNiveles();
+            ddlNivel.DataSource = nivel;
+            ddlNivel.DataValueField = "idNivel";
+            ddlNivel.DataTextField = "nomNivel";
+            ddlNivel.DataBind();
         }
-        //public async void cargarNiveles() {
-
-        //    List<ClNivel> niveles = await ServicioGetNiveles();
-        //    ddlNivel.DataSource = niveles;
-        //    ddlNivel.DataValueField = "idNivel";
-        //    ddlNivel.DataTextField = "nomNivel";
-        //    ddlNivel.DataBind();
-        //}
-        //public async void cargarNivelxTipo(int idTipoNivel)
-        //{
-
-        //    List<ClNivel> niveles = await ServicioGetNiveles();
-        //    var query = from a in niveles
-        //                where a.idTipoNivel == idTipoNivel
-        //                select new {
-        //                    idNivel=a.idNivel,
-        //                    nomNivel=a.nomNivel,
-        //                };
-        //    ddlNivel.DataSource = query;
-        //    ddlNivel.DataValueField = "idNivel";
-        //    ddlNivel.DataTextField = "nomNivel";
-        //    ddlNivel.DataBind();
-        //}
         public async Task<List<ClCurso>> ServicioGetCurso()
         {
             List<ClCurso> compInf = new List<ClCurso>();
@@ -216,7 +190,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
 
         }
-        public async Task<List<CLLibros>> ServicioGetLibros()//cargar niveles 
+        public async Task<List<CLLibros>> ServicioGetLibros()
         {
             List<CLLibros> compInf = new List<CLLibros>();
             try
@@ -242,6 +216,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         public async void cargarGridNiveles()
         {
+            string[] noNiveles = { "SEK1203", "SEK1074", "SEK1205" };
             List<ClNivel> niveles = new List<ClNivel>();
             List<ClCurso> curso = new List<ClCurso>();
             List<ClEstadoNivel> estNivel = new List<ClEstadoNivel>();
@@ -257,7 +232,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                         join c in estNivel on a.idEstadoNivel equals c.IdEstadoNivel
                         join d in tipoNivel on a.idTipoNivel equals d.idtipoNivel
                         join e in libros on a.idLibro equals e.idLibro
-                        where a.codNivel.Trim().ToString()!="SEK1203"
+                        where !noNiveles.Contains(a.codNivel.Trim())
                         orderby a.descNivel ascending
                         select new
                         {
@@ -274,7 +249,45 @@ namespace Proyecto_Ingles_V2.Interfaces
                             libro = e.descLibro,
                             CostoNivel = a.costoNIvel,
                         };
-            dgvNivel.DataSource = query;
+            dgvNivel.DataSource = query.ToList();
+            dgvNivel.DataBind();
+        }
+        public async void cargarGridNivelesxNivel(int idNivel)
+        {
+            string[] noNiveles = { "SEK1203", "SEK1074", "SEK1205" };
+            List<ClNivel> niveles = new List<ClNivel>();
+            List<ClCurso> curso = new List<ClCurso>();
+            List<ClEstadoNivel> estNivel = new List<ClEstadoNivel>();
+            List<ClTipoNivel> tipoNivel = new List<ClTipoNivel>();
+            List<CLLibros> libros = new List<CLLibros>();
+            niveles = await ServicioGetNiveles();
+            curso = await ServicioGetCurso();
+            estNivel = await ServicioGetEstadoNivel();
+            tipoNivel = await ServicioGetTipoNivel();
+            libros = await ServicioGetLibros();
+            var query = from a in niveles
+                        join b in curso on a.idCurso equals b.IdCurso
+                        join c in estNivel on a.idEstadoNivel equals c.IdEstadoNivel
+                        join d in tipoNivel on a.idTipoNivel equals d.idtipoNivel
+                        join e in libros on a.idLibro equals e.idLibro
+                        where !noNiveles.Contains(a.codNivel.Trim()) && a.idNivel== idNivel
+                        orderby a.descNivel ascending
+                        select new
+                        {
+                            idNivel = a.idNivel,
+                            idEstadoNivel = a.idEstadoNivel,
+                            estadoNivel = c.DescEstadoNivel,
+                            idTipoNivel = a.idTipoNivel,
+                            idCurso = a.idCurso,
+                            nomCurso = b.DescCurso,
+                            codNivel = a.codNivel,
+                            nomNivel = a.nomNivel,
+                            descNivel = a.descNivel,
+                            tipoNivel = d.descTipoNivel,
+                            libro = e.descLibro,
+                            CostoNivel = a.costoNIvel,
+                        };
+            dgvNivel.DataSource = query.ToList();
             dgvNivel.DataBind();
         }
         public async Task<List<ClTemaUnidad>> ServicioGetUnidades()
@@ -302,55 +315,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
-        //public async void cargarUnidades(DropDownList list)
-        //{
-        //    List<ClTemaUnidad> temaUnidad = new List<ClTemaUnidad>();
-        //    temaUnidad = await ServicioGetUnidades();
-        //    var query = from a in temaUnidad
-        //                group a by a.codTemaUnidad into b
-        //                select new
-        //                {
-        //                    codNivel = b.Select(x => x.codTemaUnidad).FirstOrDefault(),
-        //                };
-        //    list.DataSource = query;
-        //    list.DataValueField = "codNivel";
-        //    list.DataTextField = "codNivel";
-        //    list.DataBind();
 
-        //}
-        //public async void CargarTemas() {
-
-        //    try
-        //    {
-
-        //        List<ClUnidad> compInf = new List<ClUnidad>();
-        //        var client = new HttpClient();
-        //        client.BaseAddress = new Uri(url);
-        //        client.DefaultRequestHeaders.Clear();
-        //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-        //        HttpResponseMessage res = await client.GetAsync("api/Unidades/" + Convert.ToInt32(ddlNivel.SelectedValue.ToString()));
-        //        if (res.IsSuccessStatusCode)
-        //        {
-        //            var empResponse = res.Content.ReadAsStringAsync().Result;
-        //            compInf = JsonConvert.DeserializeObject<List<ClUnidad>>(empResponse);
-
-        //        }
-              
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-
-        //}
-
-
-        protected void ddlTipoNIvel_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-            //cargarNivelxTipo(Convert.ToInt32(ddlTipoNIvel.SelectedValue.ToString()));
-
-        }
 
         protected void dgvTema_RowCommand(object sender, GridViewCommandEventArgs e)
         {
@@ -364,29 +329,22 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
         }
 
-        protected void dgvTemaUnidad_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void btnConsultar_Click(object sender, EventArgs e)
         {
-            //if (e.Row.RowType == DataControlRowType.DataRow)
-            //{
-            //    DropDownList ddlUnidades = (e.Row.FindControl("ddlUnidades") as DropDownList);
-            //    cargarUnidades(ddlUnidades);
-
-            //}
-
-
+            int idNivel = Convert.ToInt32(ddlNivel.SelectedValue.ToString());
+            if (Convert.ToInt32(ddlNivel.SelectedValue) != 0) {
+                cargarGridNivelesxNivel(idNivel);
+            } else if (Convert.ToInt32(ddlNivel.SelectedValue) == 0) 
+            {
+                cargarGridNiveles();
+            }
+            
         }
 
-        protected void dgvTemaUnidad_RowCommand(object sender, GridViewCommandEventArgs e)
+        protected void dgvNivel_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            //if (e.CommandName == "Guardar")
-            //{
-            //    int fila = Convert.ToInt32(e.CommandArgument);
-            //    long idregistro = Convert.ToInt64(dgvTemaUnidad.DataKeys[fila].Value);
-            //    DropDownList ddl = (DropDownList)dgvTemaUnidad.Rows[fila].Cells[0].FindControl("ddlUnidades");
-            //    string usado = ddl.SelectedValue;
-            //    string nivel=ddlUnidades.SelectedValue.ToString();
-
-            //}
+            dgvNivel.PageIndex = e.NewPageIndex;
+            cargarGridNiveles();
         }
     }
 }

@@ -274,5 +274,10 @@ namespace Proyecto_Ingles_V2.Interfaces
                 btnPopUp_ModalPopupExtender.Show();
             }
         }
+
+        protected void dgvLicencias_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+
+        }
     }
 }

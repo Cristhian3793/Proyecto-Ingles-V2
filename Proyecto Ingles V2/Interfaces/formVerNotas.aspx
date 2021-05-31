@@ -51,7 +51,7 @@
                                 </asp:DropDownList>
                             </div>
                         </div>
-                        <asp:Button ID="btnConsultar" runat="server" Text="Consultar" class="btn btn-success" />
+                        <asp:Button ID="btnConsultar" runat="server" Text="Consultar" class="btn btn-success" OnClick="btnConsultar_Click"/>
 
                         <span class="float-right" style="float: right">
                             <asp:LinkButton runat="server" ID="btnSubmit" class="btn" OnClick="btnSubmit_Click" Style="background: #24772E; color: white">
@@ -65,7 +65,7 @@
                         <br />
                         <div class="col-md-12">
                             <div class="table-responsive">
-                                <asp:GridView ID="dgvInscrito" runat="server" AutoGenerateColumns="False" DataKeyNames="IdInscrito,IdNivelInscrito,IdNivel" CssClass="table table-bordered table-striped" EnablePersistedSelection="True" OnRowCommand="dgvInscrito_RowCommand" CellPadding="4" ForeColor="#333333" GridLines="None">
+                                <asp:GridView ID="dgvInscrito" runat="server" AutoGenerateColumns="False" DataKeyNames="IdInscrito,IdNivelInscrito,IdNivel" CssClass="table table-bordered table-striped" EnablePersistedSelection="True" OnRowCommand="dgvInscrito_RowCommand" CellPadding="4" ForeColor="#333333" GridLines="None" AllowPaging="true" PageSize="10" OnPageIndexChanging="dgvInscrito_PageIndexChanging">
                                     <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
                                     <Columns>
                                         <asp:BoundField DataField="IdNivelInscrito" HeaderText="IdNivelInscrito" SortExpression="IdNivelInscrito" Visible="false" />

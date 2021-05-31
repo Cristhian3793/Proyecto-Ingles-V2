@@ -40,11 +40,14 @@ namespace Proyecto_Ingles_V2.Interfaces
                 }
                 else
                 {
-                    cargarGridPruebas();
+                    cargarComboNiveles();
+                    cargarComboPeriodo();
+                    cargarGridEstudiantesMatriculados();
                 }
 
             }
         }
+        
         #region Invocacion Servicios
 
         public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
@@ -90,7 +93,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine(ex.Message);
             }
             return compInf;
@@ -278,8 +280,9 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         #endregion
         #region Metodos
-        public async void cargarGridPruebas()
+        public async void cargarGridEstudiantesMatriculados()
         {
+            int[] estadosNiveles = { 1, 2, 3, 4 };
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
             List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
             List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
@@ -296,14 +299,12 @@ namespace Proyecto_Ingles_V2.Interfaces
             estadoEstu = await ServicioGetEstadoEstudiante();
             var query = from a in inscrito
                         join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
-                        //join d in prueba on f.IDNIVELESTUDIANTE equals d.IDNIVELESTUDIANTE //into s
-                        //from d in s.DefaultIfEmpty()
                         join e in nivel on f.IDNIVEL equals e.idNivel
                         join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
                         join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
                         join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
                         orderby a.NombreInscrito ascending
-                        where f.PRUEBA==0
+                        where estadosNiveles.Contains(Convert.ToInt32(f.IDESTADONIVEL))
                         select new
                         {
                             IdInscrito = a.IdInscrito,
@@ -319,16 +320,40 @@ namespace Proyecto_Ingles_V2.Interfaces
                             FechaRegistro = a.FechaRegistro,
                             EstadoPrueba = a.EstadoPrueba,
                             PeriodoLectivo = c.Periodo,
-                            //IdPrueba = d.IdPrueba,//s.Select(x => x.IdPrueba).FirstOrDefault(),
                             NomNivel = e.nomNivel,
                             Estado=d.DescEstEstudiante,
-                            //Calificacion = d.PunjatePrueba//s.Select(x => x.PunjatePrueba).FirstOrDefault(),
                         };
-            dgvNotasPruebas.DataSource = query;
+            dgvNotasPruebas.DataSource = query.ToList();
             dgvNotasPruebas.DataBind();
         }
-        public async void cargarGridPruebasXInscrito(string cedula)
+        public async void cargarComboPeriodo()
         {
+            List<ClPeriodoInscripcion> periodos = await ServicioExtraerPeriodo();
+            cbxPeriodos.DataSource = periodos;
+            cbxPeriodos.DataValueField = "IdPeriodoInscripcion";
+            cbxPeriodos.DataTextField = "Periodo";
+            cbxPeriodos.DataBind();
+        }
+        public async void cargarComboNiveles()
+        {
+            List<ClNivel> niveles = await ServicioExtraerNIvel();
+            var niveles_ = from a in niveles
+                           //where a.codNivel.Trim() != "SEK1203"
+                           orderby a.descNivel ascending
+                           select new
+                           {
+                               idNivel = a.idNivel,
+                               nomNivel = a.nomNivel
+                           };
+            cbxNiveles.DataSource = niveles_;
+            cbxNiveles.DataValueField = "idNivel";
+            cbxNiveles.DataTextField = "nomNivel";
+            cbxNiveles.DataBind();
+        }
+        public async void cargarGridEstudiantesMatriculadosXIdentificacion(string cedula)
+        {
+
+            int[] estadosNiveles = { 1, 2, 3, 4 };
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
             List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
             List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
@@ -351,7 +376,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                         join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
                         orderby a.NombreInscrito ascending
                         orderby a.NombreInscrito ascending
-                        where a.NumDocInscrito.Trim() == cedula.Trim() && f.PRUEBA == 0
+                        where a.NumDocInscrito.Trim() == cedula.Trim() && estadosNiveles.Contains(Convert.ToInt32(f.IDESTADONIVEL))
                         select new
                         {
                             IdInscrito = a.IdInscrito,
@@ -370,7 +395,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             NomNivel = e.nomNivel,
                             Estado = d.DescEstEstudiante,
                         };
-            dgvNotasPruebas.DataSource = query;
+            dgvNotasPruebas.DataSource = query.ToList();
             dgvNotasPruebas.DataBind();
 
         }
@@ -473,7 +498,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                         ServicioInsertarSoloNivel(niv);
 
                     }
-                    cargarGridPruebas();
+                    cargarGridEstudiantesMatriculados();
                 }
             }
             catch (Exception ex)
@@ -481,18 +506,187 @@ namespace Proyecto_Ingles_V2.Interfaces
                 Console.WriteLine(ex.Message);
             }
         }
-        #endregion
-
-        protected void Button1_Click(object sender, EventArgs e)
+        public async void BuscarEstudianteXNivel(long idNivel)
         {
-            if (txtCedula.Text.Trim().ToString() != "")
+            int[] estadosNiveles = { 1, 2, 3, 4 };
+            List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
+            List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
+            List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
+            List<ClPrueba> prueba = new List<ClPrueba>();
+            List<ClNivel> nivel = new List<ClNivel>();
+            List<ClNivelesInscrito> nivelesIns = new List<ClNivelesInscrito>();
+            List<ClEstadoEstudiante> estadoEstu = new List<ClEstadoEstudiante>();
+            nivelesIns = await ServicioGetNivelesInscritos();
+            tipoEstudiante = await ServicioExtraerTipoEstudiante();
+            inscrito = await ServicioExtraerInscrito();
+            periodo = await ServicioExtraerPeriodo();
+            prueba = await ServicioExtraerPrueba();
+            nivel = await ServicioExtraerNIvel();
+            estadoEstu = await ServicioGetEstadoEstudiante();
+            var query = from a in inscrito
+                        join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
+                        join e in nivel on f.IDNIVEL equals e.idNivel
+                        join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
+                        join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
+                        join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
+                        orderby a.NombreInscrito ascending
+                        orderby a.NombreInscrito ascending
+                        where estadosNiveles.Contains(Convert.ToInt32(f.IDESTADONIVEL)) && f.IDNIVEL==idNivel
+                        select new
+                        {
+                            IdInscrito = a.IdInscrito,
+                            IdTipoDocumento = a.IdTipoDocumento,
+                            TipoEstudiante = b.DescTipoEstudiante,
+                            NombreInscrito = a.NombreInscrito,
+                            ApellidoInscrito = a.ApellidoInscrito,
+                            NumDocInscrito = a.NumDocInscrito,
+                            CeluInscrito = a.CeluInscrito,
+                            TelefInscrito = a.TelefInscrito,
+                            DirecInscrito = a.DirecInscrito,
+                            EmailInscrito = a.EmailInscrito,
+                            FechaRegistro = a.FechaRegistro,
+                            EstadoPrueba = a.EstadoPrueba,
+                            PeriodoLectivo = c.Periodo,
+                            NomNivel = e.nomNivel,
+                            Estado = d.DescEstEstudiante,
+                        };
+            dgvNotasPruebas.DataSource = query.ToList();
+            dgvNotasPruebas.DataBind();
+        }
+        public async void BuscarEstudiantexPeriodo(long idPeriodo)
+        {
+            int[] estadosNiveles = { 1, 2, 3, 4 };
+            List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
+            List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
+            List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
+            List<ClPrueba> prueba = new List<ClPrueba>();
+            List<ClNivel> nivel = new List<ClNivel>();
+            List<ClNivelesInscrito> nivelesIns = new List<ClNivelesInscrito>();
+            List<ClEstadoEstudiante> estadoEstu = new List<ClEstadoEstudiante>();
+            nivelesIns = await ServicioGetNivelesInscritos();
+            tipoEstudiante = await ServicioExtraerTipoEstudiante();
+            inscrito = await ServicioExtraerInscrito();
+            periodo = await ServicioExtraerPeriodo();
+            prueba = await ServicioExtraerPrueba();
+            nivel = await ServicioExtraerNIvel();
+            estadoEstu = await ServicioGetEstadoEstudiante();
+            var query = from a in inscrito
+                        join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
+                        join e in nivel on f.IDNIVEL equals e.idNivel
+                        join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
+                        join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
+                        join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
+                        orderby a.NombreInscrito ascending
+                        orderby a.NombreInscrito ascending
+                        where estadosNiveles.Contains(Convert.ToInt32(f.IDESTADONIVEL)) && f.IDPERIODOINSCRIPCION == idPeriodo
+                        select new
+                        {
+                            IdInscrito = a.IdInscrito,
+                            IdTipoDocumento = a.IdTipoDocumento,
+                            TipoEstudiante = b.DescTipoEstudiante,
+                            NombreInscrito = a.NombreInscrito,
+                            ApellidoInscrito = a.ApellidoInscrito,
+                            NumDocInscrito = a.NumDocInscrito,
+                            CeluInscrito = a.CeluInscrito,
+                            TelefInscrito = a.TelefInscrito,
+                            DirecInscrito = a.DirecInscrito,
+                            EmailInscrito = a.EmailInscrito,
+                            FechaRegistro = a.FechaRegistro,
+                            EstadoPrueba = a.EstadoPrueba,
+                            PeriodoLectivo = c.Periodo,
+                            NomNivel = e.nomNivel,
+                            Estado = d.DescEstEstudiante,
+                        };
+            dgvNotasPruebas.DataSource = query.ToList();
+            dgvNotasPruebas.DataBind();
+
+        }
+        public async void BuscarEstudiantexTodosParametros(long idNivel, long idperiodo, string identificacion)
+        {
+            int[] estadosNiveles = { 1, 2, 3, 4 };
+            List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
+            List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
+            List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
+            List<ClPrueba> prueba = new List<ClPrueba>();
+            List<ClNivel> nivel = new List<ClNivel>();
+            List<ClNivelesInscrito> nivelesIns = new List<ClNivelesInscrito>();
+            List<ClEstadoEstudiante> estadoEstu = new List<ClEstadoEstudiante>();
+            nivelesIns = await ServicioGetNivelesInscritos();
+            tipoEstudiante = await ServicioExtraerTipoEstudiante();
+            inscrito = await ServicioExtraerInscrito();
+            periodo = await ServicioExtraerPeriodo();
+            prueba = await ServicioExtraerPrueba();
+            nivel = await ServicioExtraerNIvel();
+            estadoEstu = await ServicioGetEstadoEstudiante();
+            var query = from a in inscrito
+                        join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
+                        join e in nivel on f.IDNIVEL equals e.idNivel
+                        join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
+                        join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
+                        join d in estadoEstu on f.IDESTADONIVEL equals d.CodEstadoEstu
+                        orderby a.NombreInscrito ascending
+                        orderby a.NombreInscrito ascending
+                        where estadosNiveles.Contains(Convert.ToInt32(f.IDESTADONIVEL)) && f.IDPERIODOINSCRIPCION == idperiodo && f.IDNIVEL==idNivel && a.NumDocInscrito.Trim()==identificacion
+                        select new
+                        {
+                            IdInscrito = a.IdInscrito,
+                            IdTipoDocumento = a.IdTipoDocumento,
+                            TipoEstudiante = b.DescTipoEstudiante,
+                            NombreInscrito = a.NombreInscrito,
+                            ApellidoInscrito = a.ApellidoInscrito,
+                            NumDocInscrito = a.NumDocInscrito,
+                            CeluInscrito = a.CeluInscrito,
+                            TelefInscrito = a.TelefInscrito,
+                            DirecInscrito = a.DirecInscrito,
+                            EmailInscrito = a.EmailInscrito,
+                            FechaRegistro = a.FechaRegistro,
+                            EstadoPrueba = a.EstadoPrueba,
+                            PeriodoLectivo = c.Periodo,
+                            NomNivel = e.nomNivel,
+                            Estado = d.DescEstEstudiante,
+                        };
+            dgvNotasPruebas.DataSource = query.ToList();
+            dgvNotasPruebas.DataBind();
+        }
+            #endregion
+
+            protected void Button1_Click(object sender, EventArgs e)
+        {
+            string identificacion = txtCedula.Text.Trim().ToString();
+            long idNivel = Convert.ToInt64(cbxNiveles.SelectedValue.ToString());
+            long idPeriodo = Convert.ToInt64(cbxPeriodos.SelectedValue.ToString());
+            if (identificacion != "" && idPeriodo == 0 && idNivel == 0)
             {
-                cargarGridPruebasXInscrito(txtCedula.Text);
+                cargarGridEstudiantesMatriculadosXIdentificacion(identificacion);
             }
-            else
+            else if(idNivel == 0 && identificacion.Trim() == "" && idPeriodo == 0)
             {
-                cargarGridPruebas();
+                cargarGridEstudiantesMatriculados();
             }
+            else if (idNivel != 0 && idPeriodo == 0)//busca solo por nivel
+            {
+
+                BuscarEstudianteXNivel(idNivel);
+            }
+            else if (idPeriodo != 0 && idNivel == 0)//busca solo por periodo
+            {
+                BuscarEstudiantexPeriodo(idPeriodo);
+            }
+            else if (idPeriodo != 0 && idNivel != 0 && identificacion != "")//busca por todos las opciones
+            {
+                BuscarEstudiantexTodosParametros(idNivel, idPeriodo, identificacion);
+            }
+        }
+
+        protected void btnSubmit_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void dgvNotasPruebas_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            dgvNotasPruebas.PageIndex = e.NewPageIndex;
+            cargarGridEstudiantesMatriculados();
         }
     }
 }

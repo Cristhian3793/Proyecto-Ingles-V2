@@ -132,6 +132,9 @@ namespace Logica.Servicios
                     {
                         throw ex;
                     }
+                    finally {
+                        mySesions.Close();
+                    }
                 }
             }
         }

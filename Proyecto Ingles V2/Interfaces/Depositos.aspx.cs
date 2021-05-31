@@ -15,12 +15,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace Proyecto_Ingles_V2.Interfaces
 {
     public partial class Depositos : System.Web.UI.Page
     {
-        //List<Producto> listaCompras = new List<Producto>();
+        List<Producto> listaCompras = new List<Producto>();
         static conexionServidor cs = new conexionServidor();
         string url = cs.url.ToString();
         protected String exception = "";
@@ -54,7 +55,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 {
                     if (!IsPostBack)
                     {
-                    List<Producto> listaCompras = new List<Producto>();
+                    //List<Producto> listaCompras = new List<Producto>();
 
                     //consulta los banco a los q se les hace transferencia.
                     DataSet dsBanco = Conexion.BuscarNAV_ds("[dbo].[DTA_Banco]", "*", "");
@@ -106,15 +107,40 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
 
         }
+        public async void ActualizarEstadoMatricula(long idNivelEstudiante, int idEstado)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                ClNivelesInscrito nivelesIns = new ClNivelesInscrito();
+                nivelesIns.IDESTADONIVEL = idEstado;
+                string uri = "api/ActualizarMatriculas?idNivel=" + idNivelEstudiante;
+                var myContent = JsonConvert.SerializeObject(nivelesIns);
+                var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                var method = new HttpMethod("PATCH");
+                var request = new HttpRequestMessage(method, uri)
+                {
+                    Content = stringContent
+                };
+                response = await client.SendAsync(request);
+
+            }
+            catch (TaskCanceledException e)
+            {
+            }
+        }
 
 
 
 
-
-        protected async void enviar_Click(object sender, EventArgs e)
+        protected  void enviar_Click(object sender, EventArgs e)
         {
 
-            List<Producto> listaCompras = await CargarInformacion((string)Session["usuario"]);
+            //List<Producto> listaCompras = await CargarInformacion((string)Session["usuario"]);
             try
             {
                 string cedula =(string)Session["usuario"];
@@ -143,6 +169,9 @@ namespace Proyecto_Ingles_V2.Interfaces
                 else
                 {
                     EnviarInfo();
+                    
+
+
                     //EnviaCorreo_tesoreria();
                     //EnviaCorreo_Alumno();
                 }
@@ -153,15 +182,19 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
 
         }
+        //llamar servicio para buscar id 
+
 
         public async void EnviarInfo()
         {
+            long idNivelEstudiante = (long)Session["idNivel"];
+            ActualizarEstadoMatricula(idNivelEstudiante,5);//estado 5 significa en proceso
             List<ClInscritoAutonomo> cl = await getDatosInscrito();
             string cedula =(string)Session["usuario"];//cargar cedula de usuario
 
 
             string anio_periodo = hiddenPeriodo.Value;// cargar periodo de ingles
-
+            //Actualizar estado en nivel a estado en proceso con valor 5
 
 
             string ipuser = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
@@ -189,7 +222,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             "','" + txt_valor_depositado.Text + "','" + ddl_concepto.SelectedValue + "','" + ddl_tipo_pago.SelectedValue + "','1','" + txt_concepto.Text + "','" + cedula + "','" + secuencial_alterno + "','" + ipuser + "'");
 
             //se carga los datos de la lista de compras en el maestro
-            List<Producto> listaCompras =await CargarInformacion((string)Session["usuario"]);
+            //List<Producto> listaCompras =await CargarInformacion((string)Session["usuario"]);
             Conexion.GuardarMaestroDeposito(id_trans, listaCompras);
             //nombre cargar del ingles
 
@@ -221,7 +254,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             string exito = "-1";
             List<string> documentos = new List<string>();
             DataSet solicitud = Conexion.BuscarNAV_ds("[dbo].[DTA_Info]", "*", "where id='" + idtracking + "'");
-
             string anio = anioperiodo.Substring(0, 4);
             FileUpload file = fu_archivo;
             try
@@ -485,15 +517,15 @@ namespace Proyecto_Ingles_V2.Interfaces
 
 
         //llenar Tabla de desgloce
-        public async void Previsualizar()
+        public  void Previsualizar()
         {
-            List<Producto> listaCompras = new List<Producto>();
+
             try
             {
                 //detalle , creditos , costo 
                 //listaCompras = (List<Producto>)Session["listaCompras"];
-                string usuario = (string)Session["usuario"];
-                listaCompras = await CargarInformacion(usuario);
+                //string usuario = (string)Session["usuario"];
+                //listaCompras = await CargarInformacion(usuario);
                 //asignaturas 
                 decimal valorPago = 0;
 
@@ -682,7 +714,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         public async Task<List<Producto>> CargarInformacion(string usuario)
         {
             Producto pro = new Producto();
-            List<Producto> listaCompras = new List<Producto>();
+            //List<Producto> listaCompras = new List<Producto>();
             List<ClInscritoAutonomo> ins = await ServicioExtraerInscritos();
             List<ClPeriodoInscripcion> per = await ServicioExtraerPeriodos();
             List<ClNivel> nivel = await ServicioGetNiveles();

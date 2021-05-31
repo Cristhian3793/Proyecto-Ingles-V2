@@ -160,11 +160,13 @@ namespace Proyecto_Ingles_V2.Interfaces
                             idCalificacionNivel = a.idCalificacionNivel,
                             idNivel = a.idNivel,
                             nomNivel = b.nomNivel,
+                            codNivel=b.codNivel,
                             tipoNivel=c.descTipoNivel,
+                            
                             Calificacion = a.calificacionNivelDesde,
                             CalificacionHasta=a.calificacionNivelHasta,
                         };
-            dgvCalificacionNivel.DataSource = query;
+            dgvCalificacionNivel.DataSource = query.ToList();
             dgvCalificacionNivel.DataBind();
         }
         #endregion
@@ -204,10 +206,44 @@ namespace Proyecto_Ingles_V2.Interfaces
             actualizarCalificacionNivel(ca);
             dgvCalificacionNivel.EditIndex = -1;           
         }
-
-        protected void btnConsultar_Click(object sender, EventArgs e)
+        public async void cargarGridNivelesXcod(string codnivel)
         {
- 
+            List<ClCalificacionNivel> calificacion = new List<ClCalificacionNivel>();
+            List<ClNivel> niveles = new List<ClNivel>();
+            List<ClTipoNivel> tiponivel = new List<ClTipoNivel>();
+            tiponivel = await ServicioTipoNIvel();
+            calificacion = await ServicioGetCalificacionNivel();
+            niveles = await ServicioGetNiveles();
+            var query = from a in calificacion
+                        join b in niveles on a.idNivel equals b.idNivel
+                        join c in tiponivel on b.idTipoNivel equals c.idtipoNivel
+                        where b.codNivel.Trim()==codnivel
+                        orderby a.calificacionNivelDesde ascending
+                        select new
+                        {
+                            idCalificacionNivel = a.idCalificacionNivel,
+                            idNivel = a.idNivel,
+                            nomNivel = b.nomNivel,
+                            codNivel = b.codNivel,
+                            tipoNivel = c.descTipoNivel,
+
+                            Calificacion = a.calificacionNivelDesde,
+                            CalificacionHasta = a.calificacionNivelHasta,
+                        };
+            dgvCalificacionNivel.DataSource = query.ToList();
+            dgvCalificacionNivel.DataBind();
+        }
+            protected void btnConsultar_Click(object sender, EventArgs e)
+        {
+            string codnivel = txtNivel.Text.Trim();
+            if (codnivel != "")//POR CODIGO
+            {
+                cargarGridNivelesXcod(codnivel);
+            }
+            else if (codnivel == "")//TODOS
+            {
+                cargarGridCalificacionNiveles();
+            }
         }
         public async Task<List<ClCalificacionNivel>> ServicioGetCalificacion()
         {
@@ -315,6 +351,12 @@ namespace Proyecto_Ingles_V2.Interfaces
         {
             long id = Convert.ToInt64(dgvCalificacionNivel.DataKeys[e.RowIndex]["idCalificacionNivel"].ToString());
             ServicioEliminarRegistro(id);
+        }
+
+        protected void dgvCalificacionNivel_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            dgvCalificacionNivel.PageIndex = e.NewPageIndex;
+            cargarGridCalificacionNiveles();
         }
     }
 }

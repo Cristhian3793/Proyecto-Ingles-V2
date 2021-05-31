@@ -118,7 +118,6 @@ input:checked + .slider:before {
                                         <%--<asp:ListItem Text="--Seleccionar--" Value="0" />--%>
                                     </asp:DropDownList>
                                     </div>
-                                <%--<asp:TextBox ID="txtNivel" runat="server" TextMode="Number" class="form-control"></asp:TextBox>--%> 
                                 </div>
                                 <div class="row">
                                  <div class="form-group col-sm-6">
@@ -153,7 +152,20 @@ input:checked + .slider:before {
                footer: '<a href></a>'
            })
        }
-
+       function existe() {
+           Swal.fire({
+               icon: 'error',
+               text: 'Ya exite un registro con los mismos datos',
+               footer: '<a href></a>'
+           })
+       }
+       function error() {
+           Swal.fire({
+               icon: 'error',
+               text: 'No se pudo guardar',
+               footer: '<a href></a>'
+           })
+       }
        function NumCheck(e, field) {
            key = e.keyCode ? e.keyCode : e.which
            // backspace

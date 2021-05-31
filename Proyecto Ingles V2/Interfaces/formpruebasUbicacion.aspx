@@ -59,7 +59,7 @@
                                     <asp:GridView ID="dgvNotasPruebas" runat="server" AutoGenerateColumns="False" DataKeyNames="idPrueba,IdInscrito" OnRowCancelingEdit="dgvNotasPruebas_RowCancelingEdit" OnRowEditing="dgvNotasPruebas_RowEditing" OnRowUpdating="dgvNotasPruebas_RowUpdating" HorizontalAlign="Center" CssClass="table table-bordered table-striped" OnPageIndexChanging="dgvNotasPruebas_PageIndexChanging" AllowPaging="true" PageSize="5">
                                         <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
                                         <Columns>
-                                            <asp:BoundField DataField="NumDocInscrito" HeaderText="Identificacion" SortExpression="NumDocInscrito" ReadOnly="True" />
+                                            <asp:BoundField DataField="NumDocInscrito" HeaderText="N° Identificación" SortExpression="NumDocInscrito" ReadOnly="True" />
                                             <asp:BoundField DataField="IdInscrito" HeaderText="ID" SortExpression="IdInscrito" ReadOnly="True" />
                                             <asp:BoundField DataField="TipoEstudiante" HeaderText="Tipo Estudiante" SortExpression="TipoEstudiante" ReadOnly="True" />
                                             <asp:BoundField DataField="NombreInscrito" HeaderText="Nombres" SortExpression="NombreInscrito" ReadOnly="True" />

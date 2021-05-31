@@ -52,6 +52,11 @@ namespace Logica.Servicios
                     {
                         throw ex;
                     }
+                    finally {
+                        mySesions.Close();
+
+
+                    }
                 }
             }
         }
@@ -75,7 +80,7 @@ namespace Logica.Servicios
                     }
                     finally
                     {
-                        mySesions.Flush();
+                        mySesions.Close();
                     }
                 }
             }
@@ -99,7 +104,7 @@ namespace Logica.Servicios
                     }
                     finally
                     {
-                        mySesionsD.Flush();
+                        mySesionsD.Close();
                     }
                 }
             }
@@ -131,7 +136,7 @@ namespace Logica.Servicios
                     }
                     finally
                     {
-                        mySesions.Flush();
+                        mySesions.Close();
                     }
                 }
             }
@@ -161,7 +166,7 @@ namespace Logica.Servicios
                     }
                     finally
                     {
-                        mySesions.Flush();
+                        mySesions.Close();
                     }
                 }
             }

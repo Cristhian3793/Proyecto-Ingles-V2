@@ -3,6 +3,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.5/dist/sweetalert2.all.min.js" type="text/javascript"></script>
     <link href="../Content/sweetalert.css" rel="stylesheet"/>
     <style>
+        td {
+            padding: 10px;
+            color: black;
+        }
 .switch {
   position: relative;
   display: inline-block;
@@ -81,7 +85,7 @@ input:checked + .slider:before {
                             <div class="row" >
                                 <div class="col-md-12">
                                     <div class="table-responsive">
-                                   <asp:GridView ID="dgvLicencias" runat="server"   BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IdLicencia" OnRowDataBound="dgvLicencias_RowDataBound" HorizontalAlign="Center" OnRowDeleting="dgvLicencias_RowDeleting" OnRowCommand="dgvLicencias_RowCommand" CssClass="table table-bordered table-striped">
+                                   <asp:GridView ID="dgvLicencias" runat="server"   BackColor="White" BorderColor="#3366CC" BorderStyle="None" BorderWidth="1px" AutoGenerateColumns="False" DataKeyNames="IdLicencia" OnRowDataBound="dgvLicencias_RowDataBound" HorizontalAlign="Center" OnRowDeleting="dgvLicencias_RowDeleting" OnRowCommand="dgvLicencias_RowCommand" CssClass="table table-bordered table-striped" OnPageIndexChanging="dgvLicencias_PageIndexChanging" AllowPaging="true" PageSize="10">
                                        <Columns>
                                            <asp:BoundField DataField="IdLicencia" HeaderText="ID" SortExpression="IdLicencia" ReadOnly="True" />                                          
                                            <asp:BoundField DataField="Licencia" HeaderText="LICENCIA" SortExpression="Licencia" ReadOnly="True" />
@@ -98,7 +102,7 @@ input:checked + .slider:before {
                                        </Columns>
                                                        <FooterStyle BackColor="#99CCCC" ForeColor="#003399" />
                                                         <HeaderStyle BackColor="#085394" Font-Bold="True" ForeColor="#FFFFFF" HorizontalAlign="Center"/>
-                                                        <PagerStyle BackColor="#99CCCC" ForeColor="#003399" HorizontalAlign="Left" />
+                                                        <PagerStyle BackColor="#085394" ForeColor="White" HorizontalAlign="Center" CssClass="stilo-paginacion" />
                                                         <RowStyle BackColor="White" ForeColor="#003399" />
                                                         <SelectedRowStyle BackColor="#009999" Font-Bold="True" ForeColor="#CCFF99" />
                                                         <SortedAscendingCellStyle BackColor="#EDF6F6" />

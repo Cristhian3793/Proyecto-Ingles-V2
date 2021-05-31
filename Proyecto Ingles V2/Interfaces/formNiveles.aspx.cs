@@ -379,12 +379,51 @@ namespace Proyecto_Ingles_V2.Interfaces
 
         }
 
+        public async Task<bool> validarExisteNivel(long idNivel, int tipoNivel, string codNivel)
+        {
+            bool resp = false;
+            List<ClNivel> niveles = await ServicioGetNiveles();
+            foreach (ClNivel a in niveles) {
+                if (a.idNivel == idNivel && a.codNivel.Trim() == codNivel && a.idTipoNivel == tipoNivel)
+                {
+                    resp = true;
+                    break;
+                }
+                else if (a.idNivel == idNivel && a.codNivel.Trim() == codNivel)
+                {
+                    resp = true;
+                    break;
+                }
+                else if (a.codNivel.Trim() == codNivel) {
+                    resp = true;
+                    break;
+                }          
+            }
+            return resp;
+        }
+
         #endregion
 
         #region Metodos Forms
-        protected  void Button1_Click(object sender, EventArgs e)
+        protected async  void Button1_Click(object sender, EventArgs e)
         {
-            ServicioInsertarNivel();
+            long idNivel =Convert.ToInt64(ddlNivel.SelectedValue);
+            string codNivel = txtcodNivel.Text.Trim().ToString();
+            int idTipoNivel= Convert.ToInt32(cbxTipoNivel.SelectedValue);
+            bool resp = false;
+            resp = await validarExisteNivel(idNivel,idTipoNivel,codNivel);
+            if (resp == false)
+            {
+                ServicioInsertarNivel();
+            }
+            else {
+                string script = "existe();";
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "script", script, true);
+                limpiarCampos();
+            }
+                        
+           
+                  
         }
         #endregion
 
