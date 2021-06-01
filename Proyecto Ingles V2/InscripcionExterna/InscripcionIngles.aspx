@@ -229,7 +229,23 @@ input:checked + .slider:before {
             }
 
 
+
         });
+        $("#<%=RabTipoEstudiante.ClientID%>").change(function () {
+            if (this.checked) {
+                //Do stuff
+                $("#<%=RabExamen.ClientID%>").prop('checked', true);
+                $("#<%=RabExamen.ClientID%>").prop("disabled", true);
+            }
+            else {
+                $("#<%=RabExamen.ClientID%>").prop('checked', false);
+                $("#<%=RabExamen.ClientID%>").prop("disabled", false);
+            }
+        });
+
+
+                
+            
         $("#txtCed").blur(function () {
 
             if($('#<%=RabTipoEstudiante.ClientID%>').is(':checked'))

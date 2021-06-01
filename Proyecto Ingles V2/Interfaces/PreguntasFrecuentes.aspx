@@ -160,7 +160,7 @@
         <nav class="navbar-head">
             <div style="float: left; width: 15%; height: 100%;" class="nomAplicacion">
                 <a href="../Login/formLogin.aspx">
-                    <asp:Image src="../images/logo-sek-2.png" alt="Dont exist image" runat="server" Style="width: 100%; height: 100%" />
+                    <asp:Image src="../interfaces/images/logo-sek-2.png" alt="Dont exist image" runat="server" Style="width: 100%; height: 100%" />
                 </a>
             </div>
             <p style="float: right">
@@ -173,34 +173,7 @@
             <div style="height: 50px">
             </div>
         </nav>
-        <!--fin header-->
-
-<%--        <div class="content">
-            <div>
-
-                <div class="container" style="padding-top: 100px">
-                    <div class='centerplease'>
-                        <p>PREGUNTAS FRECUENTES</p>
-                    </div>
-                    <br>
-
-
-                    <div>
-                        <input type="checkbox" id="idquestion" name="q" class="questions">
-                        <div class="plus">+</div>
-                        <label for="idquestion" class="question">
-                            Costos de niveles
-                        </label>
-                        <div class="answers">
-                            HIGH BEGGINER $100
-                        </div>
-                    </div>
-
-
-
-                </div>
-            </div>
-        </div>--%>
+ 
         <div class="footer-content" style="padding: 0.5%;">
             <footer>
                 <p style="color: white; font-size: 14px"><span class="glyphicon glyphicon-copyright-mark"></span>2021 - Recursos Tecnológicos </p>

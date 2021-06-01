@@ -33,8 +33,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected void Page_Load(object sender, EventArgs e)
         {
 
-            if (!IsPostBack)
-            {
+
                 if (Session["usuario"] == null || (string)Session["usuario"] == "")
                 {
                     Response.Redirect("../Login/formLogin.aspx");
@@ -44,6 +43,8 @@ namespace Proyecto_Ingles_V2.Interfaces
                     Response.Redirect("../Interfaces/Default.aspx");
                 }
                 else
+                {           
+                if (!IsPostBack)
                 {
                     cargarGridPruebas();
                 }
@@ -81,7 +82,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             List<ClPrueba> compInf = new List<ClPrueba>();
             try
             {
-                //string url = "http://servicioinglesuisek/";               
+         
                 var client = new HttpClient();
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Clear();
@@ -226,33 +227,6 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
 
         }
-        //public async void ActualizarNivelInscrito(long idInscrito, long IdNivel, int estado)
-        //{
-        //    HttpResponseMessage response = new HttpResponseMessage();
-        //    try
-        //    {
-        //        ClInscritoAutonomo ins = new ClInscritoAutonomo();
-        //        ins.IdInscrito = idInscrito;
-        //        ins.IdEstadoEstudiante = estado;
-        //        string uri = "api/InscritoAutonomo?idInscrito=" + ins.IdInscrito;
-        //        var myContent = JsonConvert.SerializeObject(ins);
-        //        var stringContent = new StringContent(myContent, UnicodeEncoding.UTF8, "application/json");
-        //        var client = new HttpClient();
-        //        client.BaseAddress = new Uri(url);
-        //        client.DefaultRequestHeaders.Clear();
-        //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
-        //        var method = new HttpMethod("PATCH");
-        //        var request = new HttpRequestMessage(method, uri)
-        //        {
-        //            Content = stringContent
-        //        };
-        //        response = await client.SendAsync(request);
-
-        //    }
-        //    catch (TaskCanceledException e)
-        //    {
-        //    }
-        //}
 
         public async Task<List<ClNivel>> ServicioExtraerNIvel()
         {
@@ -279,10 +253,36 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
 
         }
+        public async Task<List<ClTipoNivel>> ServicioExtraerTipoNIvel()
+        {
+            List<ClTipoNivel> compInf = new List<ClTipoNivel>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/TipoNivel");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClTipoNivel>>(empResponse);
+                    return compInf;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+
+        }
+        
         #endregion
 
         #region Metodos
-     
+
 
 
         public async void cargarGridPruebas()
@@ -302,8 +302,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             nivel = await ServicioExtraerNIvel();
             var query = from a in inscrito
                         join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
-                        join d in prueba on f.IDINSCRITO equals d.IdInscrito// into s
-                       // from d in s.DefaultIfEmpty()
+                        join d in prueba on f.IDINSCRITO equals d.IdInscrito
                         join e in nivel on f.IDNIVEL equals e.idNivel
                         join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
                         join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
@@ -325,10 +324,10 @@ namespace Proyecto_Ingles_V2.Interfaces
                             FechaRegistro = a.FechaRegistro,
                             EstadoPrueba = a.EstadoPrueba,
                             PeriodoLectivo = c.Periodo,
-                            IdPrueba = d.IdPrueba,//s.Select(x => x.IdPrueba).FirstOrDefault(),
+                            IdPrueba = d.IdPrueba,
                             NomNivel = e.nomNivel,
                             Estado = g.DescEstEstudiante,
-                            Calificacion = d.PunjatePrueba//s.Select(x => x.PunjatePrueba).FirstOrDefault(),
+                            Calificacion = d.PunjatePrueba
                         };
             dgvNotasPruebas.DataSource = query.ToList();
             dgvNotasPruebas.DataBind();
@@ -350,8 +349,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             nivel = await ServicioExtraerNIvel();
             var query = from a in inscrito
                         join f in nivelesIns on a.IdInscrito equals f.IDINSCRITO
-                        join d in prueba on f.IDNIVELESTUDIANTE equals d.IDNIVELESTUDIANTE //into s
-                        //from x in s.DefaultIfEmpty()
+                        join d in prueba on f.IDNIVELESTUDIANTE equals d.IDNIVELESTUDIANTE
                         join e in nivel on f.IDNIVEL equals e.idNivel
                         join b in tipoEstudiante on a.IdTipoEstudiante equals b.IdTipoEstudiante
                         join c in periodo on f.IDPERIODOINSCRIPCION equals c.IdPeriodoInscripcion
@@ -384,20 +382,36 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         public async Task<long> extraerIdNivel(double? calificacion)
         {
+            string[] codNivelAutonomo = { "SEK1343","SEK1345","SEK1347","SEK1333","SEK1335","SEK1337","SEK1339","SEK1341"};
             long nivel = 0;
             List<ClCalificacionNivel> calif = new List<ClCalificacionNivel>();
+            List<ClNivel> nivel_ = new List<ClNivel>();
+            List<ClTipoNivel> tipoNivel = new List<ClTipoNivel>();
             double califDesde;
             double califHasta;
-
+            nivel_ = await ServicioExtraerNIvel();
             calif = await ServicioExtraerCalificacion();
-            foreach (ClCalificacionNivel a in calif)
+            tipoNivel = await ServicioExtraerTipoNIvel();
+            var query = from a in calif
+                        join b in nivel_ on a.idNivel equals b.idNivel
+                        join c in tipoNivel on b.idTipoNivel equals c.idtipoNivel
+                        where  codNivelAutonomo.Contains(b.codNivel.Trim()) && b.idEstadoNivel==1 && b.idTipoNivel == 2
+                        select new { 
+                         IDNIVEL=b.idNivel,
+                         IDTIPONIVEL=b.idTipoNivel,
+                         CALIFICDESDE=a.calificacionNivelDesde,
+                         CALIFHASTA=a.calificacionNivelHasta
+                        
+                        };
+
+            foreach (var a in query)
             {
-                califDesde = Convert.ToDouble(a.calificacionNivelDesde);
-                califHasta = Convert.ToDouble(a.calificacionNivelHasta);
+                califDesde = Convert.ToDouble(a.CALIFICDESDE);
+                califHasta = Convert.ToDouble(a.CALIFHASTA);
 
                 if (calificacion >= califDesde && calificacion <= califHasta)
                 {
-                    nivel = a.idNivel;
+                    nivel = a.IDNIVEL;
                 }
             }
             return nivel;

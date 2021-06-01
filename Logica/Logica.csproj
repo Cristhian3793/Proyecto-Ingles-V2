@@ -70,6 +70,7 @@
     <Compile Include="Conexion\conexionBaseExterna.cs" />
     <Compile Include="Conexion\SessionFactory.cs" />
     <Compile Include="Mapping\mapCalificacionNivel.cs" />
+    <Compile Include="Mapping\mapClEstadoNota.cs" />
     <Compile Include="Mapping\mapCurso.cs" />
     <Compile Include="Mapping\mapDiasHorario.cs" />
     <Compile Include="Mapping\mapEstadoEstudiante.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Modelos\ClEquivalenciaNivel.cs" />
     <Compile Include="Modelos\ClEstadoEstudiante.cs" />
     <Compile Include="Modelos\ClEstadoNivel.cs" />
+    <Compile Include="Modelos\ClEstadoNota.cs" />
     <Compile Include="Modelos\ClEstadoPeriodo.cs" />
     <Compile Include="Modelos\ClEstadoPrueba.cs" />
     <Compile Include="Modelos\ClEstudiante.cs" />
@@ -160,6 +162,7 @@
     <Compile Include="Servicios\ServiciosEquivalenciaNivel.cs" />
     <Compile Include="Servicios\ServiciosEstadoEstudiante.cs" />
     <Compile Include="Servicios\ServiciosEstadoNivel.cs" />
+    <Compile Include="Servicios\ServiciosEstadoNota.cs" />
     <Compile Include="Servicios\ServiciosEstadoPeriodo.cs" />
     <Compile Include="Servicios\ServiciosEstadoPrueba.cs" />
     <Compile Include="Servicios\ServiciosHorarios.cs" />

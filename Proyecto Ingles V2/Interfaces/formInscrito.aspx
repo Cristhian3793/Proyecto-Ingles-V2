@@ -246,7 +246,17 @@ input:checked + .slider:before {
 
        
     });
-
+    $("#<%=RabTipoEstudiante.ClientID%>").change(function () {
+        if (this.checked) {
+            //Do stuff
+            $("#<%=RabExamen.ClientID%>").prop('checked', true);
+                $("#<%=RabExamen.ClientID%>").prop("disabled", true);
+            }
+            else {
+                $("#<%=RabExamen.ClientID%>").prop('checked', false);
+                    $("#<%=RabExamen.ClientID%>").prop("disabled", false);
+                }
+            });
 
     function confirmMessage() {
         alert("Informacion Enviada Correctamente revise su correo");

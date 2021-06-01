@@ -69,6 +69,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         public async void cargarGridEstudiante()
         {
+            int[] estadoNivel = { 1, 2 };
             List<ClInscritoAutonomo> inscrito = new List<ClInscritoAutonomo>();
             List<ClTipoEstudiante> tipoEstudiante = new List<ClTipoEstudiante>();
             List<ClPeriodoInscripcion> periodo = new List<ClPeriodoInscripcion>();
@@ -92,7 +93,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                         join e in periodo on b.IDPERIODOINSCRIPCION equals e.IdPeriodoInscripcion
                         join f in estadoEstu on b.IDESTADONIVEL equals f.CodEstadoEstu
                         join g in notas on b.IDNIVELESTUDIANTE equals g.IDNIVELESTUDINTE
-                        where b.PRUEBA == 0 && g.ESTADO==3 && g.IDNIVEL==b.IDNIVEL && b.ESTADONIVEL==1 && b.IDESTADONIVEL==1
+                        where b.PRUEBA == 0 && g.ESTADO==3 && g.IDNIVEL==b.IDNIVEL && estadoNivel.Contains(b.ESTADONIVEL) && b.IDESTADONIVEL==1
                         //0 son solo niveles,3 significa promedio,1 significa nivel cerrado,1 significa pagado
                         //group new { a, d } by new { a.IdInscrito, d.DescTipoEstudiante, a.NombreInscrito, a.ApellidoInscrito, a.NumDocInscrito } into ad
                         select new
@@ -308,6 +309,49 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
             return compInf;
         }
+        public async Task<List<ClNivelesInscrito>> ServicioGetNivelInscrito(long idInscrito)
+        {
+            List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
+            try
+            {
+
+
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/NivelesInscrito/" + idInscrito);
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClNivelesInscrito>>(empResponse);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+        }
+        
+        //crear servicio para buscar nivel y extraer estatus 
+        public async void ExtraerEstatus(long idNivel)
+        {
+            List<ClNivelesInscrito> niveles = await ServicioGetNivelInscrito(idNivel);
+            List<ClEstadoNota> estadoNota= await ServicioGetEstadoNota();
+            var query = from a in niveles
+                        join b in estadoNota on a.ESTADONIVEL equals b.CODESTADONOTA
+                        select new { 
+                        ESTADONIVEL=a.ESTADONIVEL,
+                        DESESTADO=b.DESESTADONOTA
+                        };
+            lblEstadoNivel.Text = query.Select(x => x.DESESTADO).FirstOrDefault().ToString();
+
+
+        }
+
         public async Task<List<ClNota>> ServicioGetAllNotas()
         {
             List<ClNota> compInf = new List<ClNota>();
@@ -361,10 +405,38 @@ namespace Proyecto_Ingles_V2.Interfaces
             return compInf;
 
         }
+        public async Task<List<ClEstadoNota>> ServicioGetEstadoNota()
+        {
+            List<ClEstadoNota> compInf = new List<ClEstadoNota>();
+            try
+            {
+
+
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EstadoNota");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    compInf = JsonConvert.DeserializeObject<List<ClEstadoNota>>(empResponse);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return compInf;
+
+        }
         #endregion
         public async void CargarPromedio(long idInscrito, long idNivelEstudiante)
         {
             List<ClNota> notas = await ServicioGetNotas(idInscrito);
+            List<ClEstadoNota> estadoNota = await ServicioGetEstadoNota();
             var queryPromedio = from a in notas
                                 where a.IDINSCRITO == idInscrito && a.IDNIVELESTUDINTE == idNivelEstudiante && a.ESTADO == 3
                                 select new
@@ -372,13 +444,14 @@ namespace Proyecto_Ingles_V2.Interfaces
                                     Promedio = a.CALIFICACION,
                                 };
             txtPromedio.Text = queryPromedio.Select(x => x.Promedio).FirstOrDefault().ToString();
-
         }
         public async void cargargridNotas(long idInscrito,long idNivelEstudiante) {
             List<ClNota> notas = await ServicioGetNotas(idInscrito);
             List<ClUnidad> temas = await ServicioGetTemas();
+            
             var queryNotas = from a in notas 
                              join b in temas on a.IDTEMA equals b.idNomUnidad 
+                             
                              where a.IDINSCRITO == idInscrito && a.IDNIVELESTUDINTE==idNivelEstudiante && a.ESTADO!=0
                              //diferente de 0 significa solo notas con estado 1 que es cerrado
                              select new {
@@ -388,10 +461,12 @@ namespace Proyecto_Ingles_V2.Interfaces
                                  idTema = a.IDTEMA,
                                  NomUnidad=b.NomUnidad,
                                  calificacion = a.CALIFICACION,
-                                 a.ESTADO
+                                 Estado=a.ESTADO
+
                              };
+
             CargarPromedio(idInscrito, idNivelEstudiante);
-            
+            ExtraerEstatus(idNivelEstudiante);
             dgvNotas.DataSource = queryNotas;
             dgvNotas.DataBind();
 

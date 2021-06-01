@@ -43,7 +43,7 @@
                                                 <asp:BoundField DataField="tipoNivel" HeaderText="tipoNivel" SortExpression="tipoNivel" ReadOnly="true" />
                                                 <asp:TemplateField HeaderText="Calificacion Desde" SortExpression="Calificacion">
                                                     <EditItemTemplate>
-                                                        <asp:TextBox ID="EditCalificacion" runat="server" Text='<%# Bind("Calificacion") %>'></asp:TextBox>
+                                                        <asp:TextBox ID="EditCalificacion" runat="server" Text='<%# Bind("Calificacion") %>' onpaste="return false" onkeypress="return NumCheck(event, this)"></asp:TextBox>
                                                     </EditItemTemplate>
                                                     <ItemTemplate>
                                                         <asp:Label ID="Label1" runat="server" Text='<%# Bind("Calificacion") %>'></asp:Label>
@@ -52,10 +52,10 @@
 
                                                 <asp:TemplateField HeaderText="Calificacion Hasta" SortExpression="CalificacionHasta">
                                                     <ItemTemplate>
-                                                        <asp:Label ID="Label3" runat="server" Text='<%# Bind("CalificacionHasta") %>'></asp:Label>
+                                                        <asp:Label ID="Label3" runat="server" Text='<%# Bind("CalificacionHasta") %>' ></asp:Label>
                                                     </ItemTemplate>
                                                     <EditItemTemplate>
-                                                        <asp:TextBox runat="server" ID="txtCalificacionHasta" Text='<%# Bind("CalificacionHasta") %>'></asp:TextBox>
+                                                        <asp:TextBox runat="server" ID="txtCalificacionHasta" Text='<%# Bind("CalificacionHasta") %>' onpaste="return false" onkeypress="return NumCheck(event, this)"></asp:TextBox>
                                                     </EditItemTemplate>
                                                 </asp:TemplateField>
 
@@ -117,6 +117,25 @@
                 }
             })
             return false;
+        }
+        function NumCheck(e, field) {
+            key = e.keyCode ? e.keyCode : e.which
+            // backspace
+            if (key == 8) return true
+            // 0-9
+            if (key > 47 && key < 58) {
+                if (field.value == "") return true
+                regexp = /.[0-9]{2}$/
+                return !(regexp.test(field.value))
+            }
+            // .
+            if (key == 46) {
+                if (field.value == "") return false
+                regexp = /^[0-9]+$/
+                return regexp.test(field.value)
+            }
+            // other key
+            return false
         }
     </script>
 </asp:Content>

@@ -31,11 +31,11 @@
                                 <div class="row">
                                   <div class="form-group col-sm-6">
                                     <asp:Label ID="Label6" runat="server" Text="Calificación Desde"></asp:Label>
-                                    <asp:TextBox ID="txtCalificacionDesde" runat="server" class="form-control" required="true"></asp:TextBox>
+                                    <asp:TextBox ID="txtCalificacionDesde" runat="server" class="form-control" required="true" onpaste="return false"  onkeypress="return NumCheck(event, this)"></asp:TextBox>
                                   </div>
                                    <div class="form-group col-sm-6">
                                     <asp:Label ID="Label2" runat="server" Text="Calificación Hasta"></asp:Label>
-                                    <asp:TextBox ID="txtCalificacionHasta" runat="server" class="form-control" required="true"></asp:TextBox>
+                                    <asp:TextBox ID="txtCalificacionHasta" runat="server" class="form-control" required="true" onpaste="return false"  onkeypress="return NumCheck(event, this)"></asp:TextBox>
                                   </div>
                                 </div>
                                 <div class="form-group">
@@ -72,6 +72,25 @@
                 text: 'Registro Correcto!',
                 footer: '<a href></a>'
             })
+        }
+        function NumCheck(e, field) {
+            key = e.keyCode ? e.keyCode : e.which
+            // backspace
+            if (key == 8) return true
+            // 0-9
+            if (key > 47 && key < 58) {
+                if (field.value == "") return true
+                regexp = /.[0-9]{2}$/
+                return !(regexp.test(field.value))
+            }
+            // .
+            if (key == 46) {
+                if (field.value == "") return false
+                regexp = /^[0-9]+$/
+                return regexp.test(field.value)
+            }
+            // other key
+            return false
         }
     </script>
 </asp:Content>

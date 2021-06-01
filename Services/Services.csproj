@@ -180,6 +180,7 @@
     <Compile Include="Controllers\EstadoEstudianteUController.cs" />
     <Compile Include="Controllers\EstadoNivelController.cs" />
     <Compile Include="Controllers\EstadoNivelInscritoController.cs" />
+    <Compile Include="Controllers\EstadoNotaController.cs" />
     <Compile Include="Controllers\EstadoPeriodoController.cs" />
     <Compile Include="Controllers\EstadoPruebaController.cs" />
     <Compile Include="Controllers\HorariosController.cs" />

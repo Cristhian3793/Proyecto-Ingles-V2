@@ -167,7 +167,7 @@
 
                                                         <asp:TemplateField HeaderText="Calificacion" SortExpression="Calificacion">
                                                             <EditItemTemplate>
-                                                                <asp:TextBox ID="EditUnit1" runat="server" Text='<%# Bind("Calificacion") %>' onkeypress="return NumCheck(event, this)"></asp:TextBox>
+                                                                <asp:TextBox ID="EditUnit1" runat="server" Text='<%# Bind("Calificacion") %>' onkeypress="return NumCheck(event, this)" onpaste="return false"></asp:TextBox>
                                                             </EditItemTemplate>
                                                             <ItemTemplate>
                                                                 <asp:Label ID="Label1" runat="server" Text='<%# Bind("Calificacion") %>'></asp:Label>
@@ -202,7 +202,7 @@
                         <asp:UpdatePanel ID="UpdatePanel2" runat="server">
                             <ContentTemplate>
                                 <label class="control-label"><strong>Promedio: </strong></label>
-                                <asp:TextBox ID="txtPromedio" runat="server" ReadOnly="true" onkeypress="return NumCheck(event, this)" CssClass="form-control"></asp:TextBox>
+                                <asp:TextBox ID="txtPromedio" runat="server" ReadOnly="true" onkeypress="return NumCheck(event, this)"  CssClass="form-control"></asp:TextBox>
                                 <br />
                                 <asp:Button ID="btnCalcPromedio" runat="server" Text="Cerrar Nivel" OnClick="btnCalcPromedio_Click" OnClientClick="return  confirmar_cierreNivel(this);" class="btn btn-success" />
                             </ContentTemplate>

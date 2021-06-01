@@ -183,7 +183,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 promedio = promedio + notas.CALIFICACION;
             }
             promedio = promedio / 6;
-            txtPromedio.Text = promedio.ToString();
+            txtPromedio.Text = promedio.ToString("N2");
 
         }
         public async void crearNotas(long idInscrito, long idnivel,long idNivelestudiante)
@@ -431,6 +431,7 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         protected async void btnCalcPromedio_Click(object sender, EventArgs e)//calcular promedio y asignar nivel
         {
+            string[] codNivelAutonomo = { "SEK1343", "SEK1345", "SEK1347", "SEK1333", "SEK1335", "SEK1337", "SEK1339", "SEK1341" };
             long idperiodoActivo= await extrarIdPeridoActivo();
             int cantNiveles = 6;
             long idInscrito = 0;
@@ -440,7 +441,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             idInscrito = Convert.ToInt64(HiddenIdIns.Value);
             idNivel = Convert.ToInt64(HiddenNivel.Value);
             idNIvelEstudiante= Convert.ToInt64(HiddenNivelEstudiante.Value);
-            ActualizarEstadoNivelInscrito(idNIvelEstudiante, 1);//1 significa cerrdado
+            
             double promedio = 0;
             List<ClNota> notas = await ServicioGetNotas(idInscrito);
             var query = from a in notas
@@ -470,6 +471,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 txtPromedio.Text = Convert.ToDouble(promedio).ToString();
                 if (promedio >= 6)//aprueba el nivel y se agrega nuevo nivel a estudiante
                 {
+                    ActualizarEstadoNivelInscrito(idNIvelEstudiante, 1);//1 significa cerrdado
                     //estados
                     //0 en proceso
                     //1 aprobado
@@ -492,21 +494,29 @@ namespace Proyecto_Ingles_V2.Interfaces
                     //nota.IDNIVELESTUDINTE = Convert.ToInt64(ddlNivel.SelectedValue.ToString());
                     ServicioInsertarPromedio(nota);
                     //llamar servicio para extraer id de nivel enviar parametros idnivel y recuperar el nivel, buscar el nivel y extraer el idnivel
-                    List<ClNivel> nivel = await ServicioExtraerNIvel();
+                    List<ClNivel> nivel_ = await ServicioExtraerNIvel();
+                    var nivel = from a in nivel_
+                                where codNivelAutonomo.Contains(a.codNivel.Trim()) && a.idEstadoNivel == 1 && a.idTipoNivel==2 // 2 es autonomo
+                                select new
+                                {
+                                    IDNIVEL=a.idNivel,
+                                    DESCNIVEL=a.descNivel,
+                                    IDESTADONIVEL=a.idEstadoNivel
+                                };
                     int nivel_Desc = -1;
-                    foreach (ClNivel a in nivel)
+                    foreach (var a in nivel)
                     {
-                        if (a.idNivel == idNivel)
+                        if (a.IDNIVEL == idNivel)
                         {
-                            nivel_Desc = Convert.ToInt32(a.descNivel);//nivel_desc es el numero de nivel
+                            nivel_Desc = Convert.ToInt32(a.DESCNIVEL);//nivel_desc es el numero de nivel
                         }
                     }
                     int idNuevoNivel = -1;
-                    foreach (ClNivel a in nivel)
+                    foreach (var a in nivel)
                     {
-                        if (Convert.ToInt32(a.descNivel) == (nivel_Desc + 1) && nivel_Desc<8)
+                        if (Convert.ToInt32(a.DESCNIVEL) == (nivel_Desc + 1) && nivel_Desc<8)
                         {
-                            idNuevoNivel = Convert.ToInt32(a.idNivel);
+                            idNuevoNivel = Convert.ToInt32(a.IDNIVEL);
                         }
                     }
                     //guardar nivel nuevo con estatus en proceso
@@ -523,6 +533,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 }
                 else if (promedio < 6)//pierde nivel y se guarda nivel actual
                 {
+                    ActualizarEstadoNivelInscrito(idNIvelEstudiante, 2);//2 significa reprobado
                     //actualizar estatus en proceso para niveles que aun no se hayan cerrado
                     //poner estatus nivel perdido
                     foreach (var a in query)

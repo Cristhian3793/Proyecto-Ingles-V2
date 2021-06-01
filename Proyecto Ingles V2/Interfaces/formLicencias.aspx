@@ -81,7 +81,7 @@ input:checked + .slider:before {
                                      </div>                                                                 
                                     <div class="form-group col-sm-6">
                                         <asp:Label  Text="Licencia" runat="server"></asp:Label>
-                                        <asp:TextBox ID="txtLicencia" runat="server" class="form-control"></asp:TextBox>
+                                        <asp:TextBox ID="txtLicencia" runat="server" class="form-control" required="true"></asp:TextBox>
                                     </div> 
                                     </div>   
                                     <div class="form-group">

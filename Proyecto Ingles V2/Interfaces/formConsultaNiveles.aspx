@@ -158,7 +158,7 @@
                                     <label class="control-label"><strong>Costo Nivel :</strong></label>
                                     <div class="controls">
                                         <asp:TextBox ID="txtCostoNivel" runat="server" CssClass="form-control"
-                                            TabIndex="4" ValidationGroup="val4"  onkeypress="return NumCheck(event, this)"></asp:TextBox>
+                                            TabIndex="4" ValidationGroup="val4"  onkeypress="return NumCheck(event, this)" onpaste="return false"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>

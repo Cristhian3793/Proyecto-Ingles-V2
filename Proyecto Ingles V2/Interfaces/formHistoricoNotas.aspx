@@ -164,6 +164,7 @@
                             <ContentTemplate>
                                 <label class="control-label"><strong>Promedio: </strong></label>
                                 <asp:TextBox ID="txtPromedio" runat="server" CssClass="form-control" ReadOnly="true"></asp:TextBox>
+                                <asp:Label ID="lblEstadoNivel" runat="server" Text=""></asp:Label>
                             </ContentTemplate>
                         </asp:UpdatePanel>
                     </div>

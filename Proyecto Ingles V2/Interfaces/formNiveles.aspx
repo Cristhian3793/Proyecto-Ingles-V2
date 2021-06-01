@@ -122,7 +122,7 @@ input:checked + .slider:before {
                                 <div class="row">
                                  <div class="form-group col-sm-6">
                                     <asp:Label ID="Label8" runat="server" Text="Costo Nivel"></asp:Label>
-                                    <asp:TextBox ID="txtCostoNivel" runat="server" class="form-control" required="true" onkeypress="return NumCheck(event, this)"></asp:TextBox>
+                                    <asp:TextBox ID="txtCostoNivel" runat="server" class="form-control" required="true" onkeypress="return NumCheck(event, this)" onpaste="return false"></asp:TextBox>
                                 </div>
                                 <div class="form-group col-sm-6">
                                     <asp:Label ID="Label1" runat="server" Text="Estado Nivel"></asp:Label>
