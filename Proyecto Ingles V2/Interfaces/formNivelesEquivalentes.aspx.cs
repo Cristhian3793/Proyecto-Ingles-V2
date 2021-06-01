@@ -40,6 +40,28 @@ namespace Proyecto_Ingles_V2.Interfaces
             }
         }
         #region Invocacion Servicios
+        public async Task<List<ClEquivalenciaNivel>> ServicioGetNivelEquivalente()
+        {
+            List<ClEquivalenciaNivel> nivelProgramado = new List<ClEquivalenciaNivel>();
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jason"));
+                HttpResponseMessage res = await client.GetAsync("api/EquivalenciaNivel");
+                if (res.IsSuccessStatusCode)
+                {
+                    var empResponse = res.Content.ReadAsStringAsync().Result;
+                    nivelProgramado = JsonConvert.DeserializeObject<List<ClEquivalenciaNivel>>(empResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return nivelProgramado;
+        }
         public async Task<List<ClNivelesProgramado>> ServicioGetNivelProgramado()
         {
             List<ClNivelesProgramado> nivelProgramado = new List<ClNivelesProgramado>();
@@ -175,16 +197,53 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
 
         #endregion
+        public async Task<bool> validarNivelesEquivalentes(long idAutonomo,long idProgramado)
+        {
+            List<ClEquivalenciaNivel> equinivel =new List<ClEquivalenciaNivel>();
+            equinivel = await ServicioGetNivelEquivalente();
+            bool resp = false;
+            foreach(ClEquivalenciaNivel a in equinivel)
+            {
+                if(a.idNivelAut==idAutonomo && a.idNivelPro == idProgramado)
+                {
+
+                    resp= true;
+                    break;
+                }
+            }
+            return resp;
+
+        }
+
+
 
         #region Metodos Forms
-        protected  void btnGuardar_Click(object sender, EventArgs e)
+        protected async void btnGuardar_Click(object sender, EventArgs e)
         {
             ClEquivalenciaNivel nivequi = new ClEquivalenciaNivel();
             long idAutonomo = Convert.ToInt64(cbxNivelAutonomo.SelectedValue.ToString());
             long idProgramado = Convert.ToInt64(cbxNivelProgramado.SelectedValue.ToString());
             nivequi.idNivelAut = idAutonomo;
             nivequi.idNivelPro = idProgramado;
-            ServiocInsertNivelEquivalente(nivequi);
+            bool resp = await validarNivelesEquivalentes(idAutonomo, idProgramado);
+            if (idAutonomo!=0 && idProgramado != 0)
+            {
+                if (resp == false)
+                {
+                    ServiocInsertNivelEquivalente(nivequi);
+                }
+                else
+                {
+                    string script = "existe();";
+                    ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+                }
+            }
+            else
+            {
+                string script = "select();";
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", script, true);
+            }
+            
 
         }
         #endregion

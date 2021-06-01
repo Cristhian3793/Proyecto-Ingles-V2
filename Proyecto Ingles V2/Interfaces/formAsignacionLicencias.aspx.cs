@@ -15,6 +15,9 @@ using System.Text;
 using Logica.ConexionServicios;
 using System.Drawing;
 using System.Data;
+using System.Net.Mail;
+using Proyecto_Ingles_V2.LoginDb;
+
 namespace Proyecto_Ingles_V2.Interfaces
 {
     public partial class formAsignacionLicencias : System.Web.UI.Page
@@ -307,6 +310,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             Periodo = e.Periodo,
                             IdLibro = g.idLibro,
                             Libro = g.descLibro,
+                            Correo=a.EmailInscrito,
                             LicenciaEstudiante = licEs.Select(x => x.Licencia).FirstOrDefault(),
                         };
             dgvInscrito.DataSource = query.ToList();
@@ -360,7 +364,8 @@ namespace Proyecto_Ingles_V2.Interfaces
                             Periodo = e.Periodo,
                             IdLibro=g.idLibro,
                             Libro=g.descLibro,
-                            LicenciaEstudiante= licEs.Select(x=>x.Licencia).FirstOrDefault(),
+                            Correo = a.EmailInscrito,
+                            LicenciaEstudiante = licEs.Select(x=>x.Licencia).FirstOrDefault(),
                         };
             dgvInscrito.DataSource = query.ToList();
             dgvInscrito.DataBind();
@@ -403,11 +408,13 @@ namespace Proyecto_Ingles_V2.Interfaces
                 string libro = dgvInscrito.Rows[fila].Cells[9].Text;
                 string nombreAlumno= dgvInscrito.Rows[fila].Cells[3].Text.Trim()+" "+ dgvInscrito.Rows[fila].Cells[4].Text.Trim();
                 string cedula= dgvInscrito.Rows[fila].Cells[0].Text;
+                string email = dgvInscrito.DataKeys[fila]["Correo"].ToString().Trim();
+                HiddenEmail.Value = email;
                 llenarModal(idLibro, nivel, libro,nombreAlumno,cedula);
                 btnPopUp_ModalPopupExtender2.Show();
             }
         }
-        public async void ServicioInsertarLicenciaEstudiante(ClLicenciasEstudiante licencia)
+        public async void ServicioInsertarLicenciaEstudiante(ClLicenciasEstudiante licencia, string nombreAlumno, string email, string licencia_)
         {
 
             try
@@ -425,6 +432,9 @@ namespace Proyecto_Ingles_V2.Interfaces
                     var empResponse = res.Content.ReadAsStringAsync().Result;
                     string script = "confirm();";
                     ScriptManager.RegisterStartupScript(this, typeof(Page), "xcript", script, true);
+                    //enviar correo
+                    EnviaCorreo_Alumno(licencia_,email,nombreAlumno);
+                    //dfdf
                 }
 
             }
@@ -433,6 +443,66 @@ namespace Proyecto_Ingles_V2.Interfaces
                 Console.WriteLine(ex.Message);
             }
 
+        }
+        public void EnviaCorreo_Alumno(string licencia,string email_,string alumno)
+        {
+            try
+            {
+                string email = email_;
+                string NombreUsuario = alumno;
+                MailMessage correo = new MailMessage();
+                correo.To.Add(email);
+
+                correo.From = new MailAddress("no.reply@uisek.edu.ec", "Licencia Plataforma Cambridge ", System.Text.Encoding.UTF8);
+                correo.Subject = "Correo notificación Licencias Cambridge";
+                correo.SubjectEncoding = System.Text.Encoding.UTF8;
+                correo.Body = "Estimad@ " + NombreUsuario + ", \n se le ha sido asignado la licencia para acceder a la plataforma Cambridge " + ",\n " +
+
+                  "  NO RESPONDA A ESTE EMAIL.\n  \n En caso de dudas contacte al departamento de Íngles.  \n silvia.valencia@uisek.edu.ec";
+                correo.BodyEncoding = System.Text.Encoding.UTF8;
+                string body = "<html><head> " +
+                 "<style type=\"text/css\">.style3 { width:20%;  } .style2 {color:red;}.style4 {border:0;}</style>" +
+                "</head>" +
+                "<body class=\"style4\">" +
+                "<form id=\"form1\" runat=\"server\">" +
+                "<tr><td colspan=\"2\" style=\"text-align:center; font-size:25px\"><img src='cid:logo' width='100px'></img></td>" +
+                "<div><table class=\"style4\" style=\"width:100%;\">" +
+                "<tr><td class=\"style3\"></td><td>Estimad@  " + NombreUsuario + ",</td> </tr>" +
+                "<tr><td class=\"style3\"></td><td>Se le ha sido asignado la licencia para acceder a la plataforma Cambridge </td>" +
+                "<tr><td class=\"style3\"></td><td>La licencia para acceder a la plataforma Cambridge es:" + "</td>" +
+                "<tr><td class=\"style3\"></td><td><b>Licencia: </b>" + licencia + "</td>" +
+                "<tr><td class=\"style3\"></td><td><b>Dirección de Acceso al Sistema: </b>" + "https://www.cambridgelms.org/main" + "</td>  " +
+                "<td class=\"style3\"></td></tr><tr><td class=\"style3\">&nbsp;</td><td class=\"style2\">NO RESPONDA A ESTE CORREO. </td>" +
+                "<td class=\"style3\">&nbsp;</td></tr><tr><td class=\"style3\">&nbsp;</td><td>En caso de dudas contacte al departamento de Idiomas de la Universidad Internacional SEK.</td>" +
+                "<td class=\"style3\">&nbsp;</td></tr> </table></div></form></body></html>";
+
+                System.Net.Mime.ContentType mimeType = new System.Net.Mime.ContentType("text/html");
+                // Add the alternate body to the message.
+
+                AlternateView alternate = AlternateView.CreateAlternateViewFromString(body, mimeType);
+                LinkedResource logo = new LinkedResource(Server.MapPath("~/Images/") + "logo.png")
+                {
+                    ContentId = "logo"
+                };
+
+                // Lo incrustamos en la vista HTML...
+                alternate.LinkedResources.Add(logo);
+                correo.AlternateViews.Add(alternate);
+                correo.IsBodyHtml = false;
+                SmtpClient client = new SmtpClient
+                {
+                    Credentials = new System.Net.NetworkCredential("no.reply@uisek.edu.ec", Funciones.ConectarMail()),
+                    Port = 587,
+                    Host = "smtp.gmail.com",
+                    EnableSsl = true //Esto es para que vaya a través de SSL que es obligatorio con GMail 
+                };
+                client.Send(correo);
+
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", @"alert('No se pudo enviar el correo electrónico al alumno'); console.log('" + ex.Message.Replace("'", "**") + "');", true);
+            }
         }
         protected void dgvInscrito_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
@@ -564,6 +634,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             Periodo = e.Periodo,
                             IdLibro = g.idLibro,
                             Libro = g.descLibro,
+                            Correo = a.EmailInscrito,
                             LicenciaEstudiante = licEs.Select(x => x.Licencia).FirstOrDefault(),
                         };
             dgvInscrito.DataSource = query.ToList();
@@ -620,6 +691,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             Periodo = e.Periodo,
                             IdLibro = g.idLibro,
                             Libro = g.descLibro,
+                            Correo = a.EmailInscrito,
                             LicenciaEstudiante = licEs.Select(x => x.Licencia).FirstOrDefault(),
                         };
             dgvInscrito.DataSource = query.ToList();
@@ -675,13 +747,14 @@ namespace Proyecto_Ingles_V2.Interfaces
                             Periodo = e.Periodo,
                             IdLibro = g.idLibro,
                             Libro = g.descLibro,
+                            Correo = a.EmailInscrito,
                             LicenciaEstudiante = licEs.Select(x => x.Licencia).FirstOrDefault(),
                         };
             dgvInscrito.DataSource = query.ToList();
             dgvInscrito.DataBind();
 
         }
-            public async void asignarLicenciaEstudiante(ClLicenciasEstudiante licencias)
+            public async void asignarLicenciaEstudiante(ClLicenciasEstudiante licencias,string nombreAlumno,string email,string licencia)
         {
             bool resp =await validarLicencia(licencias.IDNIVELESTUDIANTE,licencias.IDINSCRITO);
             if (resp)//ya existe una licencia asignada para ese nivel
@@ -690,20 +763,24 @@ namespace Proyecto_Ingles_V2.Interfaces
                 ScriptManager.RegisterStartupScript(this, typeof(Page), "xcript", script, true);
             }
             else
-            ServicioInsertarLicenciaEstudiante(licencias);
+            ServicioInsertarLicenciaEstudiante(licencias,nombreAlumno,email,licencia);
         }
         protected void dgvLicencias_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             ClLicenciasEstudiante licencias = new ClLicenciasEstudiante();
             if (e.CommandName== "asignarLicencia") {
+                string nombreAlumno = txtNombres.Text;
+                string email = HiddenEmail.Value;
                 int fila = Convert.ToInt32(e.CommandArgument);//captura el indice de la fila del gridview
                 long idNivelEstudiante = Convert.ToInt64(HiddenNivelEstudiante.Value);
                 long idInscrito= Convert.ToInt64(HiddenIdIns.Value);
-                long idLicencia= Convert.ToInt64(dgvLicencias.DataKeys[fila]["IDLICENCIA"].ToString());//IdInscrito
+                long idLicencia= Convert.ToInt64(dgvLicencias.DataKeys[fila]["IDLICENCIA"].ToString());
+                string licencia = dgvLicencias.DataKeys[fila]["LICENCIA"].ToString();
                 licencias.IDLICENCIA = idLicencia;
                 licencias.IDNIVELESTUDIANTE = idNivelEstudiante;
                 licencias.IDINSCRITO = idInscrito;
-                asignarLicenciaEstudiante(licencias);
+
+                asignarLicenciaEstudiante(licencias,nombreAlumno,email,licencia);
                 //agregar servcio para insertar licencia 
             }
         }

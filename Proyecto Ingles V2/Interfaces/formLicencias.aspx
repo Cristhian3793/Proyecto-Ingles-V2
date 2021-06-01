@@ -107,6 +107,5 @@ input:checked + .slider:before {
                footer: '<a href></a>'
            })
        }
-
        </script>
 </asp:Content>

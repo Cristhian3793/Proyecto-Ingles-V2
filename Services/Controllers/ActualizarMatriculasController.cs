@@ -25,12 +25,12 @@ namespace Services.Controllers
             IList<ClNivelesInscrito> nivInscrito = servNivelesInscrito.getNivelIns();
             IList<ClNivel> nivel = servNivel.getNivel();
             IList<ClPeriodoInscripcion> periodos = servPeriodos.getPeriodoInscripcion();
-
+            long[] estados = { 0, 5 };
             var query = from a in inscrito 
                         join b in nivInscrito on a.IdInscrito equals b.IDINSCRITO 
                         join c in nivel on b.IDNIVEL equals c.idNivel
                         join d in periodos on b.IDPERIODOINSCRIPCION equals d.IdPeriodoInscripcion
-                        where b.IDESTADONIVEL==0 && a.NumDocInscrito.Trim()==numdoc && c.codNivel.Trim()==codProducto && d.Periodo.Trim()==periodo.Trim()
+                        where estados.Contains(b.IDESTADONIVEL) && a.NumDocInscrito.Trim()==numdoc && c.codNivel.Trim()==codProducto && d.Periodo.Trim()==periodo.Trim()
                         select new { 
                             IDNIVELESTUDIANTE=b.IDNIVELESTUDIANTE,
                             IDINSCRITO=a.IdInscrito,

@@ -137,10 +137,10 @@ namespace Proyecto_Ingles_V2.Interfaces
 
 
 
-        protected  void enviar_Click(object sender, EventArgs e)
+        protected async void enviar_Click(object sender, EventArgs e)
         {
 
-            //List<Producto> listaCompras = await CargarInformacion((string)Session["usuario"]);
+            List<Producto> listaCompras = await CargarInformacion((string)Session["usuario"]);
             try
             {
                 string cedula =(string)Session["usuario"];
@@ -222,7 +222,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             "','" + txt_valor_depositado.Text + "','" + ddl_concepto.SelectedValue + "','" + ddl_tipo_pago.SelectedValue + "','1','" + txt_concepto.Text + "','" + cedula + "','" + secuencial_alterno + "','" + ipuser + "'");
 
             //se carga los datos de la lista de compras en el maestro
-            //List<Producto> listaCompras =await CargarInformacion((string)Session["usuario"]);
+            List<Producto> listaCompras =await CargarInformacion((string)Session["usuario"]);
             Conexion.GuardarMaestroDeposito(id_trans, listaCompras);
             //nombre cargar del ingles
 

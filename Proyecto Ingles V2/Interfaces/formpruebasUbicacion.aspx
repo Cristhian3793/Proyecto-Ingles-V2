@@ -56,7 +56,7 @@
                             <br />
                             <div class="col-md-12">
                                 <div class="table-responsive">
-                                    <asp:GridView ID="dgvNotasPruebas" runat="server" AutoGenerateColumns="False" DataKeyNames="idPrueba,IdInscrito" OnRowCancelingEdit="dgvNotasPruebas_RowCancelingEdit" OnRowEditing="dgvNotasPruebas_RowEditing" OnRowUpdating="dgvNotasPruebas_RowUpdating" HorizontalAlign="Center" CssClass="table table-bordered table-striped" OnPageIndexChanging="dgvNotasPruebas_PageIndexChanging" AllowPaging="true" PageSize="5">
+                                    <asp:GridView ID="dgvNotasPruebas" runat="server" AutoGenerateColumns="False" DataKeyNames="idPrueba,IdInscrito,NivelEstudiante" OnRowCancelingEdit="dgvNotasPruebas_RowCancelingEdit" OnRowEditing="dgvNotasPruebas_RowEditing" OnRowUpdating="dgvNotasPruebas_RowUpdating" HorizontalAlign="Center" CssClass="table table-bordered table-striped" OnPageIndexChanging="dgvNotasPruebas_PageIndexChanging" AllowPaging="true" PageSize="5">
                                         <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
                                         <Columns>
                                             <asp:BoundField DataField="NumDocInscrito" HeaderText="N° Identificación" SortExpression="NumDocInscrito" ReadOnly="True" />
@@ -72,6 +72,7 @@
                                             <asp:BoundField DataField="IdNivel" HeaderText="idNivel" ReadOnly="True" SortExpression="IdNivel" Visible="False" />
                                             <asp:BoundField DataField="NomNivel" HeaderText="Nivel" ReadOnly="True" SortExpression="NomNivel" />
                                             <asp:BoundField DataField="Estado" HeaderText="Estado" ReadOnly="True" SortExpression="Estado" />
+                                            <asp:BoundField DataField="NivelEstudiante" HeaderText="NivelEstudiante" ReadOnly="True" SortExpression="NivelEstudiante" visible="false"/>
                                             <asp:TemplateField HeaderText="Calificacion" SortExpression="Calificacion">
                                                 <EditItemTemplate>
                                                     <asp:TextBox ID="EditCalificacion" runat="server" Text='<%# Bind("Calificacion") %>' onkeypress="return NumCheck(event, this)" onpaste="return false"></asp:TextBox>

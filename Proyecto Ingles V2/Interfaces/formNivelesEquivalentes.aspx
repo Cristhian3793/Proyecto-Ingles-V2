@@ -39,7 +39,20 @@
                footer: '<a href></a>'
            })
        }
-
+           function existe() {
+               Swal.fire({
+                   icon: 'error',
+                   text: 'El Registro ya existe',
+                   footer: '<a href></a>'
+               })
+           }
+           function select() {
+               Swal.fire({
+                   icon: 'error',
+                   text: 'Debe seleccionar un nivel autonomo y un nivel programamdo',
+                   footer: '<a href></a>'
+               })
+           }
        </script>
 </asp:Content>
 

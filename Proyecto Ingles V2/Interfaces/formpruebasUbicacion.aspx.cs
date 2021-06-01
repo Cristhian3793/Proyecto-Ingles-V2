@@ -327,6 +327,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             IdPrueba = d.IdPrueba,
                             NomNivel = e.nomNivel,
                             Estado = g.DescEstEstudiante,
+                            NivelEstudiante=d.IDNIVELESTUDIANTE,
                             Calificacion = d.PunjatePrueba
                         };
             dgvNotasPruebas.DataSource = query.ToList();
@@ -374,6 +375,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                             IdPrueba = d.IdPrueba,
                             NomNivel = e.nomNivel,
                             Estado=g.DescEstEstudiante,
+                            NivelEstudiante = d.IDNIVELESTUDIANTE,
                             Calificacion = d.PunjatePrueba,
                         };
             dgvNotasPruebas.DataSource = query.ToList();
@@ -555,7 +557,6 @@ namespace Proyecto_Ingles_V2.Interfaces
         }
         public async Task<bool> VerificarPagos(long idEstu,long idNivelEstu) {
             List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
-            int contador=0;
             bool resp = false;
             try
             {
@@ -573,14 +574,14 @@ namespace Proyecto_Ingles_V2.Interfaces
                                 where a.IDINSCRITO == idEstu && a.IDNIVELESTUDIANTE==idNivelEstu
                                 select new
                                 {
+                                    IDINSCRITO=a.IDINSCRITO,
+                                    IDNIVELESTUDIANTE=a.IDNIVELESTUDIANTE,
                                     EstadoNivel=a.IDESTADONIVEL,
+
                                 };
-                    foreach (var a in query) {
-                        if (a.EstadoNivel == 0)
-                        {
-                            contador++;
-                            resp = true;
-                        }
+                    if (query.Select(x => x.EstadoNivel).FirstOrDefault() == 0 || query.Select(x => x.EstadoNivel).FirstOrDefault() == 5)
+                    {
+                        resp = true;
                     }
                     return resp;
                 }
@@ -596,14 +597,13 @@ namespace Proyecto_Ingles_V2.Interfaces
         protected void dgvNotasPruebas_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
             ClPrueba pru = new ClPrueba();
-            bool resp;
             List<ClCalificacionNivel> calificNivel = new List<ClCalificacionNivel>();
 
             int id = Convert.ToInt32(dgvNotasPruebas.DataKeys[e.RowIndex]["idPrueba"].ToString());
             
             long idInscrito = Convert.ToInt64(dgvNotasPruebas.DataKeys[e.RowIndex]["IdInscrito"].ToString());
-
-                double? calificacion;
+            long idNivelInscrito= Convert.ToInt64(dgvNotasPruebas.DataKeys[e.RowIndex]["NivelEstudiante"].ToString());
+            double? calificacion;
                 //capturar el valor de un edittamplate
                 TextBox txtCalificacion = (dgvNotasPruebas.Rows[e.RowIndex].Cells[4].FindControl("EditCalificacion") as TextBox);
                 if (txtCalificacion.Text != "")
@@ -617,6 +617,7 @@ namespace Proyecto_Ingles_V2.Interfaces
                 pru.IdPrueba = id;
                 pru.PunjatePrueba = calificacion;
                 pru.IdInscrito = idInscrito;
+                pru.IDNIVELESTUDIANTE = idNivelInscrito;
                 //traer servicio
                 actualizarNotaPruebaUbicacion(pru);
                 dgvNotasPruebas.EditIndex = -1;

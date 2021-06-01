@@ -10,7 +10,7 @@ namespace Logica.Modelos
     {
         public virtual long IDNIVELESTUDIANTE { get; set; }
         public virtual long? IDNIVEL { get; set; }
-        public virtual long? IDESTADONIVEL { get; set; }
+        public virtual long IDESTADONIVEL { get; set; }
         public virtual long? IDINSCRITO { get; set; }
 
         public virtual long? IDPRUEBAUBICACION { get; set;}

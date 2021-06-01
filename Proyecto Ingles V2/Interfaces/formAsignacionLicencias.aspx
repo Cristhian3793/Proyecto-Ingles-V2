@@ -63,7 +63,7 @@
                         <br />
                         <div class="col-md-12">
                             <div class="table-responsive">
-                                <asp:GridView ID="dgvInscrito" runat="server" AutoGenerateColumns="False" DataKeyNames="IdInscrito,IdNivelInscrito,IdLibro" CssClass="table table-bordered table-striped" EnablePersistedSelection="True" OnRowCommand="dgvInscrito_RowCommand" AllowPaging="True" PageSize="10" OnPageIndexChanging="dgvInscrito_PageIndexChanging" CellPadding="4" ForeColor="#333333" GridLines="None"  >
+                                <asp:GridView ID="dgvInscrito" runat="server" AutoGenerateColumns="False" DataKeyNames="IdInscrito,IdNivelInscrito,IdLibro,Correo" CssClass="table table-bordered table-striped" EnablePersistedSelection="True" OnRowCommand="dgvInscrito_RowCommand" AllowPaging="True" PageSize="10" OnPageIndexChanging="dgvInscrito_PageIndexChanging" CellPadding="4" ForeColor="#333333" GridLines="None"  >
                                     <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
                                     <Columns>
 
@@ -79,6 +79,7 @@
                                         <asp:BoundField DataField="Libro" HeaderText="Libro" SortExpression="Libro" ReadOnly="True" />
                                         <asp:BoundField DataField="IdNivelInscrito" HeaderText="IdNivelInscrito" SortExpression="IdNivelInscrito" ReadOnly="True" visible="false"/>
                                         <asp:BoundField DataField="LicenciaEstudiante" HeaderText="LicenciaEstudiante" SortExpression="LicenciaEstudiante" ReadOnly="True" />
+                                        <asp:BoundField DataField="Correo" HeaderText="Correo" SortExpression="Correo" ReadOnly="True" />
                                         <asp:ButtonField ButtonType="Button" Text="Asignar Licencia" CommandName="VerLicencias" >
                                         <ControlStyle BackColor="#2568A3" BorderColor="Black" BorderStyle="Outset" CssClass="btn btn-success" />
                                         </asp:ButtonField>
@@ -137,6 +138,7 @@
                             <asp:HiddenField ID="HiddenNivel" runat="server" />
                             <asp:HiddenField ID="HiddenNivelEstudiante" runat="server" />
                             <asp:HiddenField ID="HiddenIdLibro" runat="server" />
+                            <asp:HiddenField ID="HiddenEmail" runat="server" />
                         </div>
                         <div class="col-md-12">
                             <div class="table-responsive">
@@ -144,7 +146,7 @@
                                     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
                                         <ContentTemplate>
                                             <asp:Panel ID="Panel1" runat="server">
-                                                <asp:GridView ID="dgvLicencias" AutoGenerateColumns="false" runat="server" CssClass="table table-bordered table-striped" DataKeyNames="IDLICENCIA" OnRowCommand="dgvLicencias_RowCommand" OnPageIndexChanging="dgvLicencias_PageIndexChanging" PageSize="5" AllowPaging="true">
+                                                <asp:GridView ID="dgvLicencias" AutoGenerateColumns="false" runat="server" CssClass="table table-bordered table-striped" DataKeyNames="IDLICENCIA,LICENCIA" OnRowCommand="dgvLicencias_RowCommand" OnPageIndexChanging="dgvLicencias_PageIndexChanging" PageSize="5" AllowPaging="true">
                                                     <Columns>
                                                         <asp:BoundField DataField="IDLICENCIA" HeaderText="id" SortExpression="IDLICENCIA" />
                                                         <asp:BoundField DataField="LICENCIA" HeaderText="Licencia" SortExpression="LICENCIA" />

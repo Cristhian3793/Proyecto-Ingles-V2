@@ -547,7 +547,7 @@ namespace Proyecto_Ingles_V2.InscripcionExterna
                 correo.SubjectEncoding = System.Text.Encoding.UTF8;
                 correo.Body = "Estimad@ " + NombreUsuario + ", \n usted Ha sido registrado correctamente en el curso de Íngles Autónomo" + ",\n " +
 
-                  "  NO RESPONDA A ESTE EMAIL.\n  \n En caso de dudas contacte al departamento de Íngles.  \n helpdesk@uisek.edu.ec ";
+                  "  NO RESPONDA A ESTE EMAIL.\n  \n En caso de dudas contacte al departamento de Íngles.  \n silvia.valencia@uisek.edu.ec";
                 correo.BodyEncoding = System.Text.Encoding.UTF8;
                 string body = "<html><head> " +
                  "<style type=\"text/css\">.style3 { width:20%;  } .style2 {color:red;}.style4 {border:0;}</style>" +
