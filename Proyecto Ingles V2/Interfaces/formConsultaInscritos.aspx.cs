@@ -30,6 +30,7 @@ using iTextSharp.text.html.simpleparser;
 using ClosedXML.Excel;
 using System.Net.Mail;
 using System.Net.Mime;
+using Proyecto_Ingles_V2.LoginDb;
 
 namespace Proyecto_Ingles_V2.Interfaces
 {
@@ -516,62 +517,7 @@ namespace Proyecto_Ingles_V2.Interfaces
             cbxPeriodo.DataBind();
         }
 
-            public Task EnviarCorreo(string email, string subject, string message)//cambiar por nuevo email
-            {
-                string text = message;
-
-                AlternateView plainView =
-                AlternateView.CreateAlternateViewFromString(text,
-                                Encoding.UTF8,
-                                MediaTypeNames.Text.Plain);
-
-            string html = "<h2>" + message + "</h2>";
-
-                AlternateView htmlView =
-                AlternateView.CreateAlternateViewFromString(html,
-                Encoding.UTF8,
-                MediaTypeNames.Text.Html);
-                LinkedResource img =
-                             new LinkedResource(@"C:\Users\UISEK\source\repos\Proyecto Ingles V2\Proyecto Ingles V2\images\uisek-mail.png",
-                             MediaTypeNames.Image.Jpeg);
-                img.ContentId = "imagen";
-                htmlView.LinkedResources.Add(img);
-                try
-                {
-                    // Credenciales
-                    var credentials = new NetworkCredential("cristhian.tupiza@uisek.edu.ec", "Alexiscrow3793");
-                    // Mail message
-                    var mail = new MailMessage()
-                    {
-                        From = new MailAddress("cristhian.tupiza@uisek.edu.ec", "Cristhian Tupiza"),
-                        Subject = subject,
-                        Body = message,
-                        IsBodyHtml = true
-                    };
-                    mail.AlternateViews.Add(plainView);
-                    mail.AlternateViews.Add(htmlView);
-                    mail.To.Add(new MailAddress(email));
-                    // Smtp client
-                    var client = new SmtpClient()
-                    {
-                        Port = 587,
-                        DeliveryMethod = SmtpDeliveryMethod.Network,
-                        UseDefaultCredentials = true,
-                        Host = "smtp.gmail.com",
-                        EnableSsl = true,
-                        Credentials = credentials
-                    };
-                    // Send it...         
-                    client.Send(mail);
-                string script = "confirm();";
-                ScriptManager.RegisterStartupScript(this, typeof(Page), "xcript", script, true);
-            }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException(ex.Message);
-                }
-                return Task.CompletedTask;
-            }
+     
             public async void BuscarEstudianteXNivel(long idNivel)
             {
             int[] estadosNiveles = { 0, 5 };
@@ -759,11 +705,71 @@ namespace Proyecto_Ingles_V2.Interfaces
                 BuscarEstudiantexTodosParametros(idNivel, idPeriodo, identificacion);
             }
         }
+        public void EnviaCorreo_Alumno(string email_,string mensaje)
+        {
+            try
+            {
+                string email = email_;
+                string NombreUsuario = txtNombres.Text.Trim().ToUpper() + " " + txtApellidos.Text.Trim().ToUpper();//cambiar
+                MailMessage correo = new MailMessage();
+                correo.To.Add(email);
+
+                correo.From = new MailAddress("no.reply@uisek.edu.ec", "Correo Acerca de curso de Inglés Autónomo", System.Text.Encoding.UTF8);
+                correo.Subject = "Respuesta a solicitud de Informacion";
+                correo.SubjectEncoding = System.Text.Encoding.UTF8;
+                correo.Body = "Estimad@ " + NombreUsuario + ", \n En respuesta a sus inquietudes sobre el curso de Íngles Autónomo" + ",\n " +
+
+                  "  NO RESPONDA A ESTE EMAIL.\n  \n En caso de dudas contacte al departamento de Íngles.  \n silvia.valencia@uisek.edu.ec";
+                correo.BodyEncoding = System.Text.Encoding.UTF8;
+                string body = "<html><head> " +
+                 "<style type=\"text/css\">.style3 { width:20%;  } .style2 {color:red;}.style4 {border:0;}</style>" +
+                "</head>" +
+                "<body class=\"style4\">" +
+                "<form id=\"form1\" runat=\"server\">" +
+                "<tr><td colspan=\"2\" style=\"text-align:center; font-size:25px\"><img src='cid:logo' width='100px'></img></td>" +
+                "<div><table class=\"style4\" style=\"width:100%;\">" +
+                "<tr><td class=\"style3\"></td><td>Estimad@  " + NombreUsuario + ",</td> </tr>" +
+                "<tr><td class=\"style3\"></td><td>En respuesta a sus preguntas:</td>" +
+                "<tr><td class=\"style3\"></td><td>"+mensaje+ "</td>" +
+                "<td class=\"style3\"></td></tr><tr><td class=\"style3\">&nbsp;</td><td class=\"style2\">NO RESPONDA A ESTE CORREO. </td>" +
+                "<td class=\"style3\">&nbsp;</td></tr><tr><td class=\"style3\">&nbsp;</td><td>En caso de dudas contacte al departamento de Idiomas de la Universidad Internacional SEK.</td>" +
+                "<td class=\"style3\">&nbsp;</td></tr> </table></div></form></body></html>";
+
+                System.Net.Mime.ContentType mimeType = new System.Net.Mime.ContentType("text/html");
+                // Add the alternate body to the message.
+
+                AlternateView alternate = AlternateView.CreateAlternateViewFromString(body, mimeType);
+                LinkedResource logo = new LinkedResource(Server.MapPath("~/Images/") + "logo.png")
+                {
+                    ContentId = "logo"
+                };
+
+                // Lo incrustamos en la vista HTML...
+                alternate.LinkedResources.Add(logo);
+                correo.AlternateViews.Add(alternate);
+                correo.IsBodyHtml = false;
+                SmtpClient client = new SmtpClient
+                {
+                    Credentials = new System.Net.NetworkCredential("no.reply@uisek.edu.ec", Funciones.ConectarMail()),
+                    Port = 587,
+                    Host = "smtp.gmail.com",
+                    EnableSsl = true //Esto es para que vaya a través de SSL que es obligatorio con GMail 
+                };
+                client.Send(correo);
+                string script = "confirm();";
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "xcript", script, true);
+
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, typeof(Page), "alerta", @"alert('No se pudo enviar el correo electrónico al alumno'); console.log('" + ex.Message.Replace("'", "**") + "');", true);
+            }
+        }
         protected void Button1_Click(object sender, EventArgs e)
         {
             string mensaje = txtInfo.Text;
             string email = txtUsuEmail.Text.ToString();
-            EnviarCorreo(email, "Respuesta a solicitud de Informacion",mensaje);
+            EnviaCorreo_Alumno(email, mensaje);
 
         }
         protected void btnActualizar_Click(object sender, EventArgs e) {
@@ -855,34 +861,23 @@ namespace Proyecto_Ingles_V2.Interfaces
         {
           
         }
+        public DataSet cargarDatosExcel()
+        {
+            DataSet lista = conexionBaseExterna.GetInscritos();
+            return lista;
 
+
+        }
 
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
             DateTime fecha = DateTime.Now;
             string fechaDocument = Convert.ToString(fecha);
             string nombreArchivo = "Inscritos" + "_" + fechaDocument;
-            DataTable dt = new DataTable("Inscritos");
-            foreach (TableCell cell in dgvInscrito.HeaderRow.Cells)
-            {
-                if (cell.Text.Trim() != "&nbsp;" || cell.Text.Trim() == "acciones")
-                    dt.Columns.Add(cell.Text);
-            }
-            foreach (GridViewRow row in dgvInscrito.Rows)
-            {
 
-                dt.Rows.Add();
-                for (int i = 0; i < row.Cells.Count - 3; i++)
-                {
-                    string ss = dgvInscrito.HeaderRow.Cells[i].Text;
-                    if (ss != "&nbsp;" || ss == "acciones")
-                    {
-                        dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text;
-                        dt.Rows[dt.Rows.Count - 1][i] = row.Cells[i].Text.Replace("&nbsp;", "N.A");
-                    }
+            DataSet lista = cargarDatosExcel();
+            DataTable dt = lista.Tables[0];
 
-                }
-            }
             using (XLWorkbook wb = new XLWorkbook())
             {
                 wb.Worksheets.Add(dt);

@@ -20,6 +20,8 @@ using iTextSharp.text;
 using iTextSharp.text.html;
 using iTextSharp.text.html.simpleparser;
 using ClosedXML.Excel;
+using System.Data;
+
 namespace Proyecto_Ingles_V2.Interfaces
 {
     public partial class formEstudiantesMatriculados : System.Web.UI.Page
@@ -677,10 +679,38 @@ namespace Proyecto_Ingles_V2.Interfaces
                 BuscarEstudiantexTodosParametros(idNivel, idPeriodo, identificacion);
             }
         }
+        public DataSet cargarDatosExcel()
+        {
+            DataSet lista = conexionBaseExterna.GetMatriculas();
+            return lista;
 
+
+        }
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
+            DataSet lista = cargarDatosExcel();
+            DataTable dt2 = lista.Tables[0];
+            DateTime fecha = DateTime.Now;
+            string fechaDocument = Convert.ToString(fecha);
+            string nombreArchivo = "EstudiantesMatriculados" + "_" + fechaDocument;
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt2);
 
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=" + nombreArchivo + ".xlsx");
+
+                using (MemoryStream MyMemoryStream = new MemoryStream())
+                {
+                    wb.SaveAs(MyMemoryStream);
+                    MyMemoryStream.WriteTo(Response.OutputStream);
+                    Response.Flush();
+                    Response.End();
+                }
+            }
         }
 
         protected void dgvNotasPruebas_PageIndexChanging(object sender, GridViewPageEventArgs e)

@@ -146,7 +146,7 @@
                                         <asp:BoundField DataField="IdInscrito" HeaderText="Id Estudiante" SortExpression="IdInscrito" />
                                         <asp:BoundField DataField="NumDocInscrito" HeaderText="N° Identificación" SortExpression="NumDocInscrito" />
                                         <asp:BoundField DataField="PeriodoLectivo" HeaderText="Período" SortExpression="PeriodoLectivo" />
-                                        <asp:BoundField DataField="IdNivel" HeaderText="Nivel" SortExpression="IdNivel" Visible="false" />
+                                        <asp:BoundField DataField="IdNivel" HeaderText="IdNivel" SortExpression="IdNivel" Visible="false" />
                                         <asp:BoundField DataField="NombreInscrito" HeaderText="Nombres" SortExpression="NombreInscrito" />
                                         <asp:BoundField DataField="ApellidoInscrito" HeaderText="Apellidos" SortExpression="ApellidoInscrito" />
                                         <asp:BoundField DataField="CeluInscrito" HeaderText="Celular" SortExpression="CeluInscrito" />

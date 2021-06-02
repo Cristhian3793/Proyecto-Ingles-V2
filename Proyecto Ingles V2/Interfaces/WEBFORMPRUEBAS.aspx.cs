@@ -11,9 +11,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.IO;
-using iTextSharp.text;
-using iTextSharp.text.html;
-using iTextSharp.text.html.simpleparser;
+
 using ClosedXML.Excel;
 using System.Data;
 using System.Reflection;

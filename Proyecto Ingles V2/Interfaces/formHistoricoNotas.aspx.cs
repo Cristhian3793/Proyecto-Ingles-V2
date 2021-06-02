@@ -15,6 +15,10 @@ using System.Text;
 using Logica.ConexionServicios;
 using System.Drawing;
 using System.Data;
+using Logica.Conexion;
+using ClosedXML.Excel;
+using System.IO;
+
 namespace Proyecto_Ingles_V2.Interfaces
 {
     public partial class formHistoricoNotas : System.Web.UI.Page
@@ -114,7 +118,13 @@ namespace Proyecto_Ingles_V2.Interfaces
             dgvInscrito.DataBind();
         }
         #region Servicios
+        public DataSet cargarDatosExcel()
+        {
+            DataSet lista = conexionBaseExterna.GetHistoricoNotas();
+            return lista;
 
+
+        }
         public async Task<List<ClNivelesInscrito>> ServicioGetNivelesInscritos()
         {
             List<ClNivelesInscrito> compInf = new List<ClNivelesInscrito>();
@@ -510,7 +520,29 @@ namespace Proyecto_Ingles_V2.Interfaces
 
         protected void btnExccel_Click(object sender, EventArgs e)
         {
+            DataSet lista = cargarDatosExcel();
+            DataTable dt2 = lista.Tables[0];
+            DateTime fecha = DateTime.Now;
+            string fechaDocument = Convert.ToString(fecha);
+            string nombreArchivo = "HistoricoNotasAlumnos" + "_" + fechaDocument;
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt2);
 
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;filename=" + nombreArchivo + ".xlsx");
+
+                using (MemoryStream MyMemoryStream = new MemoryStream())
+                {
+                    wb.SaveAs(MyMemoryStream);
+                    MyMemoryStream.WriteTo(Response.OutputStream);
+                    Response.Flush();
+                    Response.End();
+                }
+            }
         }
         public async void BuscarEstudiante(string identificacion)
         {
