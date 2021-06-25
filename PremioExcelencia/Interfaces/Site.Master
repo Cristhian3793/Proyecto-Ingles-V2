@@ -1,0 +1,306 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="PremioExcelencia.Interfaces.Site" %>
+
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Aplicación Premio a la Excelencia</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="../Styles/MyStyle.css" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- Our Custom CSS -->
+    <link href="../Styles/MySideMenu.css" type="text/css" rel="stylesheet" />
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <style>
+        body {
+            font-size: 10.5px;
+        }
+
+        @media (max-width:450px) {
+            img {
+                display: none;
+                height: 300px;
+                width: 300px;
+            }
+
+            .navbar-head {
+                font-size: 12px;
+            }
+
+            .imagen {
+                width: 100%;
+            }
+        }
+                       /*Modal*/
+        .modalContainer {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+            .modalContainer .modal-content {
+                background-color: #fefefe;
+                margin: auto;
+                padding: 20px;
+                border: 1px solid lightgray;
+                border-top: 10px solid #ffff;
+                width: 30%;
+            }
+
+            .modalContainer .close {
+                color: #aaaaaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+                .modalContainer .close:hover,
+                .modalContainer .close:focus {
+                    color: #000;
+                    text-decoration: none;
+                    cursor: pointer;
+                }
+        /*fin Modal*/
+    </style>
+    <asp:ContentPlaceHolder runat="server" ID="head">
+        @Scripts.Render("~/bundles/MsAjaxBundle")
+         @Scripts.Render("~/bundles/modernizr")
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <asp:ScriptManager runat="server">
+                <Scripts>
+                    <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
+                    <%--Framework Scripts--%>
+
+                    <asp:ScriptReference Name="MsAjaxBundle" />
+                    <asp:ScriptReference Name="jquery" />
+                    <asp:ScriptReference Name="bootstrap" />
+                    <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                    <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                    <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                    <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                    <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                    <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                    <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                    <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                    <asp:ScriptReference Name="WebFormsBundle" />
+                    <%--Site Scripts--%>
+                </Scripts>
+            </asp:ScriptManager>
+        </div>
+        <!--header-->
+
+        <nav class="navbar-head">
+            <div style="float: left;" class="imagen">
+                <a href="/interfaces/Default.aspx">
+                    <img src="/interfaces/images/logo-sek-2.png" alt="Dont exist image" style="float: left; height: auto; width: 35%" />
+
+                </a>
+            </div>
+            <div style="float: right;">
+                PREMIO A LA EXCELENCIA
+               <span>
+               <asp:HyperLink ID="Modal" runat="server" Style="cursor: pointer"><i class="far fa-comments" style="color: white;border:1px solid white;margin:3px;padding:2px;border-radius:5px"></i></asp:HyperLink>
+              </span>
+            </div>
+
+        </nav>
+        <!--Modal-->
+
+
+        <div id="tvesModal" class="modalContainer">
+            <div class="modal-content">
+                <span class="close">×</span>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <asp:TextBox ID="txtContactName" runat="server" placeholder="Nombres" CssClass="form-control"></asp:TextBox>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <asp:TextBox ID="txtContactEmail" runat="server" placeholder="Email" CssClass="form-control"></asp:TextBox>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <asp:TextBox ID="txtContactMessage" runat="server" TextMode="MultiLine" placeholder="Mensaje" CssClass="form-control"></asp:TextBox>
+                    </div>
+
+                </div>
+                <br />
+                <div class="row">
+                    <center>
+                        <asp:Button ID="btnSendSuggestion" runat="server" Text="Enviar" class="btn btn-sm btn-success" OnClick="btnSendSuggestion_Click" />
+                    </center>
+                </div>
+            </div>
+        </div>
+
+
+        <!--fin Modal-->
+
+
+        <!--fin header-->
+
+        <!--Menu lateral-->
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div id="dismiss">
+                    <i class="glyphicon glyphicon-arrow-left"></i>
+                </div>
+                <div class="sidebar-header">
+                    <h3>MENU</h3>
+                </div>
+                <ul class="list-unstyled components">
+     
+                    <li>
+                        <a href="#facultad" data-toggle="collapse" aria-expanded="false">Facultad</a>
+                        <ul class="collapse list-unstyled" id="facultad">
+                            <li><a href="formFacultad.aspx">Ingreso de Facultad</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#PreguntasRespuestas" data-toggle="collapse" aria-expanded="false">Preguntas y Respuestas</a>
+                        <ul class="collapse list-unstyled" id="PreguntasRespuestas">
+                            <li><a href="formPreguntasRespuestas.aspx">Ingreso de Preguntas y respuestas</a></li>
+                        </ul>
+                    </li>
+  
+
+                </ul>
+            </nav>
+            <!-- Page Content Holder -->
+            <div id="content">
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+                                <i class="glyphicon glyphicon-align-left"></i>
+                                <span></span>
+                            </button>
+                        </div>
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <div class="navbar-right" style="padding-right: 10%">
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <%var nombres = Session["Nombres"];
+                                            var apellidos = Session["Apellidos"];
+                                        %>
+                                        <div><%Response.Write(nombres + " " + apellidos);%></div>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="../Login/formLogout.aspx">Cerrar Sesión</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+                <!--contenido-->
+                <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                </asp:ContentPlaceHolder>
+                <!--fin contenido-->
+            </div>
+        </div>
+        <!-- fin menu lateral-->
+
+        <div class="overlay"></div>
+
+        <!-- jQuery CDN -->
+        <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+        <!-- Bootstrap Js CDN -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- jQuery Custom Scroller CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
+        <!--footer-->
+
+
+        <div class="footer-content" style="height: 50px;">
+
+            <footer>
+                <p style="color: white; padding: 0.5%"><span class="glyphicon glyphicon-copyright-mark"></span><%: DateTime.Now.Year %>  Recursos Tecnológicos </p>
+            </footer>
+        </div>
+        <!--fin footer-->
+
+
+    </form>
+</body>
+</html>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#sidebar").mCustomScrollbar({
+            theme: "minimal"
+        });
+
+        $('#dismiss, .overlay').on('click', function () {
+            $('#sidebar').removeClass('active');
+            $('.overlay').fadeOut();
+        });
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').addClass('active');
+            $('.overlay').fadeIn();
+            $('.collapse.in').toggleClass('in');
+            $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+        });
+    });
+    if (document.getElementById("Modal")) {
+        var modal = document.getElementById("tvesModal");
+        var btn = document.getElementById("Modal");
+        var span = document.getElementsByClassName("close")[0];
+        var body = document.getElementsByTagName("body")[0];
+
+        btn.onclick = function () {
+            modal.style.display = "block";
+
+            body.style.position = "static";
+            body.style.height = "100%";
+            body.style.overflow = "hidden";
+        }
+
+        span.onclick = function () {
+            modal.style.display = "none";
+
+            body.style.position = "inherit";
+            body.style.height = "auto";
+            body.style.overflow = "visible";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+
+                body.style.position = "inherit";
+                body.style.height = "auto";
+                body.style.overflow = "visible";
+            }
+        }
+    }
+
+</script>
+
+
